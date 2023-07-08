@@ -1,6 +1,12 @@
 name: Wails build
 
-on: [push, pull_request]
+on:
+  release:
+    types: [published]
+      
+permissions:
+    contents: write
+    packages: write
 
 jobs:
   build:
@@ -10,7 +16,8 @@ jobs:
         build: [
           {name: "Invidious Desktop", platform: linux/amd64, os: ubuntu-latest},
           {name: "Invidious Desktop", platform: windows/amd64, os: windows-latest},
-          {name: "Invidious Desktop", platform: darwin/universal, os: macos-latest}
+          {name: "Invidious Desktop", platform: darwin/amd64, os: macos-latest},
+          {name: "Invidious Desktop", platform: darwin/arm64, os: macos-latest},
         ]
     runs-on: ${{ matrix.build.os }}
     steps:
@@ -19,5 +26,7 @@ jobs:
           submodules: recursive
       - uses: dAppServer/wails-build-action@v2.1
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           build-name: ${{ matrix.build.name }}
           build-platform: ${{ matrix.build.platform }}
+          package: true

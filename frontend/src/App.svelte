@@ -17,13 +17,13 @@
 
     <div class="right"> 
         <button title="Minimise Window" class="windowControl" on:click={runtime.WindowMinimise}>
-            <Icon src={Subtract} size="32"/>
+            <Icon src={Subtract} size="24"/>
         </button>
-        <button title="Maximise Window" class="windowControl" on:click={runtime.WindowMaximise}>
-            <Icon src={Add} size="32"/>
+        <button title="Maximise Window" class="windowControl" on:click={runtime.WindowToggleMaximise}>
+            <Icon src={Add} size="24"/>
         </button>
         <button title="Close Window" class="windowControl close" on:click={runtime.Quit}>
-            <Icon src={Close} size="32"/>
+            <Icon src={Close} size="24"/>
         </button>
     </div>
 </nav>
@@ -42,18 +42,23 @@
 
     nav {
         @apply flex flex-row bg-black p-2;
+        --wails-draggable:drag;
+    }
+
+    nav > div {
+        --wails-draggable:no-drag
     }
 
     nav > div.left {
-        @apply prose h-8;
+        @apply prose h-6;
     }
 
     nav > div.left > b {
-        @apply text-lg leading-8 text-white;
+        @apply text-base leading-6 text-white;
     }
 
     nav > div.right {
-        @apply ml-auto flex flex-row -space-x-0.5;
+        @apply ml-auto flex flex-row;
     }
 
     button.windowControl {
