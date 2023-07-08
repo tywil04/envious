@@ -1,6 +1,9 @@
 <script>
+    // javascript
     import { v4 as uuidv4 } from "uuid"
 
+    
+    // exports
     export let id = uuidv4()
     export let name = ""
     export let required = true
@@ -9,12 +12,14 @@
     export let selected = ""
     export let selectedIndex = 0
 
+
     if (options[selectedIndex].display !== undefined && options[selectedIndex].value !== undefined) {
         selected = options[selectedIndex].value
     } else if (options[selectedIndex].display === undefined && options[selectedIndex].value === undefined && options[selectedIndex] !== undefined) {
         selected = options[selectedIndex]
     }
 
+    
     const onInput = (event) => {
         selected = event.target.value
 
@@ -27,14 +32,15 @@
     }
 </script>
 
-<div>
-    <label for={id}>{label}</label>
+
+<div class="container">
+    <label class="label" for={id}>{label}</label>
 
     {#if required}
-        <span class="required">(required)</span>
+        <span class="notice requiredText">(required)</span>
     {/if}
 
-    <select on:input on:click on:input={onInput} {id} {name} {required}>
+    <select class="select" on:input on:click on:input={onInput} {id} {name} {required}>
         {#each options as option, index}
             {#if option.display !== undefined && option.value !== undefined}
                 <!-- if option is a map -->
@@ -50,24 +56,28 @@
     </select>
 </div>
 
+
 <style lang="postcss">
-    div {
+    .container {
         @apply prose space-y-0.5 w-full h-fit max-w-full max-h-fit;
     }
 
-    label {
+
+    .label {
         @apply font-bold;
     }
 
-    select {
+
+    .select {
         @apply border-2 border-black rounded-4px px-2 py-0.5 w-full m-0;
     }
 
-    select:focus {
+    .select:focus {
         @apply outline-none ring-0;
     }
 
-    span.required {
+
+    .requiredText {
         @apply text-sm text-gray-600;
     }
 </style>

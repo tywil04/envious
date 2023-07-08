@@ -1,14 +1,17 @@
 <script>
+    // javascript
     import { GetSelectedInvidiousInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
+    import { pushRouteAction } from "../lib/router.js"
 
-    import { link } from "svelte-spa-router"
 
-    import ErrorSpan from "../components/text/ErrorSpan.svelte";
+    // components
+    import WindowShell from "../components/window/WindowShell.svelte";
 </script>
 
-<main>
-    <a href="/instanceSetup" use:link>Set or Change Invidious instance used.</a>
 
+<WindowShell>
+    <button use:pushRouteAction={"instanceSetup"}>Set or Change Invidious instance used.</button>
+    
     {#await GetSelectedInvidiousInstance()}
         <p>Loading...</p>
     {:then instance} 
@@ -18,12 +21,13 @@
             <p>You dont have a selected instance.</p>
         {/if}
     {:catch error}
-        <ErrorSpan>{error}</ErrorSpan>
+        <span class="errorText">{error}</span>
     {/await}
-</main>
+</WindowShell>
+
 
 <style lang="postcss">
-    main {
-        @apply space-y-2;
+    .errorText {
+        @apply text-sm text-red-600;
     }
 </style>

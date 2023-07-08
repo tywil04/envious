@@ -1,8 +1,9 @@
 <script>
+    // javascript
     import { v4 as uuidv4 } from "uuid"
 
-    import ErrorSpan from "../text/ErrorSpan.svelte";
-
+    
+    // exports
     export let id = uuidv4()
     export let name = ""
     export let label = ""
@@ -14,9 +15,10 @@
     export let readOnly = false
     export let placeholder = ""
 
+
     let innerValue = ""
     let valid = false
-
+  
     const onInput = (event) => {
         // check type is valid
         if (type.match(/^(text|url|email|password|search)$/)) {
@@ -39,46 +41,51 @@
             }
         }
 
-        if (valid) {
-            value = innerValue
-        } else {
-            value = ""
-        }
+        value = valid ? innerValue: ""
     }
 </script>
 
-<div>
-    <label for={id}>{label}</label>
+
+<div class="container">
+    <label class="label" for={id}>{label}</label>
 
     {#if required}
-        <span class="required">(required)</span>
+        <span class="requiredText">(required)</span>
     {/if}
 
-    <input on:input on:click on:input={onInput} readonly={readOnly} value={innerValue} {placeholder} {name} {required} {id} {type}/>
+    <input class="input" on:input on:click on:input={onInput} readonly={readOnly} value={innerValue} {placeholder} {name} {required} {id} {type}/>
     
     {#if innerValue !== "" && !valid}
-        <ErrorSpan>{errorMessage}</ErrorSpan>
+        <span class="errorText">{errorMessage}</span>
     {/if}
 </div>
 
+
 <style lang="postcss">
-    div {
+    .container {
         @apply prose space-y-0.5 w-full h-fit max-w-full max-h-fit;
     }
 
-    label {
+
+    .label {
         @apply font-bold;
     }
 
-    input {
+
+    .input {
         @apply border-2 border-black rounded-4px px-2 py-0.5 w-full m-0;
     }
 
-    input:focus {
+    .input:focus {
         @apply outline-none ring-0;
     }
 
-    span.required {
+
+    .requiredText {
         @apply text-sm text-gray-600;
+    }
+
+    .errorText {
+        @apply text-sm text-red-600;
     }
 </style>
