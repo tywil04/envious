@@ -1,6 +1,8 @@
 <script>
     import { GetInvidiousApiInstances, SetSelectedInvidiousInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
 
+    import {push} from 'svelte-spa-router'
+
     import SelectInput from '../components/inputs/SelectInput.svelte'
     import TextInput from "../components/inputs/TextInput.svelte"
     import Button from "../components/buttons/Button.svelte"
@@ -15,6 +17,7 @@
         console.log(instance)
         if (instance !== "") {
             await SetSelectedInvidiousInstance(instance)
+            push("/")
         }
     }
 </script>
