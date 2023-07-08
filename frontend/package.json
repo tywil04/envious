@@ -1,0 +1,26 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^2.4.2",
+    "@tailwindcss/forms": "^0.5.3",
+    "@tailwindcss/typography": "^0.5.9",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.25",
+    "postcss-load-config": "^4.0.1",
+    "svelte": "^3.49.0",
+    "tailwindcss": "^3.3.2",
+    "vite": "^4.4.2"
+  },
+  "dependencies": {
+    "svelte-spa-router": "^3.3.0",
+    "uuid": "^9.0.0"
+  }
+}
