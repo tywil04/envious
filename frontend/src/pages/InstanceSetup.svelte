@@ -16,8 +16,12 @@
     const onInstanceConfirm = async () => {
         console.log(instance)
         if (instance !== "") {
-            await SetSelectedInvidiousInstance(instance)
-            push("/")
+            const success = await SetSelectedInvidiousInstance(instance)
+            if (success) {
+                push("/")
+            } else {
+                window.location.reload()
+            }
         }
     }
 </script>
@@ -28,7 +32,7 @@
     {:then instances} 
         <h2>Instance Configuration</h2>
 
-        <p>Please select an instance from the list below or select 'Custom' and enter a custom url pointing towards an API enabled invidious instance</p>
+        <p>Please select an instance from the list below or select 'Custom' and enter a custom url pointing towards an API enabled Invidious instance.</p>
 
         <div class="space-y-4">
             <SelectInput bind:selected={instance} bind:selectedIndex label="Select Instance" options={[{ display: "Custom", value: "" }, ...instances]}/>

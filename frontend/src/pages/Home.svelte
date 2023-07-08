@@ -6,18 +6,20 @@
     import ErrorSpan from "../components/text/ErrorSpan.svelte";
 </script>
 
-<p>Hi</p>
+<main>
+    <h2>Instance Configuration</h2>
 
-<a href="/instanceSetup" use:link>To Instance Setup</a>
+    <a href="/instanceSetup" use:link>Set or Change Invidious instance used.</a>
 
-{#await GetSelectedInvidiousInstance()}
-    <p>Loading...</p>
-{:then instance} 
-    {#if instance !== ""}
-        <p>{instance}</p>
-    {:else}
-        <p>No instance :(</p>
-    {/if}
-{:catch error}
-    <ErrorSpan>{error}</ErrorSpan>
-{/await}
+    {#await GetSelectedInvidiousInstance()}
+        <p>Loading...</p>
+    {:then instance} 
+        {#if instance !== ""}
+            <p>Your selected instance is: {instance}.</p>
+        {:else}
+            <p>You dont have a selected instance.</p>
+        {/if}
+    {:catch error}
+        <ErrorSpan>{error}</ErrorSpan>
+    {/await}
+</main>
