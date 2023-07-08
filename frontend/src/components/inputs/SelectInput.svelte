@@ -52,22 +52,22 @@
 
 <style lang="postcss">
     div {
-        @apply prose space-y-0.5 w-full h-fit max-w-full max-h-fit
+        @apply prose space-y-0.5 w-full h-fit max-w-full max-h-fit;
     }
 
     label {
-        @apply font-bold
+        @apply font-bold;
     }
 
     select {
-        @apply border-2 border-black rounded-4px px-2 py-0.5 w-full m-0
+        @apply border-2 border-black rounded-4px px-2 py-0.5 w-full m-0;
     }
 
     select:focus {
-        @apply outline-none ring-0
+        @apply outline-none ring-0;
     }
 
     span.required {
-        @apply text-sm text-gray-600
+        @apply text-sm text-gray-600;
     }
 </style>

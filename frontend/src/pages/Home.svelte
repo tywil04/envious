@@ -7,8 +7,6 @@
 </script>
 
 <main>
-    <h2>Instance Configuration</h2>
-
     <a href="/instanceSetup" use:link>Set or Change Invidious instance used.</a>
 
     {#await GetSelectedInvidiousInstance()}
@@ -23,3 +21,9 @@
         <ErrorSpan>{error}</ErrorSpan>
     {/await}
 </main>
+
+<style lang="postcss">
+    main {
+        @apply space-y-2;
+    }
+</style>
