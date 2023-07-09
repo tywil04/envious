@@ -6,6 +6,10 @@ export function GetInvidiousApiInstances() {
   return window['go']['main']['InvidiousDesktop']['GetInvidiousApiInstances']();
 }
 
+export function GetPopular() {
+  return window['go']['main']['InvidiousDesktop']['GetPopular']();
+}
+
 export function GetSelectedInvidiousInstance() {
   return window['go']['main']['InvidiousDesktop']['GetSelectedInvidiousInstance']();
 }

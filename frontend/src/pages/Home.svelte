@@ -1,16 +1,17 @@
 <script>
     // javascript
-    import { GetSelectedInvidiousInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
-    import { pushRouteAction } from "../lib/router.js"
+    import { GetPopular, GetSelectedInvidiousInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
+    import { link } from "svelte-spa-router"
 
 
     // components
     import WindowShell from "../components/window/WindowShell.svelte";
+    import VideoRow from "../components/video/VideoRow.svelte";
 </script>
 
 
 <WindowShell>
-    <button use:pushRouteAction={"instanceSetup"}>Set or Change Invidious instance used.</button>
+    <a href="/instanceSetup" use:link>Set or Change Invidious instance used.</a>
     
     {#await GetSelectedInvidiousInstance()}
         <p>Loading...</p>
@@ -20,6 +21,8 @@
         {:else}
             <p>You dont have a selected instance.</p>
         {/if}
+
+        <VideoRow dataFunction={GetPopular}/>
     {:catch error}
         <span class="errorText">{error}</span>
     {/await}
@@ -28,6 +31,6 @@
 
 <style lang="postcss">
     .errorText {
-        @apply text-sm text-red-600;
+        @apply text-red-600;
     }
 </style>

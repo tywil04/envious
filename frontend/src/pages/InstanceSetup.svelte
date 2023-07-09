@@ -1,7 +1,11 @@
 <script>
+    // svelte
+    import { blur } from "svelte/transition"
+
+
     // javascript
     import { GetInvidiousApiInstances, SetSelectedInvidiousInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
-    import { pushRoute } from "../lib/router.js"
+    import { push } from "svelte-spa-router"
     import { urlRegex } from "../lib/validations.js";
 
     
@@ -14,18 +18,23 @@
 
     let instance = ""
     let selectedIndex = 0
+    let instanceConfirmError = false
 
     const onInstanceConfirm = async () => {
-        console.log(instance)
         if (instance !== "") {
+            instanceConfirmError = false
+
             const success = await SetSelectedInvidiousInstance(instance)
+
             if (success) {
-                pushRoute("home")
+                await push("/")
             } else {
-                window.location.reload()
+                instanceConfirmError = true
             }
         }
     }
+
+    $: instanceConfirmError = selectedIndex !== 0 ? false: instanceConfirmError
 </script>
 
 
@@ -34,6 +43,10 @@
         <p>Loading...</p>
     {:then instances} 
         <p class="info">Please select an instance from the list below or select 'Custom' and enter a custom url pointing towards an API enabled Invidious instance.</p>
+
+        {#if selectedIndex === 0 && instanceConfirmError}
+            <p class="info errorText" out:blur={{ duration: 250 }} in:blur={{ duration: 250 }}>The custom Invidious instance provided doesn't seem to have its API enabled or its not an Invidious instance.</p>
+        {/if}
 
         <div class="inputContainer">
             <SelectInput bind:selected={instance} bind:selectedIndex label="Select Instance" options={[{ display: "Custom", value: "" }, ...instances]}/>
@@ -66,6 +79,6 @@
 
 
     .errorText {
-        @apply text-sm text-red-600;
+        @apply text-red-600;
     }
 </style>

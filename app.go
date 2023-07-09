@@ -67,3 +67,50 @@ func (i *InvidiousDesktop) SetSelectedInvidiousInstance(instance string) bool {
 func (i *InvidiousDesktop) GetSelectedInvidiousInstance() string {
 	return config.Public.SelectedInvidiousInstance
 }
+
+type Video struct {
+	Title         string `json:"title"`
+	VideoId       string `json:"videoId"`
+	ThumbnailUrl  string `json:"thumbnailUrl"`
+	ViewCount     int64  `json:"viewCount"`
+	Author        string `json:"author"`
+	AuthorUrl     string `json:"authorUrl"`
+	Published     int64  `json:"published"`
+	PublishedText string `json:"publishedText"`
+	LiveNow       bool   `json:"liveNow"`
+	Paid          bool   `json:"paid"`
+	Premium       bool   `json:"premium"`
+}
+
+func (i *InvidiousDesktop) GetPopular() []Video {
+	response, err := invidious.GetPopular(config.Public.SelectedInvidiousInstance)
+	if err != nil {
+		runtime.LogFatal(i.ctx, err.Error())
+	}
+
+	processedResponse := []Video{}
+	for _, popular := range response {
+		var thumbnailUrl string
+		for _, thumbnail := range popular.VideoThumbnails {
+			if thumbnail.Quality == "medium" {
+				thumbnailUrl = thumbnail.URL
+			}
+		}
+
+		processedResponse = append(processedResponse, Video{
+			Title:         popular.Title,
+			VideoId:       popular.VideoID,
+			ThumbnailUrl:  thumbnailUrl,
+			ViewCount:     popular.ViewCount,
+			Author:        popular.Author,
+			AuthorUrl:     config.Public.SelectedInvidiousInstance + popular.AuthorURL,
+			Published:     popular.Published,
+			PublishedText: popular.PublishedText,
+			LiveNow:       popular.LiveNow,
+			Paid:          popular.Paid,
+			Premium:       popular.Premium,
+		})
+	}
+
+	return processedResponse
+}
