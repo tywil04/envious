@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 html, body, main {
-    @apply text-base
+    @apply text-base scroll-smooth;
 }
