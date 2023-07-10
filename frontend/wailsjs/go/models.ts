@@ -6,7 +6,7 @@ export namespace main {
 	    thumbnailUrl: string;
 	    viewCount: number;
 	    author: string;
-	    authorUrl: string;
+	    authorId: string;
 	    published: number;
 	    publishedText: string;
 	    liveNow: boolean;
@@ -24,7 +24,7 @@ export namespace main {
 	        this.thumbnailUrl = source["thumbnailUrl"];
 	        this.viewCount = source["viewCount"];
 	        this.author = source["author"];
-	        this.authorUrl = source["authorUrl"];
+	        this.authorId = source["authorId"];
 	        this.published = source["published"];
 	        this.publishedText = source["publishedText"];
 	        this.liveNow = source["liveNow"];

@@ -4,7 +4,6 @@
 
 
     // javascript
-    // import { GetSelectedInvidiousInstance } from "../wailsjs/go/main/InvidiousDesktop.js"
     import { location } from "svelte-spa-router"
 
     

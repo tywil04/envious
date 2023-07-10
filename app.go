@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
@@ -74,7 +75,7 @@ type Video struct {
 	ThumbnailUrl  string `json:"thumbnailUrl"`
 	ViewCount     int64  `json:"viewCount"`
 	Author        string `json:"author"`
-	AuthorUrl     string `json:"authorUrl"`
+	AuthorId      string `json:"authorId"`
 	Published     int64  `json:"published"`
 	PublishedText string `json:"publishedText"`
 	LiveNow       bool   `json:"liveNow"`
@@ -94,6 +95,7 @@ func (i *InvidiousDesktop) GetPopular() []Video {
 		for _, thumbnail := range popular.VideoThumbnails {
 			if thumbnail.Quality == "medium" {
 				thumbnailUrl = thumbnail.URL
+				break
 			}
 		}
 
@@ -103,7 +105,7 @@ func (i *InvidiousDesktop) GetPopular() []Video {
 			ThumbnailUrl:  thumbnailUrl,
 			ViewCount:     popular.ViewCount,
 			Author:        popular.Author,
-			AuthorUrl:     config.Public.SelectedInvidiousInstance + popular.AuthorURL,
+			AuthorId:      strings.TrimPrefix(popular.AuthorURL, "/channel/"),
 			Published:     popular.Published,
 			PublishedText: popular.PublishedText,
 			LiveNow:       popular.LiveNow,

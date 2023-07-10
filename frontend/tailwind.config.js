@@ -13,8 +13,11 @@ export default {
         '15': '0.15',
         '35': '0.35',
         '65': '0.65',
-       }
-    }
+      },
+      colors: {
+        "glassBlack": "rgba(17, 25, 40, 0.75)",
+      },
+    },
   },
   plugins: [
     require('@tailwindcss/forms'),

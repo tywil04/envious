@@ -50,7 +50,7 @@
 
 <style lang="postcss">
     .nav {
-        @apply flex flex-row bg-white p-2 border-b-2 border-black;
+        @apply flex flex-row p-2 border-b-2 bg-black border-black text-white;
         --wails-draggable:drag;
     }
 
@@ -69,26 +69,19 @@
 
 
     .windowButton {
-        @apply flex flex-col justify-center duration-100 rounded-full cursor-auto text-black;
+        @apply flex flex-col justify-center duration-100 rounded-full cursor-auto text-white;
     }
 
     .windowButton:hover {
-        @apply bg-gray-200 text-black;
+        @apply bg-blue-50/15;
     }
 
     .windowButton.close:hover {
-        @apply bg-red-600 text-white;
+        @apply bg-red-600;
     }
 
 
     .titlebarText {
         @apply ml-1.5;
     }
-
-
-    /* @media (prefers-color-scheme: dark) {
-        button.windowControl:hover {
-            @apply bg-blue-50/20 text-white;
-        }
-    } */
 </style>
