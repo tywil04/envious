@@ -4,7 +4,7 @@
 
 
     // javascript
-    import { GetInvidiousApiInstances, SetSelectedInvidiousInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
+    import { GetApiInstances, SetSelectedInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
     import { push } from "svelte-spa-router"
     import { urlRegex } from "../lib/validations.js";
 
@@ -13,7 +13,7 @@
     import SelectInput from '../components/inputs/SelectInput.svelte'
     import TextInput from "../components/inputs/TextInput.svelte"
     import Button from "../components/buttons/Button.svelte"
-    import WindowShell from "../components/window/WindowShell.svelte";
+    import Main from "../components/window/Main.svelte";
 
 
     let instance = ""
@@ -24,7 +24,7 @@
         if (instance !== "") {
             instanceConfirmError = false
 
-            const success = await SetSelectedInvidiousInstance(instance)
+            const success = await SetSelectedInstance(instance)
 
             if (success) {
                 await push("/")
@@ -38,8 +38,8 @@
 </script>
 
 
-<WindowShell>
-    {#await GetInvidiousApiInstances()}
+<Main>
+    {#await GetApiInstances()}
         <p>Loading...</p>
     {:then instances} 
         <p class="info">Please select an instance from the list below or select 'Custom' and enter a custom url pointing towards an API enabled Invidious instance.</p>
@@ -60,7 +60,7 @@
     {:catch error}
         <span class="errorText">{error}</span>
     {/await}
-</WindowShell>
+</Main>
 
 
 <style lang="postcss">

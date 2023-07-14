@@ -64,12 +64,12 @@
 
 
     .label {
-        @apply font-bold;
+        @apply font-semibold text-zinc-300;
     }
 
 
     .select {
-        @apply border-2 border-black rounded-4px px-2 py-0.5 w-full m-0;
+        @apply border bg-zinc-800 border-zinc-700 text-zinc-300 rounded-4px px-2 py-0.5 w-full m-0;
     }
 
     .select:focus {
@@ -78,6 +78,6 @@
 
 
     .requiredText {
-        @apply text-sm text-gray-600;
+        @apply text-sm text-zinc-400;
     }
 </style>

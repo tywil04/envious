@@ -16,37 +16,33 @@
 
 <style lang="postcss">
     .button {
-        @apply border-2 rounded-4px px-2 py-0.5 duration-100;
+        @apply border outline-none rounded-4px px-2 py-0.5 duration-100;
     }
 
 
     .normal {
-        @apply border-2 border-black bg-black text-white;
+        @apply bg-blue-700 border-blue-600 text-zinc-100;
     }
 
     .minimal {
-        @apply border-transparent text-black;
+        @apply border-0 bg-zinc-900 text-zinc-300;
     }
 
     .outline {
-        @apply bg-white border-black text-black;
+        @apply bg-zinc-900 border-zinc-700;
     }
 
 
-    .normal:disabled {
-        @apply bg-gray-600 border-gray-600 cursor-not-allowed;
+    .normal:disabled,
+    .minimal:disabled, 
+    .outline:disabled {
+        @apply brightness-75 cursor-not-allowed;
     }
 
-    .minimal:disabled, .outline:disabled {
-        @apply bg-gray-400 border-gray-400 cursor-not-allowed;
-    }
 
-
-    .normal:hover:not(:active):not(:disabled) {
-        @apply bg-gray-700 border-gray-700 cursor-pointer;
-    }
-
-    .minimal:hover:not(:active):not(:disabled), .outline:hover:not(:active):not(:disabled) {
-        @apply bg-gray-200 cursor-pointer;
+    .normal:hover:not(:active):not(:disabled),
+    .minimal:hover:not(:active):not(:disabled), 
+    .outline:hover:not(:active):not(:disabled) {
+        @apply brightness-125 cursor-pointer;
     }
 </style>

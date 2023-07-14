@@ -89,7 +89,7 @@
 
 <style lang="postcss">
     .container {
-        @apply flex flex-row max-w-fit;
+        @apply flex flex-row max-w-full w-full drop-shadow-lg;
     }
 
     .iconContainerLeft {
@@ -101,7 +101,7 @@
     }
 
     .icon {
-        @apply z-10 rounded-full bg-gray-200 p-2 drop-shadow-2xl opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none;
+        @apply z-10 rounded-full bg-gray-200 text-neutral-950 p-2 drop-shadow-2xl opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none;
     } 
 
     .container:hover .icon.iconAllowed {

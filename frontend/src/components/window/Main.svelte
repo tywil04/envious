@@ -21,7 +21,7 @@
 
 <style lang="postcss">
     .container {
-        @apply p-4 max-w-full max-h-full select-none;
+        @apply p-4 max-w-[100%] w-full max-h-full select-none bg-transparent;
     }
 
 

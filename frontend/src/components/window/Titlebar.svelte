@@ -30,7 +30,7 @@
 <nav class="nav">
     {#key title}
         <div class="navSection left" out:blur={outBlur} in:blur={inBlur}>
-            <b class="titlebarText">{title}</b>
+            <span class="titlebarText">{title}</span>
         </div>
     {/key}
 
@@ -50,7 +50,7 @@
 
 <style lang="postcss">
     .nav {
-        @apply flex flex-row p-2 border-b-2 bg-black border-black text-white;
+        @apply flex flex-row p-2 border-b border-zinc-800 bg-black text-zinc-200;
         --wails-draggable:drag;
     }
 
@@ -69,11 +69,11 @@
 
 
     .windowButton {
-        @apply flex flex-col justify-center duration-100 rounded-full cursor-auto text-white;
+        @apply flex flex-col justify-center duration-100 rounded-full cursor-auto text-zinc-200;
     }
 
     .windowButton:hover {
-        @apply bg-blue-50/15;
+        @apply bg-zinc-800;
     }
 
     .windowButton.close:hover {
@@ -82,6 +82,6 @@
 
 
     .titlebarText {
-        @apply ml-1.5;
+        @apply ml-1.5 font-semibold;
     }
 </style>

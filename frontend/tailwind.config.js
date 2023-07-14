@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx,svelte}",
   ],
+  darkMode: "class",
   theme: {
     extend: {
       borderRadius: {

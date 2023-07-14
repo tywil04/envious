@@ -26,16 +26,20 @@
         }
 
         // check validity
-        if (innerValue === "") {
-            valid = false
+        if (validation === undefined) {
+            valid = true
         } else {
-            switch (typeof(validation)) {
-                case "function": valid = validation(innerValue)
-                case "object": {
-                    try {
-                        valid = validation.test(innerValue)
-                    } catch {
-                        valid = false
+            if (innerValue === "") {
+                valid = false
+            } else {
+                switch (typeof(validation)) {
+                    case "function": valid = validation(innerValue)
+                    case "object": {
+                        try {
+                            valid = validation.test(innerValue)
+                        } catch {
+                            valid = false
+                        }
                     }
                 }
             }
@@ -68,12 +72,16 @@
 
 
     .label {
-        @apply font-bold;
+        @apply font-semibold text-zinc-300;
     }
 
 
     .input {
-        @apply border-2 border-black rounded-4px px-2 py-0.5 w-full m-0;
+        @apply border bg-zinc-800 border-zinc-700 text-zinc-300 rounded-4px px-2 py-0.5 w-full m-0;
+    }
+
+    .input::placeholder {
+        @apply text-zinc-500;
     }
 
     .input:focus {
@@ -82,7 +90,7 @@
 
 
     .requiredText {
-        @apply text-sm text-gray-600;
+        @apply text-sm text-zinc-400;
     }
 
     .errorText {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"strings"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
@@ -35,7 +34,7 @@ func (i *InvidiousDesktop) shutdown(ctx context.Context) {
 	}
 }
 
-func (i *InvidiousDesktop) GetInvidiousApiInstances() []string {
+func (i *InvidiousDesktop) GetApiInstances() []string {
 	if i.KnownInvidiousApiInstances != nil {
 		return i.KnownInvidiousApiInstances
 	}
@@ -49,7 +48,7 @@ func (i *InvidiousDesktop) GetInvidiousApiInstances() []string {
 	return i.KnownInvidiousApiInstances
 }
 
-func (i *InvidiousDesktop) SetSelectedInvidiousInstance(instance string) bool {
+func (i *InvidiousDesktop) SetSelectedInstance(instance string) bool {
 	valid, err := invidious.ValidateInstance(instance)
 	if err != nil {
 		runtime.LogFatal(i.ctx, err.Error())
@@ -65,7 +64,7 @@ func (i *InvidiousDesktop) SetSelectedInvidiousInstance(instance string) bool {
 	return valid
 }
 
-func (i *InvidiousDesktop) GetSelectedInvidiousInstance() string {
+func (i *InvidiousDesktop) GetSelectedInstance() string {
 	return config.Public.SelectedInvidiousInstance
 }
 
@@ -105,7 +104,38 @@ func (i *InvidiousDesktop) GetPopular() []Video {
 			ThumbnailUrl:  thumbnailUrl,
 			ViewCount:     popular.ViewCount,
 			Author:        popular.Author,
-			AuthorId:      strings.TrimPrefix(popular.AuthorURL, "/channel/"),
+			AuthorId:      popular.AuthorID,
+			Published:     popular.Published,
+			PublishedText: popular.PublishedText,
+		})
+	}
+
+	return processedResponse
+}
+
+func (i *InvidiousDesktop) GetTrending() []Video {
+	response, err := invidious.GetTrending(config.Public.SelectedInvidiousInstance)
+	if err != nil {
+		runtime.LogFatal(i.ctx, err.Error())
+	}
+
+	processedResponse := []Video{}
+	for _, popular := range response {
+		var thumbnailUrl string
+		for _, thumbnail := range popular.VideoThumbnails {
+			if thumbnail.Quality == "medium" {
+				thumbnailUrl = thumbnail.URL
+				break
+			}
+		}
+
+		processedResponse = append(processedResponse, Video{
+			Title:         popular.Title,
+			VideoId:       popular.VideoID,
+			ThumbnailUrl:  thumbnailUrl,
+			ViewCount:     popular.ViewCount,
+			Author:        popular.Author,
+			AuthorId:      popular.AuthorID,
 			Published:     popular.Published,
 			PublishedText: popular.PublishedText,
 			LiveNow:       popular.LiveNow,
@@ -115,4 +145,12 @@ func (i *InvidiousDesktop) GetPopular() []Video {
 	}
 
 	return processedResponse
+}
+
+func (i *InvidiousDesktop) Login(username, password string) bool {
+	success, err := invidious.Login(config.Public.SelectedInvidiousInstance, username, password)
+	if err != nil {
+		runtime.LogFatal(i.ctx, err.Error())
+	}
+	return success
 }

@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, main {
-    @apply text-base scroll-smooth;
+html, body, div#app {
+    @apply text-base scroll-smooth w-full h-full bg-zinc-900 text-zinc-300;
 }
