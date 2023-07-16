@@ -162,7 +162,6 @@
         @apply max-w-[296px] break-words font-semibold line-clamp-3 min-h-[72px];
     }
 
-
     .errorText {
         @apply mb-3 text-red-600;
     }

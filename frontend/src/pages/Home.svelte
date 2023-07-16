@@ -38,11 +38,9 @@
         @apply flex flex-col max-w-full;
     }
 
-
     .divider {
         @apply mb-4;
     }
-
 
     .errorText {
         @apply text-red-600;

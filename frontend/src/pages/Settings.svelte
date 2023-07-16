@@ -10,9 +10,9 @@
 
     
     // components
-    import SelectInput from '../components/inputs/SelectInput.svelte'
-    import TextInput from "../components/inputs/TextInput.svelte"
-    import Button from "../components/buttons/Button.svelte"
+    import SelectInput from '../components/inputs/SelectInput.svelte.js'
+    import TextInput from "../components/inputs/TextInput.svelte.js"
+    import Button from "../components/buttons/Button.svelte.js"
 
 
     let instance = ""
@@ -70,11 +70,9 @@
         @apply mb-3;
     }
 
-    
     .inputSeperator {
         @apply mb-4;
     }
-
 
     .errorText {
         @apply text-red-600;

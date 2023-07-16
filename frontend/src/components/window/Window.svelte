@@ -227,7 +227,6 @@
         @apply ml-auto flex flex-row z-50;
     }
 
-
     .windowButton {
         @apply flex flex-col justify-center duration-100 rounded-full cursor-auto text-zinc-200;
     }
@@ -239,7 +238,6 @@
     .windowButton.close:hover {
         @apply bg-red-600;
     }
-
 
     .titlebarText {
         @apply ml-1.5 font-normal;

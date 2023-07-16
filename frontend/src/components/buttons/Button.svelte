@@ -19,7 +19,6 @@
         @apply border outline-none rounded-4px px-2 py-0.5 duration-100;
     }
 
-
     .normal {
         @apply bg-blue-700 border-blue-600 text-zinc-100;
     }
@@ -32,13 +31,11 @@
         @apply bg-zinc-900 border-zinc-700;
     }
 
-
     .normal:disabled,
     .minimal:disabled, 
     .outline:disabled {
         @apply brightness-75 cursor-not-allowed;
     }
-
 
     .normal:hover:not(:active):not(:disabled),
     .minimal:hover:not(:active):not(:disabled), 

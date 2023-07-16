@@ -62,11 +62,9 @@
         @apply prose space-y-0.5 w-full h-fit max-w-full max-h-fit;
     }
 
-
     .label {
         @apply font-semibold text-zinc-300;
     }
-
 
     .select {
         @apply border bg-zinc-800 border-zinc-700 text-zinc-300 rounded-4px px-2 py-0.5 w-full m-0;
@@ -75,7 +73,6 @@
     .select:focus {
         @apply outline-none ring-0;
     }
-
 
     .requiredText {
         @apply text-sm text-zinc-400;
