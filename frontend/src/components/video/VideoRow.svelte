@@ -88,7 +88,7 @@
                     <img class="videoTextContainerImage" src={video.thumbnailUrl} alt={video.title}/>
                     <div class="videoTextContainer">
                         <p class="videoTitle">{video.title}</p>
-                        <a href="/author/{video.videoId}">{video.author}</a>
+                        <a class="videoAuthor" href="/author/{video.videoId}">{video.author}</a>
                     </div>
                 </button>
             {/each}
@@ -119,8 +119,12 @@
     }
 
     .icon {
-        @apply z-10 rounded-full bg-gray-200 text-neutral-950 p-2 drop-shadow-2xl opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none;
+        @apply z-10 rounded-full text-zinc-200 p-2 drop-shadow-2xl opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none bg-zinc-800;
     } 
+
+    .icon:hover {
+        @apply brightness-125;
+    }
 
     .container:hover .icon.iconAllowed {
         @apply opacity-100 pointer-events-auto;
@@ -159,7 +163,11 @@
 
     .videoTitle {
         /* 12px + 296px + 12px = 320px (12px padding each side)*/
-        @apply max-w-[296px] break-words font-semibold line-clamp-3 min-h-[72px];
+        @apply max-w-[296px] break-words font-semibold line-clamp-3 min-h-[72px] text-left;
+    }
+
+    .videoAuthor {
+        @apply text-left;
     }
 
     .errorText {

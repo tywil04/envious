@@ -5,7 +5,6 @@
 
     // javascript
     import { SetToken, GetApiInstances, SetSelectedInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
-    import { push } from "svelte-spa-router"
     import { urlRegex } from "../lib/validations.js";
 
     
@@ -28,7 +27,7 @@
             await SetToken(sessionId)
 
             if (success) {
-                await push("/")
+                // await push("/")
             } else {
                 instanceConfirmError = true
             }
