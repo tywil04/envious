@@ -10,6 +10,6 @@ export function GetSelectedInstance():Promise<string>;
 
 export function GetTrending():Promise<Array<main.Video>>;
 
-export function Login(arg1:string,arg2:string):Promise<boolean>;
-
 export function SetSelectedInstance(arg1:string):Promise<boolean>;
+
+export function SetToken(arg1:string):Promise<void>;

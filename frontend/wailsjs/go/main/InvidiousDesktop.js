@@ -18,10 +18,10 @@ export function GetTrending() {
   return window['go']['main']['InvidiousDesktop']['GetTrending']();
 }
 
-export function Login(arg1, arg2) {
-  return window['go']['main']['InvidiousDesktop']['Login'](arg1, arg2);
-}
-
 export function SetSelectedInstance(arg1) {
   return window['go']['main']['InvidiousDesktop']['SetSelectedInstance'](arg1);
+}
+
+export function SetToken(arg1) {
+  return window['go']['main']['InvidiousDesktop']['SetToken'](arg1);
 }

@@ -55,7 +55,7 @@ func (i *InvidiousDesktop) SetSelectedInstance(instance string) bool {
 	}
 
 	if valid {
-		config.Public.SelectedInvidiousInstance = instance
+		config.Public.SelectedInstance = instance
 		if err := config.Offload(); err != nil {
 			runtime.LogFatal(i.ctx, err.Error())
 		}
@@ -65,7 +65,7 @@ func (i *InvidiousDesktop) SetSelectedInstance(instance string) bool {
 }
 
 func (i *InvidiousDesktop) GetSelectedInstance() string {
-	return config.Public.SelectedInvidiousInstance
+	return config.Public.SelectedInstance
 }
 
 type Video struct {
@@ -83,7 +83,11 @@ type Video struct {
 }
 
 func (i *InvidiousDesktop) GetPopular() []Video {
-	response, err := invidious.GetPopular(config.Public.SelectedInvidiousInstance)
+	if config.Public.SelectedInstance == "" {
+		return nil
+	}
+
+	response, err := invidious.GetPopular(config.Public.SelectedInstance)
 	if err != nil {
 		runtime.LogFatal(i.ctx, err.Error())
 	}
@@ -114,7 +118,11 @@ func (i *InvidiousDesktop) GetPopular() []Video {
 }
 
 func (i *InvidiousDesktop) GetTrending() []Video {
-	response, err := invidious.GetTrending(config.Public.SelectedInvidiousInstance)
+	if config.Public.SelectedInstance == "" {
+		return nil
+	}
+
+	response, err := invidious.GetTrending(config.Public.SelectedInstance)
 	if err != nil {
 		runtime.LogFatal(i.ctx, err.Error())
 	}
@@ -147,10 +155,9 @@ func (i *InvidiousDesktop) GetTrending() []Video {
 	return processedResponse
 }
 
-func (i *InvidiousDesktop) Login(username, password string) bool {
-	success, err := invidious.Login(config.Public.SelectedInvidiousInstance, username, password)
-	if err != nil {
+func (i *InvidiousDesktop) SetToken(token string) {
+	config.Public.Token = token
+	if err := config.Offload(); err != nil {
 		runtime.LogFatal(i.ctx, err.Error())
 	}
-	return success
 }

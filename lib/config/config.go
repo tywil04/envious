@@ -7,7 +7,8 @@ import (
 )
 
 type Config struct {
-	SelectedInvidiousInstance string
+	SelectedInstance string `json:"selectedInstance"`
+	Token            string `json:"token"`
 }
 
 const (

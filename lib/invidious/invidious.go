@@ -2,10 +2,7 @@ package invidious
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"net/url"
-	"strings"
 )
 
 func GetApiInstances() ([]string, error) {
@@ -120,34 +117,34 @@ func GetTrending(instance string) (GetTrendingResponse, error) {
 	return decodedResponse, nil
 }
 
-func Login(instance, email, password string) (bool, error) {
-	data := url.Values{}
-	data.Set("email", email)
-	data.Set("password", password)
-	data.Set("action", "signin")
+// func Login(instance, email, password string) (bool, error) {
+// 	data := url.Values{}
+// 	data.Set("email", email)
+// 	data.Set("password", password)
+// 	data.Set("action", "signin")
 
-	request, err := http.NewRequest("POST", instance+"/login?type=invidious", strings.NewReader(data.Encode()))
-	if err != nil {
-		return false, err
-	}
-	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+// 	request, err := http.NewRequest("POST", instance+"/login?type=invidious", strings.NewReader(data.Encode()))
+// 	if err != nil {
+// 		return false, err
+// 	}
+// 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	client := http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		return false, err
-	}
+// 	client := http.Client{}
+// 	response, err := client.Do(request)
+// 	if err != nil {
+// 		return false, err
+// 	}
 
-	if response.StatusCode >= 200 && response.StatusCode <= 299 {
-		fmt.Println(request.Cookies())
-		fmt.Println(request.Header.Get("Cookie"))
-		fmt.Println(request.Header.Get("Set-Cookie"))
-		fmt.Println(response.Cookies())
-		fmt.Println(response.Header.Get("Cookie"))
-		fmt.Println(response.Header.Get("Set-Cookie"))
+// 	if response.StatusCode >= 200 && response.StatusCode <= 299 {
+// 		fmt.Println(request.Cookies())
+// 		fmt.Println(request.Header.Get("Cookie"))
+// 		fmt.Println(request.Header.Get("Set-Cookie"))
+// 		fmt.Println(response.Cookies())
+// 		fmt.Println(response.Header.Get("Cookie"))
+// 		fmt.Println(response.Header.Get("Set-Cookie"))
 
-		return true, nil
-	}
+// 		return true, nil
+// 	}
 
-	return false, nil
-}
+// 	return false, nil
+// }

@@ -1,8 +1,8 @@
 import "./style.css";
-import InvidiousDesktop from "./InvidiousDesktop.svelte";
+import Window from "./components/window/Window.svelte";
 
-const app = new InvidiousDesktop({
+const invidiousDesktop = new Window({
   target: document.getElementById("app"),
 });
 
-export default app;
+export default invidiousDesktop;

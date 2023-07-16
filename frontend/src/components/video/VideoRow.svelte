@@ -4,6 +4,14 @@
     import { ChevronLeft, ChevronRight } from "@steeze-ui/carbon-icons"
 
 
+    // javascript
+    import { spawnTab } from "../window/Window.svelte"
+    
+
+    // components
+    import Video from "../../pages/Video.svelte";
+
+
     // exports
     export let dataFunction
 
@@ -50,6 +58,16 @@
             behavior: "smooth",
         })
     }
+
+    const onVideoClicked = (_, video) => {
+        spawnTab({ 
+            name: video.title,
+            component: Video, 
+            props: {
+                videoId: video.videoId
+            } 
+        }, false)
+    }
 </script>
 
 
@@ -65,14 +83,14 @@
 
         <div bind:this={videoContainer} class="videosContainer" on:scroll={onScroll}>
             {#each data as video}
-                <a class="videoContainer" href="/video/{video.videoId}" title={video.title}>
+                <button class="videoContainer" title={video.title} on:click={(event) => onVideoClicked(event, video)}>
                     <img class="videoImage" src={video.thumbnailUrl} alt={video.title}/>
                     <img class="videoTextContainerImage" src={video.thumbnailUrl} alt={video.title}/>
                     <div class="videoTextContainer">
                         <p class="videoTitle">{video.title}</p>
                         <a href="/author/{video.videoId}">{video.author}</a>
                     </div>
-                </a>
+                </button>
             {/each}
         </div>
 
