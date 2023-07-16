@@ -160,11 +160,15 @@
 
 <style lang="postcss">
     .tabButtonsContainer {
-        @apply absolute top-[40px] h-[40px] w-full bg-black flex flex-row justify-evenly border-b border-zinc-800 px-1 py-1 opacity-100 pointer-events-auto;
+        @apply absolute top-[40px] h-[40px] min-w-full w-full bg-black flex flex-row justify-between border-b border-zinc-800 p-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
     }
 
     :global(.tabButton) {
-        @apply bg-black h-[31px] leading-[31px] w-full text-zinc-400 truncate px-2 rounded-4px flex flex-row duration-100 relative select-none;   
+        @apply bg-black h-[31px] leading-[31px] w-full text-zinc-400 truncate px-2 rounded-4px flex flex-row duration-100 relative select-none min-w-[175px];   
+    }
+
+    ::-webkit-scrollbar {
+        display: none;
     }
 
     :global(.tabButton > .text) {
