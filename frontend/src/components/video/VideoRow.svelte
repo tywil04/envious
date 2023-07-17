@@ -64,7 +64,7 @@
             name: video.title,
             component: Video, 
             props: {
-                videoId: video.videoId
+                videoId: video.id
             } 
         }, false)
     }
@@ -88,7 +88,7 @@
                     <img class="videoTextContainerImage" src={video.thumbnailUrl} alt={video.title}/>
                     <div class="videoTextContainer">
                         <p class="videoTitle">{video.title}</p>
-                        <a class="videoAuthor" href="/author/{video.videoId}">{video.author}</a>
+                        <a class="videoAuthor" href="/author/{video.id}">{video.author}</a>
                     </div>
                 </button>
             {/each}
@@ -107,7 +107,7 @@
 
 <style lang="postcss">
     .container {
-        @apply flex flex-row max-w-full w-full drop-shadow-lg;
+        @apply flex flex-row max-w-full w-full;
     }
 
     .iconContainerLeft {
@@ -119,7 +119,7 @@
     }
 
     .icon {
-        @apply z-10 rounded-full text-zinc-200 p-2 drop-shadow-2xl opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none bg-zinc-800;
+        @apply z-10 rounded-full text-zinc-200 p-2 shadow-md opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none bg-zinc-800;
     } 
 
     .icon:hover {

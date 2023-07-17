@@ -18,6 +18,10 @@ export function GetTrending() {
   return window['go']['main']['InvidiousDesktop']['GetTrending']();
 }
 
+export function GetVideo(arg1) {
+  return window['go']['main']['InvidiousDesktop']['GetVideo'](arg1);
+}
+
 export function SetSelectedInstance(arg1) {
   return window['go']['main']['InvidiousDesktop']['SetSelectedInstance'](arg1);
 }

@@ -10,7 +10,11 @@
     // components
     import { Icon } from "@steeze-ui/svelte-icon"
     import { Close, Add, Subtract } from "@steeze-ui/carbon-icons"
+
+
+    // pages
     import Home from "../../pages/Home.svelte";
+    import VideoTest from "../../pages/VideoTest.svelte";
     
 
     let tabs = [
@@ -18,6 +22,11 @@
             name: "Home",
             locked: true,
             component: Home,
+        },
+        {
+            name: "VideoTest",
+            locked: true,
+            component: VideoTest,
         }
     ]
     let currentTab = 0
@@ -160,7 +169,7 @@
 
 <style lang="postcss">
     .tabButtonsContainer {
-        @apply absolute top-[40px] h-[40px] min-w-full w-full bg-black flex flex-row justify-between border-b border-zinc-800 p-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
+        @apply absolute top-[40px] h-[40px] min-w-full w-full bg-black flex flex-row justify-between border-b border-zinc-800 px-[5px] py-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
     }
 
     :global(.tabButton) {

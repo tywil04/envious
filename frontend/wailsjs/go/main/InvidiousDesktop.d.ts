@@ -10,6 +10,8 @@ export function GetSelectedInstance():Promise<string>;
 
 export function GetTrending():Promise<Array<main.Video>>;
 
+export function GetVideo(arg1:string):Promise<main.Video>;
+
 export function SetSelectedInstance(arg1:string):Promise<boolean>;
 
 export function SetToken(arg1:string):Promise<void>;
