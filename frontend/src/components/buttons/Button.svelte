@@ -1,5 +1,4 @@
 <script>
-    // exports
     export let minimal = false
     export let outline = false
     

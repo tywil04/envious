@@ -1,9 +1,7 @@
 <script>
-    // javascript
     import { v4 as uuidv4 } from "uuid"
 
     
-    // exports
     export let id = uuidv4()
     export let name = ""
     export let label = ""
@@ -19,7 +17,8 @@
     let innerValue = ""
     let valid = false
   
-    const onInput = (event) => {
+
+    const validate = (event) => {
         // check type is valid
         if (type.match(/^(text|url|email|password|search)$/)) {
             innerValue = event.target.value || ""
@@ -50,24 +49,32 @@
 </script>
 
 
-<div class="container">
+<div class="root">
     <label class="label" for={id}>{label}</label>
 
     {#if required}
-        <span class="requiredText">(required)</span>
+        <span class="required">(required)</span>
     {/if}
 
-    <input class="input" on:input on:click on:input={onInput} readonly={readOnly} value={innerValue} {placeholder} {name} {required} {id} {type}/>
+    <input class="input" on:input on:click on:input={validate} readonly={readOnly} value={innerValue} {placeholder} {name} {required} {id} {type}/>
     
     {#if innerValue !== "" && !valid}
-        <span class="errorText">{errorMessage}</span>
+        <span class="error">{errorMessage}</span>
     {/if}
 </div>
 
 
 <style lang="postcss">
-    .container {
+    .root {
         @apply prose space-y-0.5 w-full h-fit max-w-full max-h-fit;
+    }
+
+    .required {
+        @apply text-sm text-zinc-400;
+    }
+
+    .error {
+        @apply text-sm text-red-600;
     }
 
     .label {
@@ -84,13 +91,5 @@
 
     .input:focus {
         @apply outline-none ring-0;
-    }
-
-    .requiredText {
-        @apply text-sm text-zinc-400;
-    }
-
-    .errorText {
-        @apply text-sm text-red-600;
     }
 </style>

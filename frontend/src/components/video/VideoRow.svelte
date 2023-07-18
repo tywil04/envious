@@ -1,65 +1,50 @@
 <script>    
-    // components
+    import { spawnTab } from "../window/Window.svelte"
+    
     import { Icon } from "@steeze-ui/svelte-icon"
     import { ChevronLeft, ChevronRight } from "@steeze-ui/carbon-icons"
 
-
-    // javascript
-    import { spawnTab } from "../window/Window.svelte"
-    
-
-    // components
     import Video from "../../pages/Video.svelte";
 
 
-    // exports
-    export let dataFunction
+    export let data = []                        
+    export let dataFunction = async () => data // allow for data to be directly entered into the component or use custom dataFunction
 
 
-    let videoContainer
+    let videosElement
     let showScrollLeft = false 
     let showScrollRight = true
 
-    const onScroll = (event) => {
-        showScrollLeft = videoContainer.scrollLeft > 0
-        showScrollRight = videoContainer.scrollLeft < videoContainer.scrollWidth - videoContainer.clientWidth
+
+    const calculateScrollIndicators = (_) => {
+        showScrollLeft = videosElement.scrollLeft > 0
+        showScrollRight = videosElement.scrollLeft < videosElement.scrollWidth - videosElement.clientWidth
     }
 
-    const scrollLeft = (event) => {
-        let newX
-        let calc1 = (videoContainer.scrollLeft) % 336
-        
-        if (calc1 === 0) {
-            newX = videoContainer.scrollLeft - calc1 - 336
-        } else {
-            newX = videoContainer.scrollLeft - calc1
-        }
 
-        videoContainer.scrollTo({
+    const scrollLeft = (_) => {
+        let offset = (videosElement.scrollLeft) % 336
+
+        videosElement.scrollTo({
             top: 0,
-            left: newX,
+            left: videosElement.scrollLeft - offset - (offset === 0 ? 336: 0),
             behavior: "smooth",
         })
     }
 
-    const scrollRight = (event) => {
-        let newX
-        let calc1 = (320 - (videoContainer.scrollLeft + videoContainer.clientWidth) % 336)
 
-        if (calc1 === 0) {
-            newX = videoContainer.scrollLeft + calc1 + 336
-        } else {
-            newX = videoContainer.scrollLeft + calc1
-        }
+    const scrollRight = (_) => {
+        let offset = (320 - (videosElement.scrollLeft + videosElement.clientWidth) % 336)
 
-        videoContainer.scrollTo({
+        videosElement.scrollTo({
             top: 0,
-            left: newX,
+            left: videosElement.scrollLeft + offset + (offset === 0 ? 336: 0),
             behavior: "smooth",
         })
     }
 
-    const onVideoClicked = (_, video) => {
+
+    const openVideoInTab = (_, video) => {
         spawnTab({ 
             name: video.title,
             component: Video, 
@@ -74,103 +59,111 @@
 {#await dataFunction()}
     <p>Loading...</p>
 {:then data}
-    <div class="container">
-        <div class="iconContainerLeft">
+    <div class="root">
+        <div class="scrollIndicator left">
             <button class="icon" class:iconAllowed={showScrollLeft} on:click={scrollLeft}>
                 <Icon src={ChevronLeft} size="32"/>
             </button>
         </div>
 
-        <div bind:this={videoContainer} class="videosContainer" on:scroll={onScroll}>
+        <div bind:this={videosElement} class="videos" on:scroll={calculateScrollIndicators}>
             {#each data as video}
-                <button class="videoContainer" title={video.title} on:click={(event) => onVideoClicked(event, video)}>
-                    <img class="videoImage" src={video.thumbnailUrl} alt={video.title}/>
-                    <img class="videoTextContainerImage" src={video.thumbnailUrl} alt={video.title}/>
-                    <div class="videoTextContainer">
-                        <p class="videoTitle">{video.title}</p>
-                        <a class="videoAuthor" href="/author/{video.id}">{video.author}</a>
+                <button class="video" title={video.title} on:click={(event) => openVideoInTab(event, video)}>
+                    <img class="image" src={video.thumbnailUrl} alt={video.title}/>
+                    <img class="textImage" src={video.thumbnailUrl} alt={video.title}/>
+                    <div class="text">
+                        <p class="title">{video.title}</p>
+                        <a class="author" href="/author/{video.id}">{video.author}</a>
                     </div>
                 </button>
             {/each}
         </div>
 
-        <div class="iconContainerRight">
+        <div class="scrollIndicator right">
             <button class="icon" class:iconAllowed={showScrollRight} on:click={scrollRight}>
                 <Icon src={ChevronRight} size="32"/>
             </button>
         </div>
     </div>
 {:catch error}
-    <p class="errorText">{error}</p>
+    <p class="error">{error}</p>
 {/await}
 
 
 <style lang="postcss">
-    .container {
-        @apply flex flex-row max-w-full w-full;
-    }
-
-    .iconContainerLeft {
-        @apply absolute w-[32px] h-[304px] left-[40px] flex flex-col justify-center bg-transparent pointer-events-none;
-    }
-
-    .iconContainerRight {
-        @apply absolute w-[32px] h-[304px] right-[56px] flex flex-col justify-center bg-transparent pointer-events-none;
-    }
-
-    .icon {
-        @apply z-10 rounded-full text-zinc-200 p-2 shadow-md opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none bg-zinc-800;
-    } 
-
-    .icon:hover {
-        @apply brightness-125;
-    }
-
-    .container:hover .icon.iconAllowed {
-        @apply opacity-100 pointer-events-auto;
-    }
-
     ::-webkit-scrollbar {
         display: none;
     }
 
-    .videosContainer {
+    .root {
+        @apply flex flex-row max-w-full w-full;
+    }
+
+    .error {
+        @apply mb-3 text-red-600;
+    }
+
+    
+    /* scroll indicators */
+    .scrollIndicator {
+        @apply absolute w-[32px] h-[304px] flex flex-col justify-center bg-transparent pointer-events-none;
+    }
+
+    .scrollIndicator.left {
+        @apply left-[40px];
+    }
+
+    .scrollIndicator.right {
+        @apply right-[56px];
+    }
+
+    .scrollIndicator > .icon {
+        @apply z-10 rounded-full text-zinc-200 p-2 shadow-md opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none bg-zinc-800;
+    } 
+
+    .scrollIndicator > .icon:hover {
+        @apply brightness-125;
+    }
+
+    .root:hover .icon.iconAllowed { /* show icon when root is hovered over */
+        @apply opacity-100 pointer-events-auto;
+    }
+
+
+    /* videos container and video */
+    .videos {
         @apply flex flex-row overflow-x-scroll overflow-y-hidden space-x-4 rounded-lg min-h-fit mx-0;
 
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
 
-    .videoContainer {
+    .video {
         @apply min-w-fit h-fit rounded-lg -mb-[124px] duration-100;
     }
 
-    .videoContainer:hover {
+    .video:hover {
         @apply brightness-125;
     }
 
-    .videoImage {
+    .video > .image {
         @apply w-[320px] h-[180px] min-w-fit bg-black rounded-t-md;
     }
 
-    .videoTextContainerImage {
+    .video > .textImage {
         @apply w-[320px] h-[124px] rounded-b-md bg-black;
     }
 
-    .videoTextContainer {
+    .video > .text {
         @apply -translate-y-[124px] flex flex-col p-3 will-change-contents text-white space-y-1 rounded-b-md backdrop-blur-2xl saturate-200 bg-glassBlack;
     }
 
-    .videoTitle {
+    .video > .text > .title {
         /* 12px + 296px + 12px = 320px (12px padding each side)*/
         @apply max-w-[296px] break-words font-semibold line-clamp-3 min-h-[72px] text-left;
     }
 
-    .videoAuthor {
+    .video > .text > .author {
         @apply text-left;
-    }
-
-    .errorText {
-        @apply mb-3 text-red-600;
     }
 </style>

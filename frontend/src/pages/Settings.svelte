@@ -1,14 +1,9 @@
 <script>
-    // svelte
     import { blur } from "svelte/transition"
 
-
-    // javascript
     import { SetToken, GetApiInstances, SetSelectedInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
-    import { urlRegex } from "../lib/validations.js";
+    import validations from "../lib/validations.js";
 
-    
-    // components
     import SelectInput from '../components/inputs/SelectInput.svelte.js'
     import TextInput from "../components/inputs/TextInput.svelte.js"
     import Button from "../components/buttons/Button.svelte.js"
@@ -19,7 +14,8 @@
     let selectedIndex = 0
     let instanceConfirmError = false
 
-    const onInstanceConfirm = async () => {
+
+    const selectInstance = async () => {
         if (instance !== "") {
             instanceConfirmError = false
 
@@ -34,6 +30,7 @@
         }
     }
 
+
     $: instanceConfirmError = selectedIndex !== 0 ? false: instanceConfirmError
 </script>
 
@@ -47,20 +44,20 @@
         <p class="info errorText" out:blur={{ duration: 250 }} in:blur={{ duration: 250 }}>The custom Invidious instance provided doesn't seem to have its API enabled or its not an Invidious instance.</p>
     {/if}
 
-    <div class="inputSeperator">
+    <div class="seperator">
         <SelectInput bind:selected={instance} bind:selectedIndex label="Select Instance" options={[{ display: "Custom", value: "" }, ...instances]}/>
-        <div class="inputSeperator"></div>
+        <div class="seperator"></div>
         {#if selectedIndex === 0}
-            <TextInput bind:value={instance} label="Custom Instance" type="url" errorMessage="Please enter a valid url" placeholder="https://example.org" validation={urlRegex}/>
+            <TextInput bind:value={instance} label="Custom Instance" type="url" errorMessage="Please enter a valid url" placeholder="https://example.org" validation={validations.url}/>
         {/if}
     </div>
 
     <TextInput bind:value={sessionId} label="Session Id" type="text"/>
-    <div class="inputSeperator"></div>
+    <div class="seperator"></div>
 
-    <Button disabled={instance === ""} on:click={onInstanceConfirm}>Confirm</Button>
+    <Button disabled={instance === ""} on:click={selectInstance}>Confirm</Button>
 {:catch error}
-    <span class="errorText">{error}</span>
+    <span class="error">{error}</span>
 {/await}
 
 
@@ -69,11 +66,11 @@
         @apply mb-3;
     }
 
-    .inputSeperator {
+    .seperator {
         @apply mb-4;
     }
 
-    .errorText {
+    .error {
         @apply text-red-600;
     }
 </style>

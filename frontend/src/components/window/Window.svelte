@@ -1,79 +1,41 @@
-<script>
-    // svelte
-    import { onMount } from "svelte";
-
-
-    // javascript
-    import * as runtime from "../../../wailsjs/runtime/runtime"
-
-
-    // components
-    import { Icon } from "@steeze-ui/svelte-icon"
-    import { Close, Add, Subtract } from "@steeze-ui/carbon-icons"
-
-
-    // pages
-    import Home from "../../pages/Home.svelte";
-    import VideoTest from "../../pages/VideoTest.svelte";
-    
-
-    let tabs = [
-        {
-            name: "Home",
-            locked: true,
-            component: Home,
-        },
-        {
-            name: "VideoTest",
-            locked: true,
-            component: VideoTest,
-        }
-    ]
-    let currentTab = 0
-
-    onMount(() => {
-        for (let i = 0; i < tabs.length; i++) {
-            spawnTab(tabs[i], i != currentTab)
-        }
-    })
-</script> 
-
-
 <script context="module">
-    let buttonsContainer
-    let viewsContainer
+    let tabsElement
+    let viewsElement
+
 
     function selectTab(tabName) {
-        for (let child of buttonsContainer.children) {
-            if (child.id === `tabbutton::${tabName}`) {
+        for (let child of tabsElement.children) {
+            if (child.id === `tab::${tabName}`) {
                 child.classList.add("active")
             } else {
                 child.classList.remove("active")
             }
         }
 
-        for (let child of viewsContainer.children) {
-            child.hidden = child.id !== `tab::${tabName}`
+        for (let child of viewsElement.children) {
+            child.hidden = child.id !== `view::${tabName}`
         }
     }
 
+
     function deleteTab(tabName) {
-        const tabButton = document.getElementById(`tabbutton::${tabName}`)
+        const tabButton = document.getElementById(`tab::${tabName}`)
         const wasActive = tabButton.classList.contains("active")
 
         tabButton.remove()
-        document.getElementById(`tab::${tabName}`).remove()
+        document.getElementById(`view::${tabName}`).remove()
 
         if (wasActive) {
-            buttonsContainer.children[buttonsContainer.children.length - 1].classList.add("active")
-            viewsContainer.children[viewsContainer.children.length - 1].hidden = false
+            tabsElement.children[tabsElement.children.length - 1].classList.add("active")
+            viewsElement.children[viewsElement.children.length - 1].hidden = false
         }
     }
 
-    function renderTabButton(tab, active) {
+
+    function renderTab(tab, active) {
         const button = document.createElement("button")
-        button.id = `tabbutton::${tab.name}`
-        button.classList.add("tabButton")
+        button.id = `tab::${tab.name}`
+        button.classList.add("tab")
         button.title = tab.name
 
         const span = document.createElement("span")
@@ -103,7 +65,7 @@
         }
 
         if (active) {
-            for (let child of buttonsContainer.children) {
+            for (let child of tabsElement.children) {
                 child.classList.remove("active")
             }
             button.classList.add("active")
@@ -111,15 +73,16 @@
 
         button.addEventListener("click", () => selectTab(tab.name))
     
-        buttonsContainer.appendChild(button)
+        tabsElement.appendChild(button)
     }
 
-    function renderTab(tab, hidden=true) {
+
+    function renderTabView(tab, hidden=true) {
         const tabRoot = document.createElement("div")
-        tabRoot.id = `tab::${tab.name}`
+        tabRoot.id = `view::${tab.name}`
         
         if (!hidden) {
-            for (let child of viewsContainer.children) {
+            for (let child of viewsElement.children) {
                 child.hidden = true
             }
             tabRoot.hidden = false
@@ -130,13 +93,14 @@
             props: tab.props
         })
 
-        viewsContainer.appendChild(tabRoot)
+        viewsElement.appendChild(tabRoot)
     }
+
 
     export function spawnTab(tab, hidden=true) {
         if (document.getElementById(`tab::${tab.name}`) === null) {
-            renderTabButton(tab, !hidden)
-            renderTab(tab, hidden)
+            renderTab(tab, !hidden)
+            renderTabView(tab, hidden)
         } else {
             selectTab(tab.name)
         }
@@ -144,115 +108,152 @@
 </script>
 
 
-<nav class="nav" on:dblclick={runtime.WindowToggleMaximise}>
-    <div class="navSection left">
-        <span class="titlebarText">Invidious Desktop</span>
+<script>
+    import { onMount } from "svelte";
+
+    import * as runtime from "../../../wailsjs/runtime/runtime"
+
+    import { Icon } from "@steeze-ui/svelte-icon"
+    import { Close, Add, Subtract } from "@steeze-ui/carbon-icons"
+
+    import Home from "../../pages/Home.svelte";
+    
+
+    let tabs = [
+        {
+            name: "Home",
+            locked: true,
+            component: Home,
+        },
+    ]
+    let currentTab = 0
+
+
+    onMount(() => {
+        for (let i = 0; i < tabs.length; i++) {
+            spawnTab(tabs[i], i !== currentTab)
+        }
+    })
+</script> 
+
+
+<nav class="navigation" on:dblclick={runtime.WindowToggleMaximise}>
+    <div class="title">
+        <span class="text">Invidious Desktop</span>
     </div>
 
-    <div class="navSection right"> 
-        <button title="Minimise Window" class="windowButton" on:click={runtime.WindowMinimise}>
+    <div class="controls"> 
+        <button title="Minimise Window" class="button" on:click={runtime.WindowMinimise}>
             <Icon src={Subtract} size="24"/>
         </button>
-        <button title="Maximise Window" class="windowButton" on:click={runtime.WindowToggleMaximise}>
+        <button title="Maximise Window" class="button" on:click={runtime.WindowToggleMaximise}>
             <Icon src={Add} size="24"/>
         </button>
-        <button title="Close Window" class="windowButton close" on:click={runtime.Quit}>
+        <button title="Close Window" class="button close" on:click={runtime.Quit}>
             <Icon src={Close} size="24"/>
         </button>
     </div>
 </nav>
 
-<div class="tabButtonsContainer" bind:this={buttonsContainer}></div>
 
-<div class="viewsContainer" bind:this={viewsContainer}></div>
+<div class="tabs" bind:this={tabsElement}></div>
+
+
+<div class="views" bind:this={viewsElement}></div>
 
 
 <style lang="postcss">
-    .tabButtonsContainer {
-        @apply absolute top-[40px] h-[40px] min-w-full w-full bg-black flex flex-row justify-between border-b border-zinc-800 px-[5px] py-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
-    }
-
-    :global(.tabButton) {
-        @apply bg-black h-[31px] leading-[31px] w-full text-zinc-400 truncate px-2 rounded-4px flex flex-row duration-100 relative select-none min-w-[175px];   
-    }
-
     ::-webkit-scrollbar {
         display: none;
     }
 
-    :global(.tabButton > .text) {
-        @apply h-[31px] mr-auto ml-auto px-[24px] truncate;
+
+    /* tabs container and tab */
+    .tabs {
+        @apply absolute top-[40px] h-[40px] min-w-full w-full bg-black flex flex-row justify-between border-b border-zinc-800 px-[5px] py-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
     }
 
-    :global(.tabButton > .delete) {
-        @apply absolute right-2 h-[31px] opacity-0 pointer-events-none duration-100;
-    }
-
-    :global(.tabButton:hover > .delete) {
-        @apply opacity-100 pointer-events-auto;
-    }
-
-    :global(.tabButton:hover:not(.active) > .delete:hover, .tabButton > .delete:hover) {
-        @apply text-red-400;
-    }
-
-    :global(.tabButton:not(:last-child)) {
-        @apply mr-1;
-    }
-
-    :global(.tabButton:hover:not(.active)) {
-        @apply bg-zinc-900/60 text-zinc-300;
-    }
-
-    :global(.tabButton.active) {
-        @apply bg-zinc-900 border-b-zinc-900/80 text-zinc-300 cursor-default;
-    }
-
-    .tabButtonsContainer:not(:has(:nth-child(2))) {
+    .tabs:not(:has(:nth-child(2))) {
         @apply pointer-events-none opacity-0 h-0;
     }
 
-    :global(.viewsContainer > *) {
-        @apply absolute top-[80px] p-4 max-w-[100%] w-full select-none bg-transparent overflow-y-auto z-0;
-        height: calc(100% - 80px);
-    }
-
-    :global(.tabButtonsContainer:not(:has(:nth-child(2))) + .viewsContainer > *) {
+    :global(.tabs:not(:has(:nth-child(2))) + .views > *) {
         @apply top-[40px];
         height: calc(100% - 40px);
     }
 
-    .nav {
+    :global(.tab) {
+        @apply bg-black h-[31px] leading-[31px] w-full text-zinc-400 truncate px-2 rounded-4px flex flex-row duration-100 relative select-none min-w-[175px];   
+    }
+
+    :global(.tab > .text) {
+        @apply h-[31px] mr-auto ml-auto px-[24px] truncate;
+    }
+
+    :global(.tab > .delete) {
+        @apply absolute right-2 h-[31px] opacity-0 pointer-events-none duration-100;
+    }
+
+    :global(.tab:hover > .delete) {
+        @apply opacity-100 pointer-events-auto;
+    }
+
+    :global(
+        .tab:hover:not(.active) > .delete:hover, 
+        .tab > .delete:hover
+    ) {
+        @apply text-red-400;
+    }
+
+    :global(.tab:not(:last-child)) {
+        @apply mr-1;
+    }
+
+    :global(.tab:hover:not(.active)) {
+        @apply bg-zinc-900/60 text-zinc-300;
+    }
+
+    :global(.tab.active) {
+        @apply bg-zinc-900 border-b-zinc-900/80 text-zinc-300 cursor-default;
+    }
+
+
+    /* views container */
+    :global(.views > *) {
+        @apply absolute top-[80px] p-4 max-w-[100%] w-full select-none bg-transparent overflow-y-auto z-0;
+        height: calc(100% - 80px);
+    }
+
+
+    /* navigation */
+    .navigation {
         @apply fixed top-0 w-full h-[40px] flex flex-row p-2 border-b border-zinc-800 bg-black text-zinc-200 z-10;
         --wails-draggable:drag;
     }
 
-    .navSection {
-        @apply select-none h-6;
+    .navigation .title {
+        @apply select-none h-6 mr-auto;
+        --wails-draggable:no-drag  
+    }
+
+    .navigation > .title > .text {
+        @apply ml-1.5 font-normal;
+    }
+
+    .navigation > .controls {
+        @apply select-none h-6 ml-auto flex flex-row z-50;
         --wails-draggable:no-drag
     }
 
-    .navSection.left {
-        @apply mr-auto;
-    }
-
-    .navSection.right {
-        @apply ml-auto flex flex-row z-50;
-    }
-
-    .windowButton {
+    .navigation > .controls > .button {
         @apply flex flex-col justify-center duration-100 rounded-full cursor-auto text-zinc-200;
     }
 
-    .windowButton:hover {
+    .navigation > .controls > .button:hover {
         @apply bg-zinc-800;
     }
 
-    .windowButton.close:hover {
+    .navigation > .controls > .button.close:hover {
         @apply bg-red-600;
-    }
-
-    .titlebarText {
-        @apply ml-1.5 font-normal;
     }
 </style>

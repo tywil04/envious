@@ -1,9 +1,7 @@
 <script>
-    // javascript
     import { v4 as uuidv4 } from "uuid"
 
     
-    // exports
     export let id = uuidv4()
     export let name = ""
     export let required = true
@@ -13,10 +11,11 @@
     export let selectedIndex = 0
 
 
-    if (options[selectedIndex].display !== undefined && options[selectedIndex].value !== undefined) {
-        selected = options[selectedIndex].value
-    } else if (options[selectedIndex].display === undefined && options[selectedIndex].value === undefined && options[selectedIndex] !== undefined) {
-        selected = options[selectedIndex]
+    let option = options[selectedIndex]
+    if (option.display !== undefined && option.value !== undefined) {
+        selected = option.value
+    } else if (option.display === undefined && option.value === undefined && option !== undefined) {
+        selected = option
     }
 
     
@@ -33,14 +32,14 @@
 </script>
 
 
-<div class="container">
+<div class="root">
     <label class="label" for={id}>{label}</label>
 
     {#if required}
-        <span class="notice requiredText">(required)</span>
+        <span class="notice required">(required)</span>
     {/if}
 
-    <select class="select" on:input on:click on:input={onInput} {id} {name} {required}>
+    <select class="input" on:input on:click on:input={onInput} {id} {name} {required}>
         {#each options as option, index}
             {#if option.display !== undefined && option.value !== undefined}
                 <!-- if option is a map -->
@@ -58,23 +57,23 @@
 
 
 <style lang="postcss">
-    .container {
+    .root {
         @apply prose space-y-0.5 w-full h-fit max-w-full max-h-fit;
+    }
+
+    .required {
+        @apply text-sm text-zinc-400;
     }
 
     .label {
         @apply font-semibold text-zinc-300;
     }
 
-    .select {
+    .input {
         @apply border bg-zinc-800 border-zinc-700 text-zinc-300 rounded-4px px-2 py-0.5 w-full m-0;
     }
 
-    .select:focus {
+    .input:focus {
         @apply outline-none ring-0;
-    }
-
-    .requiredText {
-        @apply text-sm text-zinc-400;
     }
 </style>

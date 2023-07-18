@@ -1,9 +1,6 @@
 <script>
-    // javascript
     import { GetPopular, GetTrending, GetSelectedInstance } from "../../wailsjs/go/main/InvidiousDesktop.js"
 
-
-    // components
     import VideoRow from "../components/video/VideoRow.svelte";
 </script>
 
@@ -11,7 +8,7 @@
 {#await GetSelectedInstance()}
     <p>Loading...</p>
 {:then instance} 
-    <div class="container">
+    <div class="root">
         {#if instance !== ""}
             <p>Your selected instance is: {instance}.</p>
         {:else}
@@ -34,7 +31,7 @@
 
 
 <style lang="postcss">
-    .container {
+    .root {
         @apply flex flex-col max-w-full;
     }
 

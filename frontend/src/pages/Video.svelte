@@ -1,9 +1,7 @@
 <script>
-    // javascript
     import { GetVideo } from "../../wailsjs/go/main/InvidiousDesktop";
 
-
-    // exports
+    
     export let videoId
 </script>
 
