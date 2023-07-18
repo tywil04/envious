@@ -111,14 +111,14 @@
 <script>
     import { onMount } from "svelte";
 
-    import * as runtime from "../../../wailsjs/runtime/runtime"
+    import { WindowMinimise, WindowToggleMaximise, Quit } from "../../../wailsjs/runtime/runtime"
 
     import { Icon } from "@steeze-ui/svelte-icon"
     import { Close, Add, Subtract } from "@steeze-ui/carbon-icons"
 
     import Home from "../../pages/Home.svelte";
-    
 
+    
     let tabs = [
         {
             name: "Home",
@@ -137,19 +137,19 @@
 </script> 
 
 
-<nav class="navigation" on:dblclick={runtime.WindowToggleMaximise}>
+<nav class="navigation" on:dblclick={WindowToggleMaximise}>
     <div class="title">
         <span class="text">Invidious Desktop</span>
     </div>
 
     <div class="controls"> 
-        <button title="Minimise Window" class="button" on:click={runtime.WindowMinimise}>
+        <button title="Minimise Window" class="button" on:click={WindowMinimise}>
             <Icon src={Subtract} size="24"/>
         </button>
-        <button title="Maximise Window" class="button" on:click={runtime.WindowToggleMaximise}>
+        <button title="Maximise Window" class="button" on:click={WindowToggleMaximise}>
             <Icon src={Add} size="24"/>
         </button>
-        <button title="Close Window" class="button close" on:click={runtime.Quit}>
+        <button title="Close Window" class="button close" on:click={Quit}>
             <Icon src={Close} size="24"/>
         </button>
     </div>

@@ -1,15 +1,26 @@
 <script>
+    import { WindowFullscreen, WindowUnfullscreen } from "../../wailsjs/runtime/runtime"
+
     import { GetVideo } from "../../wailsjs/go/main/InvidiousDesktop";
 
-    
+
     export let videoId
+
+
+    const onFullscreen = (event) => {
+        if (document.fullscreenElement === event.target) {
+            WindowFullscreen()
+        } else {
+            WindowUnfullscreen()
+        }
+    }
 </script>
 
 
 {#await GetVideo(videoId)}
     <p>Loading...</p>
 {:then video} 
-    <iframe allow="fullscreen" class="videoEmbed" title={video.title} src={video.embedUrl}/>
+    <iframe allow="fullscreen" on:fullscreenchange={onFullscreen} class="videoEmbed" title={video.title} src={video.embedUrl}/>
 {:catch error}
     <span class="errorText">{error}</span>
 {/await}
