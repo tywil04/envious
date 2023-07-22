@@ -1,12 +1,12 @@
-export namespace main {
+export namespace tubed {
 	
-	export class Caption {
+	export class VideoCaption {
 	    label: string;
 	    language: string;
 	    url: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new Caption(source);
+	        return new VideoCaption(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -19,33 +19,32 @@ export namespace main {
 	export class Video {
 	    title: string;
 	    id: string;
-	    url: string;
 	    embedUrl: string;
 	    thumbnailUrl: string;
 	    author: string;
 	    authorId: string;
-	    authorUrl: string;
-	    authorThumbnailUrl: string;
+	    authorAvatarUrl: string;
+	    shortDescription: string;
 	    description: string;
-	    descriptionHtml: string;
 	    published: number;
 	    publishedText: string;
 	    genre: string;
-	    liveNow: boolean;
 	    subCountText: string;
 	    lengthSeconds: number;
 	    allowRatings: boolean;
 	    rating: number;
-	    isListed: boolean;
-	    isUpcoming: boolean;
 	    viewCount: number;
 	    viewCountText: string;
 	    likeCount: number;
 	    dislikeCount: number;
-	    paid: boolean;
-	    premium: boolean;
+	    isListed: boolean;
+	    isUpcoming: boolean;
+	    isShort: boolean;
+	    isPaid: boolean;
+	    isPremium: boolean;
 	    isFamilyFriendly: boolean;
-	    captions: Caption[];
+	    liveNow: boolean;
+	    captions: VideoCaption[];
 	    recommendedVideos: Video[];
 	
 	    static createFrom(source: any = {}) {
@@ -56,33 +55,32 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.title = source["title"];
 	        this.id = source["id"];
-	        this.url = source["url"];
 	        this.embedUrl = source["embedUrl"];
 	        this.thumbnailUrl = source["thumbnailUrl"];
 	        this.author = source["author"];
 	        this.authorId = source["authorId"];
-	        this.authorUrl = source["authorUrl"];
-	        this.authorThumbnailUrl = source["authorThumbnailUrl"];
+	        this.authorAvatarUrl = source["authorAvatarUrl"];
+	        this.shortDescription = source["shortDescription"];
 	        this.description = source["description"];
-	        this.descriptionHtml = source["descriptionHtml"];
 	        this.published = source["published"];
 	        this.publishedText = source["publishedText"];
 	        this.genre = source["genre"];
-	        this.liveNow = source["liveNow"];
 	        this.subCountText = source["subCountText"];
 	        this.lengthSeconds = source["lengthSeconds"];
 	        this.allowRatings = source["allowRatings"];
 	        this.rating = source["rating"];
-	        this.isListed = source["isListed"];
-	        this.isUpcoming = source["isUpcoming"];
 	        this.viewCount = source["viewCount"];
 	        this.viewCountText = source["viewCountText"];
 	        this.likeCount = source["likeCount"];
 	        this.dislikeCount = source["dislikeCount"];
-	        this.paid = source["paid"];
-	        this.premium = source["premium"];
+	        this.isListed = source["isListed"];
+	        this.isUpcoming = source["isUpcoming"];
+	        this.isShort = source["isShort"];
+	        this.isPaid = source["isPaid"];
+	        this.isPremium = source["isPremium"];
 	        this.isFamilyFriendly = source["isFamilyFriendly"];
-	        this.captions = this.convertValues(source["captions"], Caption);
+	        this.liveNow = source["liveNow"];
+	        this.captions = this.convertValues(source["captions"], VideoCaption);
 	        this.recommendedVideos = this.convertValues(source["recommendedVideos"], Video);
 	    }
 	

@@ -97,13 +97,21 @@
     }
 
 
-    export function spawnTab(tab, hidden=true) {
-        if (document.getElementById(`tab::${tab.name}`) === null) {
-            renderTab(tab, !hidden)
-            renderTabView(tab, hidden)
-        } else {
-            selectTab(tab.name)
+    export function spawnTab(element, args) {
+        let [tab, hidden] = args
+
+        if (hidden === undefined) {
+            hidden = true
         }
+
+        element.addEventListener("click", () => {
+            if (document.getElementById(`tab::${tab.name}`) === null) {
+                renderTab(tab, !hidden)
+                renderTabView(tab, hidden)
+            } else {
+                selectTab(tab.name)
+            }
+        })
     }
 </script>
 
@@ -116,22 +124,14 @@
     import { Icon } from "@steeze-ui/svelte-icon"
     import { Close, Add, Subtract } from "@steeze-ui/carbon-icons"
 
-    import Home from "../../pages/Home.svelte";
-
     
-    let tabs = [
-        {
-            name: "Home",
-            locked: true,
-            component: Home,
-        },
-    ]
-    let currentTab = 0
+    export let defaultTabs = []
 
 
     onMount(() => {
-        for (let i = 0; i < tabs.length; i++) {
-            spawnTab(tabs[i], i !== currentTab)
+        for (let i = 0; i < defaultTabs.length; i++) {
+            renderTab(defaultTabs[i], i === 0)
+            renderTabView(defaultTabs[i], i !== 0)
         }
     })
 </script> 
@@ -139,7 +139,7 @@
 
 <nav class="navigation" on:dblclick={WindowToggleMaximise}>
     <div class="title">
-        <span class="text">Invidious Desktop</span>
+        <span class="text">Tubed</span>
     </div>
 
     <div class="controls"> 

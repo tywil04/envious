@@ -1,4 +1,4 @@
-module invidiousdesktop
+module github.com/tywil04/tubed
 
 go 1.18
 

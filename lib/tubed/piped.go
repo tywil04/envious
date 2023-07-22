@@ -1,0 +1,270 @@
+package tubed
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"strings"
+)
+
+func getPipedInstances() ([]map[string]string, error) {
+	response, err := http.Get("https://raw.githubusercontent.com/wiki/TeamPiped/Piped-Frontend/Instances.md")
+	if err != nil {
+		return []map[string]string{}, err
+	}
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return []map[string]string{}, err
+	}
+
+	decoded := strings.Split(string(body), "\n")
+	decoded = decoded[4 : len(decoded)-1]
+
+	instances := []map[string]string{}
+	for _, unprocessedInstance := range decoded {
+		instanceParts := strings.Split(unprocessedInstance, " | ")
+
+		instanceLocations := " [locations: " + instanceParts[2] + "]"
+
+		instanceCdn := " [cdn: %s]"
+		switch instanceParts[3] {
+		case "No":
+			instanceCdn = fmt.Sprintf(instanceCdn, "no")
+		case "Yes":
+			instanceCdn = fmt.Sprintf(instanceCdn, "yes")
+		default:
+			instanceCdn = fmt.Sprintf(instanceCdn, "unknown")
+		}
+
+		instanceCors := " [cors: unknown]"
+
+		instanceName := instanceParts[0]
+
+		apiUrl := instanceParts[1]
+
+		instances = append(instances, map[string]string{
+			"display": instanceName + instanceLocations + instanceCdn + instanceCors,
+			"value":   apiUrl,
+		})
+	}
+
+	return instances, nil
+}
+
+func getPipedInstanceFrontend(api string) (string, error) {
+	var frontendUrl string
+	request, err := http.NewRequest("GET", api, nil)
+	if err != nil {
+		return "", nil
+	}
+
+	client := http.Client{}
+	client.CheckRedirect = func(request *http.Request, via []*http.Request) error {
+		redirect, err := request.Response.Location()
+		frontendUrl = redirect.String()
+		return err
+	}
+
+	_, err = client.Do(request)
+	if err != nil {
+		return "", nil
+	}
+
+	return frontendUrl, nil
+}
+
+type pipedTrendingResponse []struct {
+	Duration         int64  `json:"duration"`
+	Thumbnail        string `json:"thumbnail"`
+	Title            string `json:"title"`
+	UploadedDate     string `json:"uploadedDate"`
+	UploaderName     string `json:"uploaderName"`
+	UploaderAvatar   string `json:"uploaderAvatar"`
+	UploaderUrl      string `json:"uploaderUrl"`
+	UploaderVerified bool   `json:"uploaderVerified"`
+	Uploaded         int64  `json:"uploaded"`
+	ShortDescription string `json:"shortDescription"`
+	Url              string `json:"url"`
+	Views            int64  `json:"views"`
+	IsShort          bool   `json:"isShort"`
+}
+
+func getPipedTrending(instance, region string) ([]Video, error) {
+	response, err := http.Get(instance + "/trending?region=" + region)
+	if err != nil {
+		return nil, err
+	}
+
+	decodedResponse := pipedTrendingResponse{}
+	json.NewDecoder(response.Body).Decode(&decodedResponse)
+
+	trending := []Video{}
+	for _, decoded := range decodedResponse {
+		videoId := strings.Split(decoded.Url, "?v=")[1]
+
+		embedUrl := instance + "/embed/" + videoId
+
+		authorId := strings.TrimPrefix(decoded.UploaderUrl, "/channel/")
+
+		trending = append(trending, Video{
+			Title:            decoded.Title,
+			Id:               videoId,
+			EmbedUrl:         embedUrl,
+			ThumbnailUrl:     decoded.Thumbnail,
+			Author:           decoded.UploaderName,
+			AuthorId:         authorId,
+			AuthorAvatarUrl:  decoded.UploaderAvatar,
+			ShortDescription: decoded.ShortDescription,
+			Published:        decoded.Uploaded,
+			PublishedText:    decoded.UploadedDate,
+			LengthSeconds:    decoded.Duration,
+			IsShort:          decoded.IsShort,
+			ViewCount:        decoded.Views,
+		})
+	}
+
+	return trending, nil
+}
+
+type pipedVideoResponse struct {
+	AudioStreams []struct {
+		Bitrate    int    `json:"bitrate"`
+		Codec      string `json:"codec"`
+		Format     string `json:"format"`
+		IndexEnd   int    `json:"indexEnd"`
+		IndexStart int    `json:"indexStart"`
+		InitStart  int    `json:"initStart"`
+		InitEnd    int    `json:"initEnd"`
+		MimeType   string `json:"mimeType"`
+		Quality    string `json:"quality"`
+		Url        string `json:"url"`
+		VideoOnly  bool   `json:"videoOnly"`
+	} `json:"audioStreams"`
+	Dash           string `json:"dash"`
+	Description    string `json:"description"`
+	Dislikes       int64  `json:"dislikes"`
+	Duration       int64  `json:"duration"`
+	Hls            string `json:"hls"`
+	LbryId         string `json:"lbryId"`
+	Likes          int64  `json:"Likes"`
+	Livestream     bool   `json:"livestream"`
+	ProxyUrl       string `json:"proxyUrl"`
+	RelatedStreams []struct {
+		Duration         int64  `json:"duration"`
+		Thumbnail        string `json:"thumbnail"`
+		Title            string `json:"title"`
+		UploadedDate     string `json:"uploadedDate"`
+		UploaderName     string `json:"uploaderName"`
+		UploaderAvatar   string `json:"uploaderAvatar"`
+		UploaderUrl      string `json:"uploaderUrl"`
+		UploaderVerified bool   `json:"uploaderVerified"`
+		Uploaded         int64  `json:"uploaded"`
+		ShortDescription string `json:"shortDescription"`
+		Url              string `json:"url"`
+		Views            int64  `json:"views"`
+		IsShort          bool   `json:"isShort"`
+	} `json:"relatedStreams"`
+	Subtitles []struct {
+		AutoGenerated bool   `json:"autoGenerated"`
+		Code          string `json:"code"`
+		MimeType      string `json:"mimeType"`
+		Name          string `json:"name"`
+		Url           string `json:"url"`
+	} `json:"subtitles"`
+	ThumbnailUrl     string `json:"thumbnailUrl"`
+	Title            string `json:"title"`
+	UploadedDate     string `json:"uploadedDate"`
+	UploaderName     string `json:"uploaderName"`
+	UploaderAvatar   string `json:"uploaderAvatar"`
+	UploaderUrl      string `json:"uploaderUrl"`
+	UploaderVerified bool   `json:"uploaderVerified"`
+	Uploaded         int64  `json:"uploaded"`
+	Url              string `json:"url"`
+	Views            int64  `json:"views"`
+	IsShort          bool   `json:"isShort"`
+	VideoStreams     []struct {
+		Bitrate    int    `json:"bitrate"`
+		Codec      string `json:"codec"`
+		Format     string `json:"format"`
+		Fps        int    `json:"fps"`
+		Height     int    `json:"height"`
+		Width      int    `json:""`
+		IndexEnd   int    `json:"indexEnd"`
+		IndexStart int    `json:"indexStart"`
+		InitStart  int    `json:"initStart"`
+		InitEnd    int    `json:"initEnd"`
+		MimeType   string `json:"mimeType"`
+		Quality    string `json:"quality"`
+		Url        string `json:"url"`
+		VideoOnly  bool   `json:"videoOnly"`
+	} `json:"videoStreams"`
+}
+
+func getPipedVideo(api, frontendUrl, videoId string) (Video, error) {
+	response, err := http.Get(api + "/api/v1/videos/" + videoId)
+	if err != nil {
+		return Video{}, err
+	}
+
+	decodedResponse := pipedVideoResponse{}
+	json.NewDecoder(response.Body).Decode(&decodedResponse)
+
+	var processedRecommendedVideos = []Video{}
+	for _, stream := range decodedResponse.RelatedStreams {
+		streamId := strings.Split(stream.Url, "?v=")[1]
+
+		authorId := strings.TrimPrefix(stream.UploaderUrl, "/channel/")
+
+		processedRecommendedVideos = append(processedRecommendedVideos, Video{
+			Title:            stream.Title,
+			Id:               streamId,
+			ThumbnailUrl:     stream.Thumbnail,
+			Author:           stream.UploaderName,
+			AuthorId:         authorId,
+			AuthorAvatarUrl:  stream.UploaderAvatar,
+			ShortDescription: stream.ShortDescription,
+			Published:        stream.Uploaded,
+			PublishedText:    stream.UploadedDate,
+			LengthSeconds:    stream.Duration,
+			IsShort:          stream.IsShort,
+			ViewCount:        stream.Views,
+		})
+	}
+
+	var processedCaptions = []VideoCaption{}
+	for _, caption := range decodedResponse.Subtitles {
+		processedCaptions = append(processedCaptions, VideoCaption{
+			Label:    caption.Name,
+			Language: caption.Code,
+			Url:      caption.Url,
+		})
+	}
+
+	embedUrl := frontendUrl + "/embed/" + videoId
+
+	authorId := strings.TrimPrefix(decodedResponse.UploaderUrl, "/channel/")
+
+	video := Video{
+		Title:             decodedResponse.Title,
+		Id:                videoId,
+		EmbedUrl:          embedUrl,
+		ThumbnailUrl:      decodedResponse.ThumbnailUrl,
+		Author:            decodedResponse.UploaderName,
+		AuthorId:          authorId,
+		AuthorAvatarUrl:   decodedResponse.UploaderAvatar,
+		Description:       decodedResponse.Description,
+		Published:         decodedResponse.Uploaded,
+		PublishedText:     decodedResponse.UploadedDate,
+		IsLiveNow:         decodedResponse.Livestream,
+		LengthSeconds:     decodedResponse.Duration,
+		ViewCount:         decodedResponse.Views,
+		LikeCount:         decodedResponse.Likes,
+		DislikeCount:      decodedResponse.Dislikes,
+		Captions:          processedCaptions,
+		RecommendedVideos: processedRecommendedVideos,
+	}
+
+	return video, nil
+}

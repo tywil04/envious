@@ -7,18 +7,29 @@ import (
 )
 
 type Config struct {
-	SelectedInstance string `json:"selectedInstance"`
-	Token            string `json:"token"`
+	Provider         string `json:"provider"`
+	InstanceApi      string `json:"instanceApi"`
+	InstanceFrontend string `json:"instanceFrontend"`
+	Region           string `json:"region"`
+	Configured       bool   `json:"configured"`
 }
 
 const (
-	ConfigDirectory = "/invidiousdesktop"
+	ConfigDirectory = "/Tubed"
 	ConfigFilePath  = "/config.json"
 )
 
-var Public Config
+var Stored Config
 
-func CreateConfigIfNotExist() error {
+var empty = Config{
+	Provider:         "piped",
+	InstanceApi:      "",
+	InstanceFrontend: "",
+	Region:           "US",
+	Configured:       false,
+}
+
+func createConfigIfNotExist() error {
 	userConfigDirectory, err := os.UserConfigDir()
 	if err != nil {
 		return err
@@ -43,7 +54,7 @@ func CreateConfigIfNotExist() error {
 			return err
 		}
 
-		if err := json.NewEncoder(configFile).Encode(Config{}); err != nil {
+		if err := json.NewEncoder(configFile).Encode(empty); err != nil {
 			return err
 		}
 
@@ -61,7 +72,7 @@ func Load() error {
 		return err
 	}
 
-	if err := CreateConfigIfNotExist(); err != nil {
+	if err := createConfigIfNotExist(); err != nil {
 		return err
 	}
 
@@ -71,7 +82,7 @@ func Load() error {
 	}
 	defer configFile.Close()
 
-	if err := json.NewDecoder(configFile).Decode(&Public); err != nil {
+	if err := json.NewDecoder(configFile).Decode(&Stored); err != nil {
 		return err
 	}
 
@@ -90,5 +101,5 @@ func Offload() error {
 	}
 	defer configFile.Close()
 
-	return json.NewEncoder(configFile).Encode(Public)
+	return json.NewEncoder(configFile).Encode(Stored)
 }
