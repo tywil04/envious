@@ -58,7 +58,7 @@
 
 <style lang="postcss">
     .root {
-        @apply prose space-y-0.5 w-full h-fit max-w-full max-h-fit;
+        @apply space-y-0.5 w-full h-fit max-w-full max-h-fit;
     }
 
     .required {

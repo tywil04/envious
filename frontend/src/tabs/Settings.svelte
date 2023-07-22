@@ -54,10 +54,6 @@
 
 
 <style lang="postcss">
-    .info {
-        @apply mb-3;
-    }
-
     .seperator {
         @apply mb-4;
     }

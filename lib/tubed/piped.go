@@ -104,14 +104,11 @@ func getPipedTrending(instance, region string) ([]Video, error) {
 	for _, decoded := range decodedResponse {
 		videoId := strings.Split(decoded.Url, "?v=")[1]
 
-		embedUrl := instance + "/embed/" + videoId
-
 		authorId := strings.TrimPrefix(decoded.UploaderUrl, "/channel/")
 
 		trending = append(trending, Video{
 			Title:            decoded.Title,
 			Id:               videoId,
-			EmbedUrl:         embedUrl,
 			ThumbnailUrl:     decoded.Thumbnail,
 			Author:           decoded.UploaderName,
 			AuthorId:         authorId,
@@ -176,7 +173,7 @@ type pipedVideoResponse struct {
 	ThumbnailUrl     string `json:"thumbnailUrl"`
 	Title            string `json:"title"`
 	UploadedDate     string `json:"uploadedDate"`
-	UploaderName     string `json:"uploaderName"`
+	Uploader         string `json:"uploader"`
 	UploaderAvatar   string `json:"uploaderAvatar"`
 	UploaderUrl      string `json:"uploaderUrl"`
 	UploaderVerified bool   `json:"uploaderVerified"`
@@ -203,7 +200,7 @@ type pipedVideoResponse struct {
 }
 
 func getPipedVideo(api, frontendUrl, videoId string) (Video, error) {
-	response, err := http.Get(api + "/api/v1/videos/" + videoId)
+	response, err := http.Get(api + "/streams/" + videoId)
 	if err != nil {
 		return Video{}, err
 	}
@@ -213,6 +210,10 @@ func getPipedVideo(api, frontendUrl, videoId string) (Video, error) {
 
 	var processedRecommendedVideos = []Video{}
 	for _, stream := range decodedResponse.RelatedStreams {
+		if stream.UploaderName == "More from this channel for you" {
+			continue
+		}
+
 		streamId := strings.Split(stream.Url, "?v=")[1]
 
 		authorId := strings.TrimPrefix(stream.UploaderUrl, "/channel/")
@@ -246,12 +247,12 @@ func getPipedVideo(api, frontendUrl, videoId string) (Video, error) {
 
 	authorId := strings.TrimPrefix(decodedResponse.UploaderUrl, "/channel/")
 
-	video := Video{
+	newVideo := Video{
 		Title:             decodedResponse.Title,
 		Id:                videoId,
 		EmbedUrl:          embedUrl,
 		ThumbnailUrl:      decodedResponse.ThumbnailUrl,
-		Author:            decodedResponse.UploaderName,
+		Author:            decodedResponse.Uploader,
 		AuthorId:          authorId,
 		AuthorAvatarUrl:   decodedResponse.UploaderAvatar,
 		Description:       decodedResponse.Description,
@@ -266,5 +267,5 @@ func getPipedVideo(api, frontendUrl, videoId string) (Video, error) {
 		RecommendedVideos: processedRecommendedVideos,
 	}
 
-	return video, nil
+	return newVideo, nil
 }

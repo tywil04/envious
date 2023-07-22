@@ -283,7 +283,7 @@ func getInvidiousVideo(api, frontendUrl, videoId string) (Video, error) {
 
 	embedUrl := frontendUrl + "/embed/" + decodedResponse.VideoId
 
-	video := Video{
+	newVideo := Video{
 		Title:             decodedResponse.Title,
 		Id:                decodedResponse.VideoId,
 		EmbedUrl:          embedUrl,
@@ -291,7 +291,7 @@ func getInvidiousVideo(api, frontendUrl, videoId string) (Video, error) {
 		Author:            decodedResponse.Author,
 		AuthorId:          decodedResponse.AuthorId,
 		AuthorAvatarUrl:   authorThumbnailUrl,
-		Description:       decodedResponse.Description,
+		Description:       decodedResponse.DescriptionHtml,
 		Published:         decodedResponse.Published,
 		PublishedText:     decodedResponse.PublishedText,
 		Genre:             decodedResponse.Genre,
@@ -312,5 +312,5 @@ func getInvidiousVideo(api, frontendUrl, videoId string) (Video, error) {
 		RecommendedVideos: processedRecommendedVideos,
 	}
 
-	return video, nil
+	return newVideo, nil
 }

@@ -6,15 +6,14 @@ import Home from "./tabs/Home.svelte";
 import "./style.css";
 
 
+// make fullscreen
 const onFullscreen = (event) => {
     if (document.fullscreenElement !== null) {
         WindowMaximise()
-        // setTimeout(WindowFullscreen, 1)
-        WindowFullscreen()
+        setTimeout(WindowFullscreen, 1)
     } else {
         WindowUnfullscreen()
-        // setTimeout(WindowUnmaximise, 1)
-        WindowUnmaximise()
+        setTimeout(WindowUnmaximise, 1)
     }
 }
 document.addEventListener("fullscreenchange", onFullscreen)

@@ -86,6 +86,8 @@
                 child.hidden = true
             }
             tabRoot.hidden = false
+        } else {
+            tabRoot.hidden = true
         }
 
         new tab.component({
@@ -104,7 +106,9 @@
             hidden = true
         }
 
-        element.addEventListener("click", () => {
+        element.addEventListener("click", (event) => {
+            event.preventDefault()
+
             if (document.getElementById(`tab::${tab.name}`) === null) {
                 renderTab(tab, !hidden)
                 renderTabView(tab, hidden)

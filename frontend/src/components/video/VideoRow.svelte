@@ -7,8 +7,8 @@
     import Video from "../../tabs/Video.svelte";
 
 
-    export let data = []                        
-    export let dataFunction = async () => data // allow for data to be directly entered into the component or use custom dataFunction
+    export let rawData = []                        
+    export let dataFunction = async () => rawData // allow for data to be directly entered into the component or use custom dataFunction
 
 
     let videosElement
