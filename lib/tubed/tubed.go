@@ -1,9 +1,12 @@
+// Package that interfaces with Piped and Invidious to get YouTube videos
 package tubed
 
 import (
 	"errors"
 )
 
+// Get list of instances from provider.
+// provider is either 'invidious' or 'piped'.
 func GetInstancesApi(provider string) ([]map[string]string, error) {
 	switch provider {
 	case "invidious":
@@ -15,6 +18,8 @@ func GetInstancesApi(provider string) ([]map[string]string, error) {
 	}
 }
 
+// Get a providers frontend url from its api url.
+// provider is either 'invidious' or 'piped'.
 func GetInstanceFrontend(provider string, api string) (string, error) {
 	switch provider {
 	case "invidious":
@@ -26,6 +31,8 @@ func GetInstanceFrontend(provider string, api string) (string, error) {
 	}
 }
 
+// Gets the trending videos from provider.
+// provider is either 'invidious' or 'piped'.
 func GetTrending(provider, api, region string) ([]Video, error) {
 	switch provider {
 	case "invidious":
@@ -37,6 +44,9 @@ func GetTrending(provider, api, region string) ([]Video, error) {
 	}
 }
 
+// Gets the video from provider via videoId.
+// provider is either 'invidious' or 'piped'.
+// videoId is a YouTube video id.
 func GetVideo(provider, api, frontend, videoId string) (Video, error) {
 	switch provider {
 	case "invidious":

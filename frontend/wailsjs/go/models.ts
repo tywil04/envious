@@ -1,12 +1,12 @@
 export namespace tubed {
 	
-	export class VideoCaption {
+	export class Caption {
 	    label: string;
 	    language: string;
 	    url: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new VideoCaption(source);
+	        return new Caption(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -44,7 +44,7 @@ export namespace tubed {
 	    isPremium: boolean;
 	    isFamilyFriendly: boolean;
 	    liveNow: boolean;
-	    captions: VideoCaption[];
+	    captions: Caption[];
 	    recommendedVideos: Video[];
 	
 	    static createFrom(source: any = {}) {
@@ -80,7 +80,7 @@ export namespace tubed {
 	        this.isPremium = source["isPremium"];
 	        this.isFamilyFriendly = source["isFamilyFriendly"];
 	        this.liveNow = source["liveNow"];
-	        this.captions = this.convertValues(source["captions"], VideoCaption);
+	        this.captions = this.convertValues(source["captions"], Caption);
 	        this.recommendedVideos = this.convertValues(source["recommendedVideos"], Video);
 	    }
 	
