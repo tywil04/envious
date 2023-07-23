@@ -14,7 +14,7 @@ var assets embed.FS
 
 func main() {
 	// Create an instance of the app structure
-	app := NewApp()
+	tubed := Init()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -32,7 +32,7 @@ func main() {
 			Theme: windows.Dark,
 		},
 		Bind: []interface{}{
-			app,
+			tubed,
 		},
 	})
 

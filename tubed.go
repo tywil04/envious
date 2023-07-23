@@ -16,7 +16,7 @@ type Tubed struct {
 	PipedKnownInstances     []map[string]string
 }
 
-func NewApp() *Tubed {
+func Init() *Tubed {
 	t := &Tubed{}
 	return t
 }
