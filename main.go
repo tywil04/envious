@@ -6,6 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
@@ -29,7 +30,11 @@ func main() {
 		OnShutdown:       tubed.Shutdown,
 		Frameless:        true,
 		Windows: &windows.Options{
-			Theme: windows.Dark,
+			WebviewGpuIsDisabled: false,
+			Theme:                windows.Dark,
+		},
+		Linux: &linux.Options{
+			WebviewGpuPolicy: linux.WebviewGpuPolicyOnDemand,
 		},
 		Bind: []interface{}{
 			tubed,

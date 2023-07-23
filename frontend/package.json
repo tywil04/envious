@@ -11,7 +11,6 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
     "@tailwindcss/forms": "^0.5.3",
-    "@tailwindcss/typography": "^0.5.9",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.25",
     "postcss-load-config": "^4.0.1",
@@ -22,6 +21,7 @@
   "dependencies": {
     "@steeze-ui/carbon-icons": "^1.2.1",
     "@steeze-ui/svelte-icon": "^1.5.0",
+    "stackblur-canvas": "^2.6.0",
     "svelte-preprocess": "^5.0.4",
     "uuid": "^9.0.0"
   }

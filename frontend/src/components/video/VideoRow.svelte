@@ -1,10 +1,12 @@
 <script>    
     import { spawnTab } from "../window/Window.svelte"
-    
+    import * as StackBlur from "../../../node_modules/stackblur-canvas/dist/stackblur-es.min.js";
+
     import { Icon } from "@steeze-ui/svelte-icon"
     import { ChevronLeft, ChevronRight } from "@steeze-ui/carbon-icons"
 
     import Video from "../../tabs/Video.svelte";
+    import { onMount } from "svelte";
 
 
     export let rawData = []                        
@@ -14,7 +16,7 @@
     let videosElement
     let showScrollLeft = false 
     let showScrollRight = true
-
+ 
 
     const calculateScrollIndicators = (_) => {
         showScrollLeft = videosElement.scrollLeft > 0
@@ -42,6 +44,28 @@
             behavior: "smooth",
         })
     }
+
+
+    const blurBehindText = (element) => {
+        let thumbnail
+        let canvas
+
+        for (let child of element.children) {
+            if (child.tagName === "IMG") {
+                thumbnail = child
+                continue
+            }
+
+            if (child.tagName === "CANVAS") {
+                canvas = child
+            }
+        }
+
+        if (thumbnail != undefined && canvas != undefined) { 
+            canvas.getContext("2d").drawImage(thumbnail, 0, 0, 320, 150)
+            StackBlur.canvasRGB(canvas, 0, 0, 320, 150, 100)
+        }
+    }
 </script>
 
 
@@ -57,7 +81,7 @@
 
         <div bind:this={videosElement} class="videos" on:scroll={calculateScrollIndicators}>
             {#each data as video}
-                <button class="video" title={video.title} use:spawnTab={[
+                <button class="video" title={video.title} use:blurBehindText use:spawnTab={[
                     { 
                         name: video.title,
                         component: Video, 
@@ -67,8 +91,8 @@
                     }, 
                     false
                 ]}>
-                    <img class="image" src={video.thumbnailUrl} alt={video.title}/>
-                    <img class="textImage" src={video.thumbnailUrl} alt={video.title}/>
+                    <img crossorigin="anonymous" class="image" src={video.thumbnailUrl} alt={video.title}/>
+                    <canvas id="canvas" class="textImage"/>
                     <div class="text">
                         <p class="title">{video.title}</p>
                         <a class="author" href="/author/{video.id}">{video.author}</a>
@@ -115,11 +139,11 @@
         @apply right-[56px];
     }
 
-    .scrollIndicator > .icon {
+    .icon {
         @apply z-10 rounded-full text-zinc-200 p-2 shadow-md opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none bg-zinc-800;
     } 
 
-    .scrollIndicator > .icon:hover {
+    .icon:hover {
         @apply brightness-125;
     }
 
@@ -131,7 +155,6 @@
     /* videos container and video */
     .videos {
         @apply flex flex-row overflow-x-scroll overflow-y-hidden space-x-4 rounded-lg min-h-fit mx-0;
-
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
@@ -144,24 +167,24 @@
         @apply brightness-125;
     }
 
-    .video > .image {
+    .image {
         @apply w-[320px] h-[180px] min-w-fit bg-black rounded-t-md;
     }
 
-    .video > .textImage {
+    .textImage {
         @apply w-[320px] h-[124px] rounded-b-md bg-black;
     }
 
-    .video > .text {
-        @apply -translate-y-[124px] flex flex-col p-3 will-change-contents text-white space-y-1 rounded-b-md backdrop-blur-2xl saturate-200 bg-glassBlack;
+    .text {
+        @apply -translate-y-[124px] flex flex-col p-3 text-white space-y-1 rounded-b-md saturate-200 bg-glassBlack;
     }
 
-    .video > .text > .title {
+    .title {
         /* 12px + 296px + 12px = 320px (12px padding each side)*/
         @apply max-w-[296px] break-words font-semibold line-clamp-3 min-h-[72px] text-left;
     }
 
-    .video > .text > .author {
+    .author {
         @apply text-left;
     }
 </style>

@@ -1,4 +1,4 @@
-export namespace tubed {
+export namespace shared {
 	
 	export class Caption {
 	    label: string;
