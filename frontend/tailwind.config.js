@@ -16,8 +16,8 @@ export default {
         '65': '0.65',
       },
       colors: {
-        "glassBlack": "rgba(17, 25, 40, 0.7)",
-        "glassWhite": "rgba(255, 255, 255, 0.7)"
+        "glassBlack": "rgba(17, 25, 40, 0.75)",
+        "glassWhite": "rgba(255, 255, 255, 0.75)"
       },
     },
   },
