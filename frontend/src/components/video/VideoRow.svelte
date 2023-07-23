@@ -6,7 +6,6 @@
     import { ChevronLeft, ChevronRight } from "@steeze-ui/carbon-icons"
 
     import Video from "../../tabs/Video.svelte";
-    import { onMount } from "svelte";
 
 
     export let rawData = []                        
