@@ -1,4 +1,4 @@
-package tubed
+package shared
 
 type Caption struct {
 	Label    string `json:"label"`

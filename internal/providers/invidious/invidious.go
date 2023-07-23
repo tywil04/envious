@@ -1,12 +1,14 @@
-package tubed
+package invidious
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/tywil04/tubed/internal/providers/shared"
 )
 
 // Process Invidious video thumbnails into a single, sensible thumbnail url.
-func invidiousProcessVideoThumbnailUrl(thumbnails []invidiousVideoThumbnail) string {
+func processVideoThumbnailUrl(thumbnails []invidiousVideoThumbnail) string {
 	var processedThumbnailUrl string
 
 	for _, videoThumbnail := range thumbnails {
@@ -20,7 +22,7 @@ func invidiousProcessVideoThumbnailUrl(thumbnails []invidiousVideoThumbnail) str
 }
 
 // Process Invidious avatar thumbnails into a single, sensible thumbnail url.
-func invidiousProcessAuthorAvatarUrl(avatars []invidiousAuthorThumbnail) string {
+func processAuthorAvatarUrl(avatars []invidiousAuthorThumbnail) string {
 	var processedAvatarUrl string
 
 	for _, avatar := range avatars {
@@ -34,13 +36,13 @@ func invidiousProcessAuthorAvatarUrl(avatars []invidiousAuthorThumbnail) string 
 }
 
 // Process Invidious recommended videos into Tubed videos.
-func invidiousProcessRecommendedVideos(videos []invidiousRecommendedVideo) []Video {
-	var processedRecommendedVideos = make([]Video, len(videos))
+func processRecommendedVideos(videos []invidiousRecommendedVideo) []shared.Video {
+	var processedRecommendedVideos = make([]shared.Video, len(videos))
 
 	for index, video := range videos {
-		videoThumbnail := invidiousProcessVideoThumbnailUrl(video.VideoThumbnails)
+		videoThumbnail := processVideoThumbnailUrl(video.VideoThumbnails)
 
-		processedRecommendedVideos[index] = Video{
+		processedRecommendedVideos[index] = shared.Video{
 			Title:         video.Title,
 			Id:            video.VideoId,
 			ThumbnailUrl:  videoThumbnail,
@@ -56,11 +58,11 @@ func invidiousProcessRecommendedVideos(videos []invidiousRecommendedVideo) []Vid
 }
 
 // Process Invidious captions into Tubed captions.
-func invidiousProcessCaptions(api string, captions []invidiousCaption) []Caption {
-	var processedCaptions = make([]Caption, len(captions))
+func processCaptions(api string, captions []invidiousCaption) []shared.Caption {
+	var processedCaptions = make([]shared.Caption, len(captions))
 
 	for index, caption := range captions {
-		processedCaptions[index] = Caption{
+		processedCaptions[index] = shared.Caption{
 			Label:    caption.Label,
 			Language: caption.LanguageCode,
 			Url:      api + caption.Url,
@@ -72,9 +74,9 @@ func invidiousProcessCaptions(api string, captions []invidiousCaption) []Caption
 
 // Get a list of Invidious instances.
 // The resulting array is a map that has the keys 'display' and 'value' where 'display' is the display name of an instance and 'value' is the url.
-func getInvidiousInstances() ([]map[string]string, error) {
+func GetInstances() ([]map[string]string, error) {
 	decodedResponse := [][]any{}
-	err := httpGetJson("https://api.invidious.io/instances.json?pretty=1&sort_by=type,users,api", nil, nil, &decodedResponse)
+	err := shared.HttpGetJson("https://api.invidious.io/instances.json?pretty=1&sort_by=type,users,api", nil, nil, &decodedResponse)
 	if err != nil {
 		return []map[string]string{}, err
 	}
@@ -117,23 +119,23 @@ func getInvidiousInstances() ([]map[string]string, error) {
 }
 
 // Get the frontend url for the selected Invidious instance.
-func getInvidiousInstanceFrontend(api string) (string, error) {
+func GetInstanceFrontend(api string) (string, error) {
 	return api, nil
 }
 
 // Get trending videos from Invidious API.
-func getInvidiousTrending(api, region string) ([]Video, error) {
+func GetTrending(api, region string) ([]shared.Video, error) {
 	decodedResponse := invidiousTrendingResponse{}
-	err := httpGetJson(api+"/api/v1/trending?region="+region, nil, nil, &decodedResponse)
+	err := shared.HttpGetJson(api+"/api/v1/trending?region="+region, nil, nil, &decodedResponse)
 	if err != nil {
-		return []Video{}, err
+		return []shared.Video{}, err
 	}
 
-	var trending = make([]Video, len(decodedResponse))
+	var trending = make([]shared.Video, len(decodedResponse))
 	for index, video := range decodedResponse {
-		thumbnail := invidiousProcessVideoThumbnailUrl(video.VideoThumbnails)
+		thumbnail := processVideoThumbnailUrl(video.VideoThumbnails)
 
-		trending[index] = Video{
+		trending[index] = shared.Video{
 			Title:         video.Title,
 			Id:            video.VideoId,
 			ThumbnailUrl:  thumbnail,
@@ -152,20 +154,20 @@ func getInvidiousTrending(api, region string) ([]Video, error) {
 }
 
 // Get video from Invidious API.
-func getInvidiousVideo(api, frontendUrl, videoId string) (Video, error) {
+func GetVideo(api, frontendUrl, videoId string) (shared.Video, error) {
 	decodedResponse := invidiousVideoResponse{}
-	err := httpGetJson(api+"/api/v1/videos/"+videoId, nil, nil, &decodedResponse)
+	err := shared.HttpGetJson(api+"/api/v1/videos/"+videoId, nil, nil, &decodedResponse)
 	if err != nil {
-		return Video{}, err
+		return shared.Video{}, err
 	}
 
 	embedUrl := frontendUrl + "/embed/" + decodedResponse.VideoId
-	videoThumbnail := invidiousProcessVideoThumbnailUrl(decodedResponse.VideoThumbnails)
-	authorAvatar := invidiousProcessAuthorAvatarUrl(decodedResponse.AuthorThumbnails)
-	recommended := invidiousProcessRecommendedVideos(decodedResponse.RecommendedVideos)
-	captions := invidiousProcessCaptions(api, decodedResponse.Captions)
+	videoThumbnail := processVideoThumbnailUrl(decodedResponse.VideoThumbnails)
+	authorAvatar := processAuthorAvatarUrl(decodedResponse.AuthorThumbnails)
+	recommended := processRecommendedVideos(decodedResponse.RecommendedVideos)
+	captions := processCaptions(api, decodedResponse.Captions)
 
-	newVideo := Video{
+	newVideo := shared.Video{
 		Title:             decodedResponse.Title,
 		Id:                decodedResponse.VideoId,
 		EmbedUrl:          embedUrl,

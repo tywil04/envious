@@ -5,8 +5,9 @@ import (
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"github.com/tywil04/tubed/lib/config"
-	"github.com/tywil04/tubed/lib/tubed"
+	"github.com/tywil04/tubed/internal/config"
+	"github.com/tywil04/tubed/internal/providers"
+	"github.com/tywil04/tubed/internal/providers/shared"
 )
 
 type Tubed struct {
@@ -36,7 +37,7 @@ func (t *Tubed) Shutdown(ctx context.Context) {
 }
 
 func (t *Tubed) SetConfig(provider, instanceApi string) {
-	frontendUrl, err := tubed.GetInstanceFrontend(provider, instanceApi)
+	frontendUrl, err := providers.GetInstanceFrontend(provider, instanceApi)
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
 	}
@@ -63,7 +64,7 @@ func (t *Tubed) SetProvider(provider string) {
 }
 
 func (t *Tubed) SetInstance(instanceApi string) {
-	frontendUrl, err := tubed.GetInstanceFrontend(config.Stored.Provider, instanceApi)
+	frontendUrl, err := providers.GetInstanceFrontend(config.Stored.Provider, instanceApi)
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
 	}
@@ -97,7 +98,7 @@ func (t *Tubed) GetInstancesApi(provider string) []map[string]string {
 		}
 	}
 
-	instances, err := tubed.GetInstancesApi(provider)
+	instances, err := providers.GetInstancesApi(provider)
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
 	}
@@ -120,12 +121,12 @@ func (t *Tubed) GetInstanceFrontend() string {
 	return config.Stored.InstanceFrontend
 }
 
-func (t *Tubed) GetTrending() []tubed.Video {
+func (t *Tubed) GetTrending() []shared.Video {
 	if !config.Stored.Configured {
-		return []tubed.Video{}
+		return []shared.Video{}
 	}
 
-	trending, err := tubed.GetTrending(config.Stored.Provider, config.Stored.InstanceApi, config.Stored.Region)
+	trending, err := providers.GetTrending(config.Stored.Provider, config.Stored.InstanceApi, config.Stored.Region)
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
 	}
@@ -133,12 +134,12 @@ func (t *Tubed) GetTrending() []tubed.Video {
 	return trending
 }
 
-func (t *Tubed) GetVideo(videoId string) tubed.Video {
+func (t *Tubed) GetVideo(videoId string) shared.Video {
 	if !config.Stored.Configured {
-		return tubed.Video{}
+		return shared.Video{}
 	}
 
-	video, err := tubed.GetVideo(config.Stored.Provider, config.Stored.InstanceApi, config.Stored.InstanceFrontend, videoId)
+	video, err := providers.GetVideo(config.Stored.Provider, config.Stored.InstanceApi, config.Stored.InstanceFrontend, videoId)
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
 	}

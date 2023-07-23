@@ -1,8 +1,12 @@
 // Package that interfaces with Piped and Invidious to get YouTube videos
-package tubed
+package providers
 
 import (
 	"errors"
+
+	"github.com/tywil04/tubed/internal/providers/invidious"
+	"github.com/tywil04/tubed/internal/providers/piped"
+	"github.com/tywil04/tubed/internal/providers/shared"
 )
 
 // Get list of instances from provider.
@@ -10,11 +14,11 @@ import (
 func GetInstancesApi(provider string) ([]map[string]string, error) {
 	switch provider {
 	case "invidious":
-		return getInvidiousInstances()
+		return invidious.GetInstances()
 	case "piped":
-		return getPipedInstances()
+		return piped.GetInstances()
 	default:
-		return nil, errors.New("no instance provider selected")
+		return []map[string]string{}, errors.New("no instance provider selected")
 	}
 }
 
@@ -23,9 +27,9 @@ func GetInstancesApi(provider string) ([]map[string]string, error) {
 func GetInstanceFrontend(provider string, api string) (string, error) {
 	switch provider {
 	case "invidious":
-		return getInvidiousInstanceFrontend(api)
+		return invidious.GetInstanceFrontend(api)
 	case "piped":
-		return getPipedInstanceFrontend(api)
+		return piped.GetInstanceFrontend(api)
 	default:
 		return "", errors.New("no instance provider selected")
 	}
@@ -33,27 +37,27 @@ func GetInstanceFrontend(provider string, api string) (string, error) {
 
 // Gets the trending videos from provider.
 // provider is either 'invidious' or 'piped'.
-func GetTrending(provider, api, region string) ([]Video, error) {
+func GetTrending(provider, api, region string) ([]shared.Video, error) {
 	switch provider {
 	case "invidious":
-		return getInvidiousTrending(api, region)
+		return invidious.GetTrending(api, region)
 	case "piped":
-		return getPipedTrending(api, region)
+		return piped.GetTrending(api, region)
 	default:
-		return nil, errors.New("no instance provider selected")
+		return []shared.Video{}, errors.New("no instance provider selected")
 	}
 }
 
 // Gets the video from provider via videoId.
 // provider is either 'invidious' or 'piped'.
 // videoId is a YouTube video id.
-func GetVideo(provider, api, frontend, videoId string) (Video, error) {
+func GetVideo(provider, api, frontend, videoId string) (shared.Video, error) {
 	switch provider {
 	case "invidious":
-		return getInvidiousVideo(api, frontend, videoId)
+		return invidious.GetVideo(api, frontend, videoId)
 	case "piped":
-		return getPipedVideo(api, frontend, videoId)
+		return piped.GetVideo(api, frontend, videoId)
 	default:
-		return Video{}, errors.New("no instance provider selected")
+		return shared.Video{}, errors.New("no instance provider selected")
 	}
 }

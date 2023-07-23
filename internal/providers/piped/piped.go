@@ -1,13 +1,15 @@
-package tubed
+package piped
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/tywil04/tubed/internal/providers/shared"
 )
 
 // Process Piped recommended videos into Tubed videos.
-func pipedProcessRecommendedVideos(videos []pipedRelatedStream) []Video {
-	var processedRecommendedVideos = make([]Video, len(videos))
+func processRecommendedVideos(videos []pipedRelatedStream) []shared.Video {
+	var processedRecommendedVideos = make([]shared.Video, len(videos))
 
 	for index, video := range videos {
 		if video.UploaderName == "More from this channel for you" {
@@ -17,7 +19,7 @@ func pipedProcessRecommendedVideos(videos []pipedRelatedStream) []Video {
 		videoId := strings.Split(video.Url, "?v=")[1]
 		authorId := strings.TrimPrefix(video.UploaderUrl, "/channel/")
 
-		processedRecommendedVideos[index] = Video{
+		processedRecommendedVideos[index] = shared.Video{
 			Title:            video.Title,
 			Id:               videoId,
 			ThumbnailUrl:     video.Thumbnail,
@@ -37,11 +39,11 @@ func pipedProcessRecommendedVideos(videos []pipedRelatedStream) []Video {
 }
 
 // Process Piped captions into tubed captions.
-func pipedProcessCaptions(captions []pipedSubtitle) []Caption {
-	var processedCaptions = make([]Caption, len(captions))
+func processCaptions(captions []pipedSubtitle) []shared.Caption {
+	var processedCaptions = make([]shared.Caption, len(captions))
 
 	for index, caption := range captions {
-		processedCaptions[index] = Caption{
+		processedCaptions[index] = shared.Caption{
 			Label:    caption.Name,
 			Language: caption.Code,
 			Url:      caption.Url,
@@ -53,8 +55,8 @@ func pipedProcessCaptions(captions []pipedSubtitle) []Caption {
 
 // Get a list of Piped instances.
 // The resulting array is a map that has the keys 'display' and 'value' where 'display' is the display name of an instance and 'value' is the url.
-func getPipedInstances() ([]map[string]string, error) {
-	instancesList, err := httpGetString("https://raw.githubusercontent.com/wiki/TeamPiped/Piped-Frontend/Instances.md", nil, nil)
+func GetInstances() ([]map[string]string, error) {
+	instancesList, err := shared.HttpGetString("https://raw.githubusercontent.com/wiki/TeamPiped/Piped-Frontend/Instances.md", nil, nil)
 	if err != nil {
 		return []map[string]string{}, err
 	}
@@ -91,8 +93,8 @@ func getPipedInstances() ([]map[string]string, error) {
 }
 
 // Get the frontend url for the selected Piped instance.
-func getPipedInstanceFrontend(api string) (string, error) {
-	frontendUrl, err := httpGetRedirect(api, nil, nil)
+func GetInstanceFrontend(api string) (string, error) {
+	frontendUrl, err := shared.HttpGetRedirect(api, nil, nil)
 	if err != nil {
 		return "", err
 	}
@@ -100,19 +102,19 @@ func getPipedInstanceFrontend(api string) (string, error) {
 }
 
 // Get trending videos from Piped API.
-func getPipedTrending(instance, region string) ([]Video, error) {
+func GetTrending(instance, region string) ([]shared.Video, error) {
 	decodedResponse := pipedTrendingResponse{}
-	err := httpGetJson(instance+"/trending?region="+region, nil, nil, &decodedResponse)
+	err := shared.HttpGetJson(instance+"/trending?region="+region, nil, nil, &decodedResponse)
 	if err != nil {
-		return []Video{}, err
+		return []shared.Video{}, err
 	}
 
-	var trending = make([]Video, len(decodedResponse))
+	var trending = make([]shared.Video, len(decodedResponse))
 	for index, video := range decodedResponse {
 		videoId := strings.Split(video.Url, "?v=")[1]
 		authorId := strings.TrimPrefix(video.UploaderUrl, "/channel/")
 
-		trending[index] = Video{
+		trending[index] = shared.Video{
 			Title:            video.Title,
 			Id:               videoId,
 			ThumbnailUrl:     video.Thumbnail,
@@ -132,19 +134,19 @@ func getPipedTrending(instance, region string) ([]Video, error) {
 }
 
 // Get video from Piped API.
-func getPipedVideo(api, frontendUrl, videoId string) (Video, error) {
+func GetVideo(api, frontendUrl, videoId string) (shared.Video, error) {
 	decodedResponse := pipedVideoResponse{}
-	err := httpGetJson(api+"/streams/"+videoId, nil, nil, &decodedResponse)
+	err := shared.HttpGetJson(api+"/streams/"+videoId, nil, nil, &decodedResponse)
 	if err != nil {
-		return Video{}, err
+		return shared.Video{}, err
 	}
 
 	embedUrl := frontendUrl + "/embed/" + videoId
 	authorId := strings.TrimPrefix(decodedResponse.UploaderUrl, "/channel/")
-	recommended := pipedProcessRecommendedVideos(decodedResponse.RelatedStreams)
-	captions := pipedProcessCaptions(decodedResponse.Subtitles)
+	recommended := processRecommendedVideos(decodedResponse.RelatedStreams)
+	captions := processCaptions(decodedResponse.Subtitles)
 
-	newVideo := Video{
+	newVideo := shared.Video{
 		Title:             decodedResponse.Title,
 		Id:                videoId,
 		EmbedUrl:          embedUrl,

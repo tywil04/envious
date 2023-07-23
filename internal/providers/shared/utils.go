@@ -1,4 +1,4 @@
-package tubed
+package shared
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ import (
 // body is an io.Reader and can be generated with functions like jsonEncodeBody.
 // headers is a map, the key is Header and the value is the value to set.
 // value is a pointer to a value that will be filled with the response.
-func httpGetJson(url string, body io.Reader, headers map[string]string, value any) error {
+func HttpGetJson(url string, body io.Reader, headers map[string]string, value any) error {
 	request, err := http.NewRequest("GET", url, body)
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func httpGetJson(url string, body io.Reader, headers map[string]string, value an
 // url is the url to GET.
 // body is an io.Reader and can be generated with functions like jsonEncodeBody.
 // headers is a map, the key is Header and the value is the value to set.
-func httpGetString(url string, body io.Reader, headers map[string]string) (string, error) {
+func HttpGetString(url string, body io.Reader, headers map[string]string) (string, error) {
 	request, err := http.NewRequest("GET", url, body)
 	if err != nil {
 		return "", err
@@ -81,7 +81,7 @@ func httpGetString(url string, body io.Reader, headers map[string]string) (strin
 // url is the url to GET.
 // body is an io.Reader and can be generated with functions like jsonEncodeBody.
 // headers is a map, the key is Header and the value is the value to set.
-func httpGetRedirect(url string, body io.Reader, headers map[string]string) (string, error) {
+func HttpGetRedirect(url string, body io.Reader, headers map[string]string) (string, error) {
 	request, err := http.NewRequest("GET", url, body)
 	if err != nil {
 		return "", nil

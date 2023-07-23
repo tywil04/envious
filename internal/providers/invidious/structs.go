@@ -1,4 +1,4 @@
-package tubed
+package invidious
 
 type invidiousVideoThumbnail struct {
 	Quality string `json:"quality"`

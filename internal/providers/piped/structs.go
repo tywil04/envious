@@ -1,4 +1,4 @@
-package tubed
+package piped
 
 type pipedAudioStream struct {
 	Bitrate    int    `json:"bitrate"`
