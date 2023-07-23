@@ -60,10 +60,10 @@
             }
         }
 
-        if (thumbnail != undefined && canvas != undefined) { 
+        thumbnail.addEventListener("load", () => {
             canvas.getContext("2d").drawImage(thumbnail, 0, 0, 320, 150)
             StackBlur.canvasRGB(canvas, 0, 0, 320, 150, 100)
-        }
+        })
     }
 </script>
 
