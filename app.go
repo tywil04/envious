@@ -21,7 +21,7 @@ func NewApp() *Tubed {
 	return t
 }
 
-func (t *Tubed) startup(ctx context.Context) {
+func (t *Tubed) Startup(ctx context.Context) {
 	if err := config.Load(); err != nil {
 		runtime.LogFatal(ctx, err.Error())
 	}
@@ -29,13 +29,13 @@ func (t *Tubed) startup(ctx context.Context) {
 	t.ctx = ctx
 }
 
-func (t *Tubed) shutdown(ctx context.Context) {
+func (t *Tubed) Shutdown(ctx context.Context) {
 	if err := config.Offload(); err != nil {
 		runtime.LogFatal(ctx, err.Error())
 	}
 }
 
-func (t *Tubed) Configure(provider, instanceApi string) {
+func (t *Tubed) SetConfig(provider, instanceApi string) {
 	frontendUrl, err := tubed.GetInstanceFrontend(provider, instanceApi)
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
@@ -60,11 +60,6 @@ func (t *Tubed) SetProvider(provider string) {
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
 	}
-	runtime.WindowReload(t.ctx)
-}
-
-func (t *Tubed) GetProvider() string {
-	return config.Stored.Provider
 }
 
 func (t *Tubed) SetInstance(instanceApi string) {
@@ -80,8 +75,14 @@ func (t *Tubed) SetInstance(instanceApi string) {
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
 	}
+}
 
-	runtime.WindowReload(t.ctx)
+func (t *Tubed) GetConfigured() bool {
+	return config.Stored.Configured
+}
+
+func (t *Tubed) GetProvider() string {
+	return config.Stored.Provider
 }
 
 func (t *Tubed) GetInstancesApi(provider string) []map[string]string {

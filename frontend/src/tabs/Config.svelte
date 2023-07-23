@@ -1,5 +1,5 @@
 <script>
-    import { GetInstancesApi, Configure } from "../../wailsjs/go/main/Tubed.js"
+    import { GetInstancesApi, SetConfig } from "../../wailsjs/go/main/Tubed.js"
     import validations from "../lib/validations.js";
 
     import SelectInput from '../components/inputs/SelectInput.svelte'
@@ -9,13 +9,12 @@
 
     let provider = ""
     let instance = ""
-    // let sessionId = ""
-    let selectedIndex = 0
+    let instanceIndex = 0
 
     
     const configure = async () => {
         if (instance !== "") {
-            await Configure(provider, instance)
+            await SetConfig(provider, instance)
         }
     }
 </script>
@@ -35,9 +34,9 @@
             <p>Loading...</p>
         {:then instances} 
             <div class="seperator">
-                <SelectInput bind:selected={instance} bind:selectedIndex label="Select Instance" options={[{ display: "Custom", value: "" }, ...instances]}/>
+                <SelectInput bind:selected={instance} bind:selectedIndex={instanceIndex} label="Select Instance" options={[{ display: "Custom", value: "" }, ...instances]}/>
                 <div class="seperator"></div>
-                {#if selectedIndex === 0}
+                {#if instanceIndex === 0}
                     <TextInput bind:value={instance} label="Custom Instance" type="url" errorMessage="Please enter a valid url" placeholder="https://example.org" validation={validations.url}/>
                 {/if}
             </div>

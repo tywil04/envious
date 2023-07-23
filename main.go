@@ -25,7 +25,8 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 24, G: 24, B: 27, A: 1},
-		OnStartup:        app.startup,
+		OnStartup:        app.Startup,
+		OnShutdown:       app.Shutdown,
 		Frameless:        true,
 		Windows: &windows.Options{
 			Theme: windows.Dark,

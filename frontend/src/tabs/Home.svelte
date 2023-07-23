@@ -1,9 +1,7 @@
 <script>
     import { GetTrending, GetInstanceApi } from "../../wailsjs/go/main/Tubed.js"
-    import { spawnTab } from "../components/window/Window.svelte"
 
     import VideoRow from "../components/video/VideoRow.svelte";
-    import Settings from "./Settings.svelte";
 </script>
 
     
@@ -14,32 +12,12 @@
         {#if instance !== ""}
             <p>Your selected instance is: {instance}.</p>
 
-            <button use:spawnTab={[
-                { 
-                    name: "Settings",
-                    component: Settings, 
-                }, 
-                false
-            ]}>
-                Goto settings to select an instance now
-            </button>
-
             <div class="divider"/>
         
             <p>Trending:</p>
             <VideoRow dataFunction={GetTrending}/>
         {:else}
             <p>You dont have a selected instance.</p>
-
-            <button use:spawnTab={[
-                { 
-                    name: "Settings",
-                    component: Settings, 
-                }, 
-                false
-            ]}>
-                Goto settings to select an instance now
-            </button>
         {/if}
     </div>
 {:catch error}
