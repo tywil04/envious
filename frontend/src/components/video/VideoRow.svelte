@@ -65,6 +65,17 @@
             StackBlur.canvasRGB(canvas, 0, 0, 320, 150, 100)
         })
     }
+
+
+    const openVideoTab = (video) => {
+        spawnTab({ 
+            name: video.title,
+            component: Video, 
+            props: {
+                videoId: video.id
+            } 
+        }, false)
+    }
 </script>
 
 
@@ -80,18 +91,9 @@
 
         <div bind:this={videosElement} class="videos" on:scroll={calculateScrollIndicators}>
             {#each data as video}
-                <button class="video" title={video.title} use:blurBehindText use:spawnTab={[
-                    { 
-                        name: video.title,
-                        component: Video, 
-                        props: {
-                            videoId: video.id
-                        } 
-                    }, 
-                    false
-                ]}>
+                <button class="video" title={video.title} on:click={() => openVideoTab(video)} use:blurBehindText>
                     <img crossorigin="anonymous" class="image" src={video.thumbnailUrl} alt={video.title}/>
-                    <canvas id="canvas" class="textImage"/>
+                    <canvas id="canvas" class="blurred"/>
                     <div class="text">
                         <p class="title">{video.title}</p>
                         <a class="author" href="/author/{video.id}">{video.author}</a>
@@ -125,7 +127,6 @@
     }
 
     
-    /* scroll indicators */
     .scrollIndicator {
         @apply absolute w-[32px] h-[304px] flex flex-col justify-center bg-transparent pointer-events-none;
     }
@@ -138,11 +139,11 @@
         @apply right-[56px];
     }
 
-    .icon {
+    .scrollIndicator > .icon {
         @apply z-10 rounded-full text-zinc-200 p-2 shadow-md opacity-0 duration-100 w-[48px] h-[48px] pointer-events-none bg-zinc-800;
     } 
 
-    .icon:hover {
+    .scrollIndicator > .icon:hover {
         @apply brightness-125;
     }
 
@@ -151,39 +152,38 @@
     }
 
 
-    /* videos container and video */
     .videos {
         @apply flex flex-row overflow-x-scroll overflow-y-hidden space-x-4 rounded-lg min-h-fit mx-0;
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
 
-    .video {
+    .videos > .video {
         @apply min-w-fit h-fit rounded-lg -mb-[124px] duration-100;
     }
 
-    .video:hover {
+    .videos > .video:hover {
         @apply brightness-125;
     }
 
-    .image {
+    .videos > .video > .image {
         @apply w-[320px] h-[180px] min-w-fit bg-black rounded-t-md;
     }
 
-    .textImage {
-        @apply w-[320px] h-[124px] rounded-b-md bg-black;
+    .videos > .video > .blurred {
+        @apply w-[320px] h-[124px] rounded-b-md bg-zinc-800;
     }
 
-    .text {
+    .videos > .video > .text {
         @apply -translate-y-[124px] flex flex-col p-3 text-white space-y-1 rounded-b-md saturate-200 bg-glassBlack;
     }
 
-    .title {
+    .videos > .video > .text .title {
         /* 12px + 296px + 12px = 320px (12px padding each side)*/
         @apply max-w-[296px] break-words font-semibold line-clamp-3 min-h-[72px] text-left;
     }
 
-    .author {
+    .videos > .video > .text .author {
         @apply text-left;
     }
 </style>

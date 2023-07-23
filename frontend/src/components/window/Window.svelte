@@ -99,23 +99,13 @@
     }
 
 
-    export function spawnTab(element, args) {
-        let [tab, hidden] = args
-
-        if (hidden === undefined) {
-            hidden = true
+    export function spawnTab(tab, hidden=true) {
+        if (document.getElementById(`tab::${tab.name}`) === null) {
+            renderTab(tab, !hidden)
+            renderTabView(tab, hidden)
+        } else {
+            selectTab(tab.name)
         }
-
-        element.addEventListener("click", (event) => {
-            event.preventDefault()
-
-            if (document.getElementById(`tab::${tab.name}`) === null) {
-                renderTab(tab, !hidden)
-                renderTabView(tab, hidden)
-            } else {
-                selectTab(tab.name)
-            }
-        })
     }
 </script>
 
@@ -126,7 +116,9 @@
     import { WindowMinimise, WindowToggleMaximise, Quit } from "../../../wailsjs/runtime/runtime.js"
 
     import { Icon } from "@steeze-ui/svelte-icon"
-    import { Close, Add, Subtract } from "@steeze-ui/carbon-icons"
+    import { Close, Add, Subtract, Settings as Cog, Search } from "@steeze-ui/carbon-icons"
+
+    import Settings from "../../tabs/Settings.svelte"
 
     
     export let defaultTabs = []
@@ -138,24 +130,51 @@
             renderTabView(defaultTabs[i], i !== 0)
         }
     })
+
+
+    const doubleClickMaximise = (event) => {
+        if (event.target.tagName === "NAV") {
+            WindowToggleMaximise()
+        }
+    }
+
+
+    const openSettingsTab = (event) => {
+        spawnTab({
+            name: "Settings",
+            component: Settings, 
+        }, false)
+    }
 </script> 
 
 
-<nav class="navigation" on:dblclick={WindowToggleMaximise}>
-    <div class="title">
-        <span class="text">Tubed</span>
+<nav class="navigation" on:dblclick={doubleClickMaximise}>
+    <div class="left">
+        <span class="title">Tubed</span>
     </div>
 
-    <div class="controls"> 
-        <button title="Minimise Window" class="button" on:click={WindowMinimise}>
-            <Icon src={Subtract} size="24"/>
-        </button>
-        <button title="Maximise Window" class="button" on:click={WindowToggleMaximise}>
-            <Icon src={Add} size="24"/>
-        </button>
-        <button title="Close Window" class="button close" on:click={Quit}>
-            <Icon src={Close} size="24"/>
-        </button>
+    <div class="centre"></div>
+
+    <div class="right">
+        <div class="buttons">
+            <button class="button settings" on:click={openSettingsTab}>
+                <Icon src={Cog} size="18"/>
+            </button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="controls"> 
+            <button title="Minimise Window" class="button" on:click={WindowMinimise}>
+                <Icon src={Subtract} size="24"/>
+            </button>
+            <button title="Maximise Window" class="button" on:click={WindowToggleMaximise}>
+                <Icon src={Add} size="24"/>
+            </button>
+            <button title="Close Window" class="button close" on:click={Quit}>
+                <Icon src={Close} size="24"/>
+            </button>
+        </div>
     </div>
 </nav>
 
@@ -172,7 +191,7 @@
     }
 
 
-    /* tabs container and tab */
+    /* for tabs */
     .tabs {
         @apply absolute top-[40px] h-[40px] min-w-full w-full bg-black flex flex-row justify-between border-b border-zinc-800 px-[5px] py-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
     }
@@ -206,7 +225,7 @@
         .tab:hover:not(.active) > .delete:hover, 
         .tab > .delete:hover
     ) {
-        @apply text-red-400;
+        @apply text-red/90;
     }
 
     :global(.tab:not(:last-child)) {
@@ -221,43 +240,69 @@
         @apply bg-zinc-900 border-b-zinc-900/80 text-zinc-300 cursor-default;
     }
 
-
-    /* views container */
     :global(.views > *) {
         @apply absolute top-[80px] p-4 max-w-[100%] w-full select-none bg-transparent overflow-y-auto z-0;
         height: calc(100% - 80px);
     }
 
 
-    /* navigation */
     .navigation {
         @apply fixed top-0 w-full h-[40px] flex flex-row p-2 border-b border-zinc-800 bg-black text-zinc-200 z-10;
         --wails-draggable:drag;
     }
 
-    .navigation .title {
-        @apply select-none h-6 mr-auto;
-        --wails-draggable:no-drag  
+    .navigation > .left {
+        @apply font-normal w-fit flex flex-row justify-start select-none;
+        --wails-draggable:no-drag;
     }
 
-    .navigation > .title > .text {
-        @apply ml-1.5 font-normal;
+    .navigation > .left > .title {
+        @apply ml-1 text-zinc-200;
     }
 
-    .navigation > .controls {
-        @apply select-none h-6 ml-auto flex flex-row z-50;
-        --wails-draggable:no-drag
+    .navigation > .centre {
+        @apply font-normal w-fit flex flex-row mx-auto justify-center select-none;
+        --wails-draggable:no-drag;
     }
 
-    .navigation > .controls > .button {
-        @apply flex flex-col justify-center duration-100 rounded-full cursor-auto text-zinc-200;
+    .navigation > .right {
+        @apply font-normal w-fit flex flex-row justify-end select-none;
+        --wails-draggable:no-drag;
     }
 
-    .navigation > .controls > .button:hover {
+    .navigation > .right > .buttons {
+        @apply flex flex-row h-6;
+    }
+
+    .navigation > .right > .divider {
+        @apply mt-1 mx-2.5 h-4 w-[1px] bg-zinc-800;
+    }
+
+    .navigation > .right > .buttons > .button {
+        @apply flex flex-col justify-center h-6 w-6 rounded-full;
+    }
+
+    .navigation > .right > .buttons > .button.settings {
+        @apply pl-[3px];
+    }
+
+    .navigation > .right > .buttons > .button:hover {
         @apply bg-zinc-800;
     }
 
-    .navigation > .controls > .button.close:hover {
+    .navigation > .right > .controls {
+        @apply select-none h-6 w-fit flex flex-row z-50;
+    }
+
+    .navigation > .right > .controls > .button {
+        @apply flex flex-col justify-center duration-100 rounded-full cursor-auto text-zinc-200;
+    }
+
+    .navigation > .right > .controls > .button:hover {
+        @apply bg-zinc-800;
+    }
+
+    .navigation > .right > .controls > .button.close:hover {
         @apply bg-red-600;
     }
 </style>

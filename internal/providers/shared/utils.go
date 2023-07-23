@@ -29,6 +29,9 @@ func HttpGetJson(url string, body io.Reader, headers map[string]string, value an
 		return err
 	}
 
+	request.Header.Add("Accept", "application/json")
+	request.Header.Add("Access-Control-Allow-Origin", "*")
+
 	for key, value := range headers {
 		request.Header.Add(key, value)
 	}
@@ -58,6 +61,8 @@ func HttpGetString(url string, body io.Reader, headers map[string]string) (strin
 		return "", err
 	}
 
+	request.Header.Add("Access-Control-Allow-Origin", "*")
+
 	for key, value := range headers {
 		request.Header.Add(key, value)
 	}
@@ -86,6 +91,8 @@ func HttpGetRedirect(url string, body io.Reader, headers map[string]string) (str
 	if err != nil {
 		return "", nil
 	}
+
+	request.Header.Add("Access-Control-Allow-Origin", "*")
 
 	for key, value := range headers {
 		request.Header.Add(key, value)
