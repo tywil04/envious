@@ -151,7 +151,7 @@
     }
 
     .video > .background > .embed {
-        @apply w-full aspect-video rounded-lg duration-100;
+        @apply w-full aspect-video rounded-t-lg duration-100;
     }
 
     .video > .background > .embed.unloaded {
@@ -159,7 +159,7 @@
     }
 
     .video > .info {
-        @apply bg-zinc-800 p-4 mt-4 rounded-lg;
+        @apply bg-zinc-800 p-4 rounded-b-lg;
     }
 
     .video > .info > .title {

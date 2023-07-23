@@ -116,9 +116,10 @@
     import { WindowMinimise, WindowToggleMaximise, Quit } from "../../../wailsjs/runtime/runtime.js"
 
     import { Icon } from "@steeze-ui/svelte-icon"
-    import { Close, Add, Subtract, Settings as Cog, Search } from "@steeze-ui/carbon-icons"
+    import { Close, Add, Subtract, Settings as Cog, Search as MagnifyingGlass } from "@steeze-ui/carbon-icons"
 
     import Settings from "../../tabs/Settings.svelte"
+    import Search from "../../tabs/Search.svelte"
 
     
     export let defaultTabs = []
@@ -145,6 +146,14 @@
             component: Settings, 
         }, false)
     }
+
+
+    const openSearchTab = (event) => {
+        spawnTab({
+            name: "Search",
+            component: Search,
+        }, false)
+    }
 </script> 
 
 
@@ -157,7 +166,10 @@
 
     <div class="right">
         <div class="buttons">
-            <button class="button settings" on:click={openSettingsTab}>
+            <button class="button smallIcon" on:click={openSearchTab}>
+                <Icon src={MagnifyingGlass} size="18"/>
+            </button>
+            <button class="button smallIcon" on:click={openSettingsTab}>
                 <Icon src={Cog} size="18"/>
             </button>
         </div>
@@ -225,7 +237,7 @@
         .tab:hover:not(.active) > .delete:hover, 
         .tab > .delete:hover
     ) {
-        @apply text-red/90;
+        @apply text-red-400/80;
     }
 
     :global(.tab:not(:last-child)) {
@@ -282,7 +294,7 @@
         @apply flex flex-col justify-center h-6 w-6 rounded-full;
     }
 
-    .navigation > .right > .buttons > .button.settings {
+    .navigation > .right > .buttons > .button.smallIcon {
         @apply pl-[3px];
     }
 
