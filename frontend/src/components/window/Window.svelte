@@ -123,7 +123,7 @@
 <script>
     import { onMount } from "svelte";
 
-    import { WindowMinimise, WindowToggleMaximise, Quit } from "../../../wailsjs/runtime/runtime"
+    import { WindowMinimise, WindowToggleMaximise, Quit } from "../../../wailsjs/runtime/runtime.js"
 
     import { Icon } from "@steeze-ui/svelte-icon"
     import { Close, Add, Subtract } from "@steeze-ui/carbon-icons"

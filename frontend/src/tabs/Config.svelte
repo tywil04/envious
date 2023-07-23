@@ -1,5 +1,5 @@
 <script>
-    import { GetInstancesApi, SetConfig } from "../../wailsjs/go/main/Tubed"
+    import { GetInstancesApi, SetConfig } from "../../wailsjs/go/main/Tubed.js"
     import validations from "../lib/validations.js";
 
     import SelectInput from '../components/inputs/SelectInput.svelte'

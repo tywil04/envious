@@ -1,5 +1,5 @@
 <script>
-    import { GetTrending, GetInstanceApi } from "../../wailsjs/go/main/Tubed"
+    import { GetTrending, GetInstanceApi } from "../../wailsjs/go/main/Tubed.js"
 
     import VideoRow from "../components/video/VideoRow.svelte";
 </script>

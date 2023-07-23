@@ -1,6 +1,6 @@
 <script>
-    import { BrowserOpenURL } from "../../wailsjs/runtime/runtime"
-    import { GetVideo } from "../../wailsjs/go/main/Tubed";
+    import { BrowserOpenURL } from "../../wailsjs/runtime/runtime.js"
+    import { GetVideo } from "../../wailsjs/go/main/Tubed.js";
     import { spawnTab } from "../components/window/Window.svelte";
 
     import VideoRow from "../components/video/VideoRow.svelte";
