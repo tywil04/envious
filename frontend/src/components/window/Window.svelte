@@ -7,6 +7,7 @@
         for (let child of tabsElement.children) {
             if (child.id === `tab::${tabName}`) {
                 child.classList.add("active")
+                child.scrollIntoView({ behavior: "smooth", })
             } else {
                 child.classList.remove("active")
             }
@@ -74,6 +75,10 @@
         button.addEventListener("click", () => selectTab(tab.name))
     
         tabsElement.appendChild(button)
+        button.scrollIntoView({ 
+            inline: "end",
+            behavior: "smooth", 
+        })
     }
 
 
@@ -127,6 +132,7 @@
 
     onMount(() => {
         for (let i = 0; i < defaultTabs.length; i++) {
+            console.log(tabsElement)
             renderTab(defaultTabs[i], i === 0)
             renderTabView(defaultTabs[i], i !== 0)
         }
@@ -191,7 +197,7 @@
 </nav>
 
 
-<div class="tabs" bind:this={tabsElement}></div>
+<div class="tabs singleTab" bind:this={tabsElement}></div>
 
 
 <div class="views" bind:this={viewsElement}></div>
@@ -205,7 +211,7 @@
 
     /* for tabs */
     .tabs {
-        @apply absolute top-[40px] h-[40px] min-w-full w-full bg-black flex flex-row justify-between border-b border-zinc-800 px-[5px] py-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
+        @apply absolute top-[40px] h-[40px] min-w-full w-full bg-zinc-950 flex flex-row justify-between border-b border-zinc-800 px-1 py-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
     }
 
     .tabs:not(:has(:nth-child(2))) {
@@ -218,7 +224,7 @@
     }
 
     :global(.tab) {
-        @apply bg-black h-[31px] leading-[31px] w-full text-zinc-400 truncate px-2 rounded-4px flex flex-row duration-100 relative select-none min-w-[175px];   
+        @apply bg-zinc-950 h-[31px] leading-[31px] w-full text-zinc-400 truncate px-2 rounded-4px flex flex-row duration-100 relative select-none min-w-[175px] scroll-m-1;   
     }
 
     :global(.tab > .text) {
@@ -259,7 +265,7 @@
 
 
     .navigation {
-        @apply fixed top-0 w-full h-[40px] flex flex-row p-2 border-b border-zinc-800 bg-black text-zinc-200 z-10;
+        @apply fixed top-0 w-full h-[40px] flex flex-row p-2 border-b border-zinc-800 bg-zinc-950 text-zinc-200 z-10;
         --wails-draggable:drag;
     }
 

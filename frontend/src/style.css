@@ -24,5 +24,5 @@ html, body, div#app {
 
 ::-webkit-scrollbar-track-piece {
     border-left: 1px solid rgb(39, 39, 42);
-    background-color: black;
+    background-color: rgb(9, 9, 11);
 }

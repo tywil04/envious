@@ -34,7 +34,8 @@ func main() {
 			Theme:                windows.Dark,
 		},
 		Linux: &linux.Options{
-			WebviewGpuPolicy: linux.WebviewGpuPolicyOnDemand,
+			WindowIsTranslucent: true,
+			WebviewGpuPolicy:    linux.WebviewGpuPolicyAlways,
 		},
 		Bind: []interface{}{
 			tubed,
