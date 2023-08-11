@@ -3,6 +3,16 @@
     let viewsElement
 
 
+    function forceUpdateTabs() {
+        // required because linux webkit2gtk view cant handle change
+        if (tabsElement.children.length > 1) {
+            tabsElement.classList.add("visible")
+        } else {
+            tabsElement.classList.remove("visible")
+        }
+    }
+
+
     function selectTab(tabName) {
         for (let child of tabsElement.children) {
             if (child.id === `tab::${tabName}`) {
@@ -16,6 +26,8 @@
         for (let child of viewsElement.children) {
             child.hidden = child.id !== `view::${tabName}`
         }
+
+        forceUpdateTabs()
     }
 
 
@@ -30,6 +42,8 @@
             tabsElement.children[tabsElement.children.length - 1].classList.add("active")
             viewsElement.children[viewsElement.children.length - 1].hidden = false
         }
+
+        forceUpdateTabs()
     }
 
 
@@ -75,6 +89,8 @@
         button.addEventListener("click", () => selectTab(tab.name))
     
         tabsElement.appendChild(button)
+        forceUpdateTabs()
+
         button.scrollIntoView({ 
             inline: "end",
             behavior: "smooth", 
@@ -197,7 +213,7 @@
 </nav>
 
 
-<div class="tabs singleTab" bind:this={tabsElement}></div>
+<div class="tabs" bind:this={tabsElement}></div>
 
 
 <div class="views" bind:this={viewsElement}></div>
@@ -211,17 +227,17 @@
 
     /* for tabs */
     .tabs {
-        @apply absolute top-[40px] h-[40px] min-w-full w-full bg-zinc-950 flex flex-row justify-between border-b border-zinc-800 px-1 py-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
+        @apply absolute h-[40px] min-w-full w-full bg-zinc-950 flex flex-row justify-between border-b border-zinc-800 px-1 py-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
     }
 
-    .tabs:not(:has(:nth-child(2))) {
-        @apply pointer-events-none opacity-0 h-0;
-    }
-
-    :global(.tabs:not(:has(:nth-child(2))) + .views > *) {
+    :global(.tabs.visible) {
         @apply top-[40px];
-        height: calc(100% - 40px);
     }
+
+    :global(.tabs.visible + .views > *) {
+        @apply top-[80px];
+        height: calc(100% - 80px);
+    } 
 
     :global(.tab) {
         @apply bg-zinc-950 h-[31px] leading-[31px] w-full text-zinc-400 truncate px-2 rounded-4px flex flex-row duration-100 relative select-none min-w-[175px] scroll-m-1;   
@@ -254,13 +270,13 @@
         @apply bg-zinc-900/60 text-zinc-300;
     }
 
-    :global(.tab.active) {
+    :global(.tab.active:not(:only-child)) {
         @apply bg-zinc-900 border-b-zinc-900/80 text-zinc-300 cursor-default;
     }
 
     :global(.views > *) {
-        @apply absolute top-[80px] p-4 max-w-[100%] w-full select-none bg-transparent overflow-y-auto z-0;
-        height: calc(100% - 80px);
+        @apply absolute top-[40px] p-4 max-w-[100%] w-full select-none bg-transparent overflow-y-auto z-0;
+        height: calc(100% - 40px);
     }
 
 
