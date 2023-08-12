@@ -2,9 +2,9 @@
     import { GetInstancesApi, SetConfig } from "../../wailsjs/go/main/Tubed.js"
     import validations from "../lib/validations.js";
 
-    import SelectInput from '../components/inputs/SelectInput.svelte'
-    import TextInput from "../components/inputs/TextInput.svelte"
-    import Button from "../components/buttons/Button.svelte"
+    import SelectInput from '../components/SelectInput.svelte'
+    import TextInput from "../components/TextInput.svelte"
+    import Button from "../components/Button.svelte"
 
 
     let provider = ""

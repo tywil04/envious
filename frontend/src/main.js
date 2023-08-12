@@ -1,7 +1,7 @@
 import { WindowFullscreen, WindowUnfullscreen, WindowMaximise, WindowUnmaximise } from "../wailsjs/runtime/runtime.js"
 import { GetConfigured } from "../wailsjs/go/main/Tubed.js"
 
-import Window from "./components/window/Window.svelte";
+import Window from "./components/Window.svelte";
 import Home from "./tabs/Home.svelte";
 import Config from "./tabs/Config.svelte";
 

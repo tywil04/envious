@@ -134,13 +134,13 @@
 <script>
     import { onMount } from "svelte";
 
-    import { WindowMinimise, WindowToggleMaximise, Quit } from "../../../wailsjs/runtime/runtime.js"
+    import { WindowMinimise, WindowToggleMaximise, Quit } from "../../wailsjs/runtime/runtime.js"
 
     import { Icon } from "@steeze-ui/svelte-icon"
     import { Close, Add, Subtract, Settings as Cog, Search as MagnifyingGlass } from "@steeze-ui/carbon-icons"
 
-    import Settings from "../../tabs/Settings.svelte"
-    import Search from "../../tabs/Search.svelte"
+    import Settings from "../tabs/Settings.svelte"
+    import Search from "../tabs/Search.svelte"
 
     
     export let defaultTabs = []
@@ -313,7 +313,7 @@
     }
 
     .navigation > .right > .buttons > .button {
-        @apply flex flex-col justify-center h-6 w-6 rounded-full;
+        @apply flex flex-col justify-center h-6 w-6 rounded-md;
     }
 
     .navigation > .right > .buttons > .button.smallIcon {

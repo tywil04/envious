@@ -1,9 +1,9 @@
 <script>
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime.js"
     import { GetVideo } from "../../wailsjs/go/main/Tubed.js";
-    import { spawnTab } from "../components/window/Window.svelte";
+    import { spawnTab } from "../components/Window.svelte";
 
-    import VideoRow from "../components/video/VideoRow.svelte";
+    import VideoRow from "../components/VideoRow.svelte";
 
     import Video from "./Video.svelte"
 
@@ -115,7 +115,7 @@
         </div>
     </div>
 
-    <p class="recommended">Other video's you might like:</p>
+    <p class="label">Other video's you might like:</p>
     <VideoRow rawData={video.recommendedVideos}/>
 {:catch error}
     <span class="error">{error}</span>
@@ -137,7 +137,7 @@
     }
 
 
-    .recommended {
+    .label {
         @apply mt-4 mb-1 text-zinc-400;
     }
 

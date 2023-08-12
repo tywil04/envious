@@ -1,7 +1,7 @@
 <script>
     import { GetTrending, GetInstanceApi } from "../../wailsjs/go/main/Tubed.js"
 
-    import VideoRow from "../components/video/VideoRow.svelte";
+    import VideoRow from "../components/VideoRow.svelte";
 </script>
 
     
@@ -10,11 +10,11 @@
 {:then instance}
     <div class="root">
         {#if instance !== ""}
-            <p>Your selected instance is: {instance}.</p>
+            <p class="label">Your selected instance is: {instance}.</p>
 
             <div class="divider"/>
         
-            <p>Trending:</p>
+            <p class="label">Trending:</p>
             <VideoRow dataFunction={GetTrending}/>
         {:else}
             <p>You dont have a selected instance.</p>
@@ -32,6 +32,10 @@
 
     .divider {
         @apply mb-4;
+    }
+
+    .label {
+        @apply mt-4 mb-1 text-zinc-400;
     }
 
     .error {

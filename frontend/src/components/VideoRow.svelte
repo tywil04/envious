@@ -1,11 +1,11 @@
 <script>    
-    import { spawnTab } from "../window/Window.svelte"
-    import * as StackBlur from "../../../node_modules/stackblur-canvas/dist/stackblur-es.min.js";
+    import { spawnTab } from "./Window.svelte"
+    import * as StackBlur from "stackblur-canvas/dist/stackblur-es.min";
 
     import { Icon } from "@steeze-ui/svelte-icon"
     import { ChevronLeft, ChevronRight } from "@steeze-ui/carbon-icons"
 
-    import Video from "../../tabs/Video.svelte";
+    import Video from "../tabs/Video.svelte";
 
 
     export let rawData = []                        
@@ -50,9 +50,12 @@
         let canvas
 
         for (let child of element.children) {
-            if (child.tagName === "IMG") {
-                thumbnail = child
-                continue
+            if (thumbnail !== undefined && canvas !== undefined) {
+                break
+            }
+
+            if (child.classList.contains("image")) {
+                thumbnail = child.querySelector("img")
             }
 
             if (child.tagName === "CANVAS") {
@@ -92,7 +95,9 @@
         <div bind:this={videosElement} class="videos" on:scroll={calculateScrollIndicators}>
             {#each data as video}
                 <button class="video" title={video.title} on:click={() => openVideoTab(video)} use:blurBehindText>
-                    <img crossorigin="anonymous" class="image" src={video.thumbnailUrl} alt={video.title}/>
+                    <div class="image">
+                        <img crossorigin="anonymous" class="thumbnail" src={video.thumbnailUrl} alt={video.title}/>
+                    </div>
                     <canvas id="canvas" class="blurred"/>
                     <div class="text">
                         <p class="title">{video.title}</p>
@@ -159,19 +164,28 @@
     }
 
     .videos > .video {
-        @apply min-w-fit h-fit rounded-lg -mb-[124px] duration-100;
+        @apply min-w-fit h-fit rounded-lg -mb-[124px] duration-100 overflow-hidden;
     }
 
-    .videos > .video:hover {
-        @apply brightness-125;
+    .videos > .video:hover > .image > .thumbnail {
+        @apply scale-105;
+    }
+
+    .videos > .video:hover > .image,
+    .videos > .video:hover > .blurred {
+        @apply brightness-75;
     }
 
     .videos > .video > .image {
-        @apply w-[320px] h-[180px] min-w-fit bg-black rounded-t-md;
+        @apply w-[320px] h-[180px] min-w-fit bg-black rounded-t-md overflow-hidden;
+    }
+
+    .videos > .video > .image > .thumbnail {
+        @apply w-[320px] h-[180px] min-w-fit bg-black rounded-t-md duration-100;
     }
 
     .videos > .video > .blurred {
-        @apply w-[320px] h-[124px] rounded-b-md bg-zinc-800;
+        @apply w-[320px] h-[124px] rounded-b-md bg-zinc-800 duration-100;
     }
 
     .videos > .video > .text {
