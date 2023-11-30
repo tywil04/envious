@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 html, body, div#app {
-    @apply text-base scroll-smooth w-full h-full bg-zinc-900 text-zinc-300;
+    @apply overflow-hidden w-full h-full text-base scroll-smooth text-zinc-300;
+}
+
+* {
+    @apply box-border select-none;
 }
 
 ::-webkit-scrollbar {

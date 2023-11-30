@@ -1,131 +1,163 @@
 <script context="module">
-    let tabsElement
-    let viewsElement
+    import ColorThief from "colorthief"
 
+    export const tabSystem = {
+        tabsRootElement: null,
+        viewsRootElement: null,
 
-    function forceUpdateTabs() {
-        // required because linux webkit2gtk view cant handle change
-        if (tabsElement.children.length > 1) {
-            tabsElement.classList.add("visible")
-        } else {
-            tabsElement.classList.remove("visible")
-        }
-    }
+        fallbackTab: null,
+        tabGroups: {},
 
-
-    function selectTab(tabName) {
-        for (let child of tabsElement.children) {
-            if (child.id === `tab::${tabName}`) {
-                child.classList.add("active")
-                child.scrollIntoView({ behavior: "smooth", })
-            } else {
-                child.classList.remove("active")
+        createTabGroup: (groupName) => {
+            const div = document.createElement("div")
+            
+            tabSystem.tabGroups[groupName] = {
+                element: div,
+                tabs: {},
             }
-        }
 
-        for (let child of viewsElement.children) {
-            child.hidden = child.id !== `view::${tabName}`
-        }
+            const span = document.createElement("span")
+            span.innerText = groupName
+            span.style.display = "none"
+                
+            tabSystem.tabGroups[groupName].labelElement = span
 
-        forceUpdateTabs()
-    }
+            tabSystem.tabsRootElement.appendChild(span)
+            tabSystem.tabsRootElement.appendChild(div)
+        },
 
+        createTab: (groupName, tabName, component, props, locked=false, active=false, fallback=false) => {
+            if (!(groupName in tabSystem.tabGroups)) {
+                tabSystem.createTabGroup(groupName)
+            }
+            
+            if (tabName in tabSystem.tabGroups[groupName].tabs) {
+                tabSystem.selectTab(groupName, tabName)
+                return
+            }
 
-    function deleteTab(tabName) {
-        const tabButton = document.getElementById(`tab::${tabName}`)
-        const wasActive = tabButton.classList.contains("active")
+            const tabElement = document.createElement("button")
+            tabElement.title = tabName
 
-        tabButton.remove()
-        document.getElementById(`view::${tabName}`).remove()
+            const tabText = document.createElement("span")
+            tabText.innerText = tabName
 
-        if (wasActive) {
-            tabsElement.children[tabsElement.children.length - 1].classList.add("active")
-            viewsElement.children[viewsElement.children.length - 1].hidden = false
-        }
+            tabElement.appendChild(tabText)
+            tabElement.addEventListener("click", () => tabSystem.selectTab(groupName, tabName))
+            tabElement.dataset.tabActive = "false"
 
-        forceUpdateTabs()
-    }
+            if (!locked) {
+                const deleteButton = document.createElement("button")
+                deleteButton.addEventListener("click", (event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    tabSystem.deleteTab(groupName, tabName)
+                })
 
+                new Icon({
+                    target: deleteButton,
+                    props: {
+                        src: X,
+                        size: "24",
+                        "stroke-width": "1.5",
+                    }
+                })
 
-    function renderTab(tab, active) {
-        const button = document.createElement("button")
-        button.id = `tab::${tab.name}`
-        button.classList.add("tab")
-        button.title = tab.name
+                tabElement.appendChild(deleteButton)
+            }
 
-        const span = document.createElement("span")
-        span.innerText = tab.name
-        span.classList.add("text")
+            tabSystem.tabGroups[groupName].element.appendChild(tabElement)
 
-        button.appendChild(span)
-        
-        if (!tab.locked) {
-            const deleteButton = document.createElement("button")
-            deleteButton.classList.add("delete")
-
-            deleteButton.addEventListener("click", (event) => {
-                event.stopPropagation()
-                deleteTab(tab.name)
+            tabElement.scrollIntoView({ 
+                inline: "end",
+                behavior: "smooth", 
             })
 
-            new Icon({
-                target: deleteButton,
-                props: {
-                    src: Close,
-                    size: "24",
+            const viewElement = document.createElement("div")
+            viewElement.hidden = true
+
+            new component({
+                target: viewElement,
+                props: props
+            })
+
+            tabSystem.viewsRootElement.appendChild(viewElement)
+
+            tabSystem.tabGroups[groupName].tabs[tabName] = {
+                tabElement: tabElement,
+                viewElement: viewElement,
+            }
+
+            if (tabSystem.tabGroups[groupName].labelElement) {
+                tabSystem.tabGroups[groupName].labelElement.style.display = "inline"
+            }
+
+            if (fallback) {
+                tabSystem.fallbackTab = [groupName, tabName]
+            }
+
+            if (active) {
+                tabSystem.selectTab(groupName, tabName)
+            }
+        },
+
+        selectTab: (groupName, tabName) => {
+            if (!(groupName in tabSystem.tabGroups)) {
+                tabSystem.createTabGroup(groupName)
+            }
+
+            for (const group of Object.values(tabSystem.tabGroups)) {
+                for (const [tabName2, tab] of Object.entries(group.tabs)) {
+                    if (tabName2 == tabName) {
+                        tab.tabElement.dataset.tabActive = "true"
+                        tab.viewElement.hidden = false
+                    } else {
+                        tab.tabElement.dataset.tabActive = "false"
+                        tab.viewElement.hidden = true
+                    }
                 }
-            })
-
-            button.appendChild(deleteButton)
-        }
-
-        if (active) {
-            for (let child of tabsElement.children) {
-                child.classList.remove("active")
             }
-            button.classList.add("active")
+        },
+
+        deleteTab: (groupName, tabName) => {
+            if (groupName in tabSystem.tabGroups && tabName in tabSystem.tabGroups[groupName].tabs) {
+                const tab = tabSystem.tabGroups[groupName].tabs[tabName]
+                // const wasActive = tab.tabElement.dataset.tabActive === "true"
+
+                tab.tabElement.remove()
+                tab.viewElement.remove()
+
+                tabSystem.selectTab(...tabSystem.fallbackTab)
+
+                delete tabSystem.tabGroups[groupName].tabs[tabName]
+
+                if (Object.keys(tabSystem.tabGroups[groupName].tabs).length === 0) {
+                    tabSystem.tabGroups[groupName].labelElement.style.display = "none"
+                }
+            }
         }
-
-        button.addEventListener("click", () => selectTab(tab.name))
-    
-        tabsElement.appendChild(button)
-        forceUpdateTabs()
-
-        button.scrollIntoView({ 
-            inline: "end",
-            behavior: "smooth", 
-        })
     }
 
+    export const adaptiveBackground = {
+        rootElement: null,
 
-    function renderTabView(tab, hidden=true) {
-        const tabRoot = document.createElement("div")
-        tabRoot.id = `view::${tab.name}`
-        
-        if (!hidden) {
-            for (let child of viewsElement.children) {
-                child.hidden = true
+        // @ts-ignore
+        colorThief: new ColorThief(),
+
+        setRGB: (r, g, b) => {
+            adaptiveBackground.rootElement.style.backgroundColor = `rgb(${r}, ${g}, ${b})`
+        },
+
+        setBackgroundFromImage: async (imgElement) => {
+            if (imgElement.complete) {
+                const colour = await adaptiveBackground.colorThief.getColor(imgElement)
+                adaptiveBackground.setRGB(...colour)
+            } else {
+                imgElement.addEventListener("load", async () => {
+                    const colour = await adaptiveBackground.colorThief.getColor(imgElement)
+                    adaptiveBackground.setRGB(...colour)
+                })
             }
-            tabRoot.hidden = false
-        } else {
-            tabRoot.hidden = true
-        }
-
-        new tab.component({
-            target: tabRoot,
-            props: tab.props
-        })
-
-        viewsElement.appendChild(tabRoot)
-    }
-
-
-    export function spawnTab(tab, hidden=true) {
-        if (document.getElementById(`tab::${tab.name}`) === null) {
-            renderTab(tab, !hidden)
-            renderTabView(tab, hidden)
-        } else {
-            selectTab(tab.name)
         }
     }
 </script>
@@ -137,20 +169,23 @@
     import { WindowMinimise, WindowToggleMaximise, Quit } from "../../wailsjs/runtime/runtime.js"
 
     import { Icon } from "@steeze-ui/svelte-icon"
-    import { Close, Add, Subtract, Settings as Cog, Search as MagnifyingGlass } from "@steeze-ui/carbon-icons"
-
-    import Settings from "../tabs/Settings.svelte"
-    import Search from "../tabs/Search.svelte"
+    import { X, Square, Minus } from "@steeze-ui/lucide-icons"
 
     
     export let defaultTabs = []
 
 
     onMount(() => {
-        for (let i = 0; i < defaultTabs.length; i++) {
-            console.log(tabsElement)
-            renderTab(defaultTabs[i], i === 0)
-            renderTabView(defaultTabs[i], i !== 0)
+        for (const tab of defaultTabs) {
+            tabSystem.createTab(
+                tab.group,
+                tab.name,
+                tab.component,
+                tab.props,
+                tab.locked,
+                tab.active,
+                tab.fallback
+            )
         }
     })
 
@@ -160,183 +195,37 @@
             WindowToggleMaximise()
         }
     }
-
-
-    const openSettingsTab = (event) => {
-        spawnTab({
-            name: "Settings",
-            component: Settings, 
-        }, false)
-    }
-
-
-    const openSearchTab = (event) => {
-        spawnTab({
-            name: "Search",
-            component: Search,
-        }, false)
-    }
 </script> 
 
 
-<nav class="navigation" on:dblclick={doubleClickMaximise}>
-    <div class="left">
-        <span class="title">Tubed</span>
+<nav class="wails-drag sticky top-0 w-full h-fit flex flex-row p-2 text-white z-20 *:wails-nodrag *:font-normal *:w-fit *:flex *:flex-row" on:dblclick={doubleClickMaximise}>
+    <div class="justify-start">
+        <span class="my-auto ml-2 font-semibold text-white">Tubed</span>
     </div>
 
-    <div class="centre"></div>
+    <div class="justify-center mx-auto"></div>
 
-    <div class="right">
-        <div class="buttons">
-            <button class="button smallIcon" on:click={openSearchTab}>
-                <Icon src={MagnifyingGlass} size="18"/>
+    <div class="justify-end *:h-fit *:w-fit *:flex *:flex-row">
+        <div class="gap-2 hover:*:bg-black/40 *:h-7 *:w-7 *:duration-75 *:rounded-md *:cursor-pointer *:text-white"> 
+            <button title="Minimise Window" class="p-0.5" on:click={WindowMinimise}>
+                <Icon src={Minus} size="24" stroke-width="1.5"/>
             </button>
-            <button class="button smallIcon" on:click={openSettingsTab}>
-                <Icon src={Cog} size="18"/>
+            <button title="Maximise Window" on:click={WindowToggleMaximise} class="p-1.5">
+                <Icon src={Square} size="16" stroke-width="2"/>
             </button>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="controls"> 
-            <button title="Minimise Window" class="button" on:click={WindowMinimise}>
-                <Icon src={Subtract} size="24"/>
-            </button>
-            <button title="Maximise Window" class="button" on:click={WindowToggleMaximise}>
-                <Icon src={Add} size="24"/>
-            </button>
-            <button title="Close Window" class="button close" on:click={Quit}>
-                <Icon src={Close} size="24"/>
+            <button title="Close Window" on:click={Quit} class="p-0.5">
+                <Icon src={X} size="24" stroke-width="1.5"/>
             </button>
         </div>
     </div>
 </nav>
 
 
-<div class="tabs" bind:this={tabsElement}></div>
+<main class="flex flex-row gap-2 p-2 pt-0 w-full h-[calc(100%-44px)]">
+    <div class="sticky z-10 h-full min-w-[256px] w-64 flex flex-col *:flex *:flex-col gap-4 *:gap-1 *:*:flex *:*:flex-row *:*:truncate *:*:rounded-md hover:*:*:bg-white/5 *:*:h-8 *:*:px-2 *:*:py-1 *:*:text-left *:*:w-full data-[tab-active=true]:*:*:!bg-white/10 hover:*:*:duration-75 [&>span]:*:*:max-w-[240px] [&>span]:hover:*:*:max-w-[220px] [&>span]:*:*:truncate [&>button]:*:*:absolute [&>button]:*:*:mr-1 [&>button]:*:*:rounded-md [&>button]:*:*:right-0 [&>button]:*:*:hidden [&>button]:hover:*:*:block [&>span]:text-sm [&>span]:mx-2 [&>span]:-mb-3 [&>span]:opacity-70 [&>span]:duration-75" bind:this={tabSystem.tabsRootElement}></div>
+    
+    <div class="p-2 rounded-md bg-black/40 max-w-[calc(100%-256px-8px)] w-full h-full" bind:this={tabSystem.viewsRootElement}></div>
+</main>
 
 
-<div class="views" bind:this={viewsElement}></div>
-
-
-<style lang="postcss">
-    ::-webkit-scrollbar {
-        display: none;
-    }
-
-
-    /* for tabs */
-    .tabs {
-        @apply absolute h-[40px] min-w-full w-full bg-zinc-950 flex flex-row justify-between border-b border-zinc-800 px-1 py-1 opacity-100 pointer-events-auto overflow-x-auto overflow-y-hidden;
-    }
-
-    :global(.tabs.visible) {
-        @apply top-[40px];
-    }
-
-    :global(.tabs.visible + .views > *) {
-        @apply top-[80px];
-        height: calc(100% - 80px);
-    } 
-
-    :global(.tab) {
-        @apply bg-zinc-950 h-[31px] leading-[31px] w-full text-zinc-400 truncate px-2 rounded-4px flex flex-row duration-100 relative select-none min-w-[175px] scroll-m-1;   
-    }
-
-    :global(.tab > .text) {
-        @apply h-[31px] mr-auto ml-auto px-[24px] truncate;
-    }
-
-    :global(.tab > .delete) {
-        @apply absolute right-2 h-[31px] opacity-0 pointer-events-none duration-100;
-    }
-
-    :global(.tab:hover > .delete) {
-        @apply opacity-100 pointer-events-auto;
-    }
-
-    :global(
-        .tab:hover:not(.active) > .delete:hover, 
-        .tab > .delete:hover
-    ) {
-        @apply text-red-400/80;
-    }
-
-    :global(.tab:not(:last-child)) {
-        @apply mr-1;
-    }
-
-    :global(.tab:hover:not(.active)) {
-        @apply bg-zinc-900/60 text-zinc-300;
-    }
-
-    :global(.tab.active:not(:only-child)) {
-        @apply bg-zinc-900 border-b-zinc-900/80 text-zinc-300 cursor-default;
-    }
-
-    :global(.views > *) {
-        @apply absolute top-[40px] p-4 max-w-[100%] w-full select-none bg-transparent overflow-y-auto z-0;
-        height: calc(100% - 40px);
-    }
-
-
-    .navigation {
-        @apply fixed top-0 w-full h-[40px] flex flex-row p-2 border-b border-zinc-800 bg-zinc-950 text-zinc-200 z-10;
-        --wails-draggable:drag;
-    }
-
-    .navigation > .left {
-        @apply font-normal w-fit flex flex-row justify-start select-none;
-        --wails-draggable:no-drag;
-    }
-
-    .navigation > .left > .title {
-        @apply ml-1 text-zinc-200;
-    }
-
-    .navigation > .centre {
-        @apply font-normal w-fit flex flex-row mx-auto justify-center select-none;
-        --wails-draggable:no-drag;
-    }
-
-    .navigation > .right {
-        @apply font-normal w-fit flex flex-row justify-end select-none;
-        --wails-draggable:no-drag;
-    }
-
-    .navigation > .right > .buttons {
-        @apply flex flex-row h-6;
-    }
-
-    .navigation > .right > .divider {
-        @apply mt-1 mx-2.5 h-4 w-[1px] bg-zinc-800;
-    }
-
-    .navigation > .right > .buttons > .button {
-        @apply flex flex-col justify-center h-6 w-6 rounded-md;
-    }
-
-    .navigation > .right > .buttons > .button.smallIcon {
-        @apply pl-[3px];
-    }
-
-    .navigation > .right > .buttons > .button:hover {
-        @apply bg-zinc-800;
-    }
-
-    .navigation > .right > .controls {
-        @apply select-none h-6 w-fit flex flex-row z-50;
-    }
-
-    .navigation > .right > .controls > .button {
-        @apply flex flex-col justify-center duration-100 rounded-full cursor-auto text-zinc-200;
-    }
-
-    .navigation > .right > .controls > .button:hover {
-        @apply bg-zinc-800;
-    }
-
-    .navigation > .right > .controls > .button.close:hover {
-        @apply bg-red-600;
-    }
-</style>
+<div class="absolute top-0 w-full h-full duration-500 opacity-[15%] -z-10" bind:this={adaptiveBackground.rootElement}></div>

@@ -6,6 +6,8 @@ import Home from "./tabs/Home.svelte";
 import Config from "./tabs/Config.svelte";
 
 import "./style.css";
+import Settings from "./tabs/Settings.svelte";
+import Search from "./tabs/Search.svelte";
 
 
 // make fullscreen
@@ -21,8 +23,8 @@ const onFullscreen = (event) => {
 document.addEventListener("fullscreenchange", onFullscreen)
 
 
-let tubed
-GetConfigured().then(isConfigured => {
+let tubed 
+GetConfigured().then((isConfigured) => {
     if (isConfigured) {
         tubed = new Window({
             target: document.getElementById("app"),
@@ -30,8 +32,24 @@ GetConfigured().then(isConfigured => {
                 defaultTabs: [
                     {
                         name: "Home",
+                        group: "App",
+                        active: true,
                         locked: true,
+                        fallback: true,
                         component: Home,
+                        
+                    },
+                    {
+                        name: "Search",
+                        group: "App",
+                        locked: true,
+                        component: Search,
+                    },
+                    {
+                        name: "Settings",
+                        group: "App",
+                        locked: true,
+                        component: Settings,
                     },
                 ]
             }
@@ -43,7 +61,10 @@ GetConfigured().then(isConfigured => {
                 defaultTabs: [
                     {
                         name: "Config",
+                        group: "App",
+                        active: true,
                         locked: true,
+                        fallback: true,
                         component: Config,
                     },
                 ]
@@ -51,6 +72,5 @@ GetConfigured().then(isConfigured => {
         });  
     }
 })
-
 
 export default tubed;

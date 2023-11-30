@@ -15,7 +15,7 @@
 
 <style lang="postcss">
     .button {
-        @apply border outline-none rounded-4px px-2 py-0.5 duration-100;
+        @apply border outline-none rounded-md px-2 py-0.5 duration-100;
     }
 
     .normal {

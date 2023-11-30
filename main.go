@@ -19,7 +19,7 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "Invidious Desktop",
+		Title:  "Tubed",
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
@@ -31,7 +31,10 @@ func main() {
 		Frameless:        true,
 		Windows: &windows.Options{
 			WebviewGpuIsDisabled: false,
-			Theme:                windows.Dark,
+			// BackdropType:         windows.Mica,
+			// WindowIsTranslucent:  true,
+			// WebviewIsTransparent: true,
+			Theme: windows.Dark,
 		},
 		Linux: &linux.Options{
 			WindowIsTranslucent: true,

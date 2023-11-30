@@ -1,5 +1,5 @@
 <script>    
-    import { spawnTab } from "./Window.svelte"
+    import { tabSystem, adaptiveBackground } from "./Window.svelte"
     import * as StackBlur from "stackblur-canvas/dist/stackblur-es.min";
 
     import { Icon } from "@steeze-ui/svelte-icon"
@@ -71,13 +71,14 @@
 
 
     const openVideoTab = (video) => {
-        spawnTab({ 
-            name: video.title,
-            component: Video, 
-            props: {
-                videoId: video.id
-            } 
-        }, false)
+        tabSystem.createTab(
+            "Videos",
+            video.title,
+            Video,
+            {  videoId: video.id, },
+            false,
+            true
+        )
     }
 </script>
 
@@ -94,9 +95,9 @@
 
         <div bind:this={videosElement} class="videos" on:scroll={calculateScrollIndicators}>
             {#each data as video}
-                <button class="video" title={video.title} on:click={() => openVideoTab(video)} use:blurBehindText>
+                <button on:mouseover={() => adaptiveBackground.setBackgroundFromImage(document.getElementById(video.id))} class="video" title={video.title} on:click={() => openVideoTab(video)} use:blurBehindText>
                     <div class="image">
-                        <img crossorigin="anonymous" class="thumbnail" src={video.thumbnailUrl} alt={video.title}/>
+                        <img id={video.id} crossorigin="anonymous" class="thumbnail" src={video.thumbnailUrl} alt={video.title}/>
                     </div>
                     <canvas id="canvas" class="blurred"/>
                     <div class="text">
@@ -189,7 +190,7 @@
     }
 
     .videos > .video > .text {
-        @apply -translate-y-[124px] flex flex-col p-3 text-white space-y-1 rounded-b-md saturate-200 bg-glassBlack;
+        @apply -translate-y-[124px] flex flex-col p-3 text-white space-y-1 rounded-b-md saturate-200 bg-black/40;
     }
 
     .videos > .video > .text .title {

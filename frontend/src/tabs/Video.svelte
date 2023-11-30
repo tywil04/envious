@@ -1,7 +1,7 @@
 <script>
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime.js"
     import { GetVideo } from "../../wailsjs/go/main/Tubed.js";
-    import { spawnTab } from "../components/Window.svelte";
+    //import { spawnTab } from "../components/Window.svelte";
 
     import VideoRow from "../components/VideoRow.svelte";
 
@@ -62,13 +62,13 @@
                         GetVideo(id).then((video) => {
                             child.addEventListener("click", (event) => {
                                 event.preventDefault()
-                                spawnTab({ 
-                                    name: video.title,
-                                    component: Video, 
-                                    props: {
-                                        videoId: video.id
-                                    } 
-                                }, false)
+                                // spawnTab({ 
+                                //     name: video.title,
+                                //     component: Video, 
+                                //     props: {
+                                //         videoId: video.id
+                                //     } 
+                                // }, false)
                             })
                             child.classList.add("link")
                             child.innerText = "Watch " + video.title
