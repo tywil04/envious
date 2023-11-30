@@ -65,7 +65,7 @@
 
         thumbnail.addEventListener("load", () => {
             canvas.getContext("2d").drawImage(thumbnail, 0, 0, 320, 150)
-            StackBlur.canvasRGB(canvas, 0, 0, 320, 150, 100)
+            StackBlur.canvasRGB(canvas, 0, 0, 320, 150, 150)
         })
     }
 
@@ -95,7 +95,7 @@
 
         <div bind:this={videosElement} class="videos" on:scroll={calculateScrollIndicators}>
             {#each data as video}
-                <button on:mouseover={() => adaptiveBackground.setBackgroundFromImage(document.getElementById(video.id))} class="video" title={video.title} on:click={() => openVideoTab(video)} use:blurBehindText>
+                <button on:mouseover={() => adaptiveBackground.setBackgroundFromImage(video.id, document.getElementById(video.id))} class="video" title={video.title} on:click={() => openVideoTab(video)} use:blurBehindText>
                     <div class="image">
                         <img id={video.id} crossorigin="anonymous" class="thumbnail" src={video.thumbnailUrl} alt={video.title}/>
                     </div>

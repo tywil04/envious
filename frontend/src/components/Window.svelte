@@ -1,5 +1,6 @@
 <script context="module">
     import ColorThief from "colorthief"
+    import * as StackBlur from 'stackblur-canvas';
 
     export const tabSystem = {
         tabsRootElement: null,
@@ -141,22 +142,57 @@
     export const adaptiveBackground = {
         rootElement: null,
 
+        lastCanvasElement: null,
+        canvasesInTransition: {},
+        visibleCanvasId: null,
+
         // @ts-ignore
         colorThief: new ColorThief(),
 
-        setRGB: (r, g, b) => {
-            adaptiveBackground.rootElement.style.backgroundColor = `rgb(${r}, ${g}, ${b})`
-        },
+        transitionDuration: 400,
 
-        setBackgroundFromImage: async (imgElement) => {
-            if (imgElement.complete) {
-                const colour = await adaptiveBackground.colorThief.getColor(imgElement)
-                adaptiveBackground.setRGB(...colour)
+        setBackgroundFromImage: async (id, imgElement) => {
+            if (id in adaptiveBackground.canvasesInTransition || adaptiveBackground.visibleCanvasId === id) {
+                return
+            }
+
+            if (adaptiveBackground.lastCanvasElement === null) {
+                const canvas = document.createElement("canvas")
+                canvas.style.zIndex = "-9"
+                canvas.style.transitionDuration = `${adaptiveBackground.transitionDuration}ms`
+                canvas.style.opacity = "0"
+                adaptiveBackground.canvasesInTransition[id] = true
+                
+                adaptiveBackground.rootElement.appendChild(canvas)
+
+                StackBlur.image(imgElement, canvas, 150, false);
+
+                canvas.style.opacity = "1"
+                canvas.style.zIndex = "-10"
+
+                adaptiveBackground.lastCanvasElement = canvas
+                adaptiveBackground.visibleCanvasId = id
+                delete adaptiveBackground.canvasesInTransition[id]
             } else {
-                imgElement.addEventListener("load", async () => {
-                    const colour = await adaptiveBackground.colorThief.getColor(imgElement)
-                    adaptiveBackground.setRGB(...colour)
-                })
+                const canvas = document.createElement("canvas")
+                canvas.style.zIndex = "-9"
+                canvas.style.transitionDuration = `${adaptiveBackground.transitionDuration}ms`
+                canvas.style.opacity = "0"
+                adaptiveBackground.canvasesInTransition[id] = true
+
+                adaptiveBackground.rootElement.appendChild(canvas)
+
+                StackBlur.image(imgElement, canvas, 150, false);
+
+                canvas.style.opacity = "1"
+                canvas.style.zIndex = "-10"
+
+                setTimeout(() => {
+                    adaptiveBackground.lastCanvasElement.remove()
+                    adaptiveBackground.lastCanvasElement = canvas
+                    adaptiveBackground.visibleCanvasId = id
+                    delete adaptiveBackground.canvasesInTransition[id]
+                }, adaptiveBackground.transitionDuration + 1)
             }
         }
     }
@@ -228,4 +264,4 @@
 </main>
 
 
-<div class="absolute top-0 w-full h-full duration-500 opacity-[15%] -z-10" bind:this={adaptiveBackground.rootElement}></div>
+<div class="opacity-[15%] absolute top-0 !w-full !h-full -z-10 *:absolute *:top-0 *:!w-full *:!h-full *:duration-500 *:-z-10 *:pointer-events-none" bind:this={adaptiveBackground.rootElement}></div>
