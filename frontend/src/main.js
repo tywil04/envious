@@ -1,16 +1,19 @@
 import { WindowFullscreen, WindowUnfullscreen, WindowMaximise, WindowUnmaximise } from "../wailsjs/runtime/runtime.js"
 import { GetConfigured } from "../wailsjs/go/main/Tubed.js"
 
+import { Home as HomeIcon, Search as SearchIcon, Cog as CogIcon, Play as PlayIcon, Flame as FlameIcon } from "@steeze-ui/lucide-icons"
+
 import Window from "./components/Window.svelte";
-import Home from "./tabs/Home.svelte";
+
+import Settings from "./tabs/Settings.svelte";
+import Search from "./tabs/Search.svelte";
+import Trending from "./tabs/Trending.svelte";
 import Config from "./tabs/Config.svelte";
 
 import "./style.css";
-import Settings from "./tabs/Settings.svelte";
-import Search from "./tabs/Search.svelte";
+import Subscriptions from "./tabs/Subscriptions.svelte";
 
 
-// make fullscreen
 const onFullscreen = (event) => {
     if (document.fullscreenElement !== null) {
         WindowMaximise()
@@ -20,42 +23,52 @@ const onFullscreen = (event) => {
         setTimeout(WindowUnmaximise, 1)
     }
 }
+
 document.addEventListener("fullscreenchange", onFullscreen)
 
 
-let tubed 
+let window 
 GetConfigured().then((isConfigured) => {
     if (isConfigured) {
-        tubed = new Window({
+        window = new Window({
             target: document.getElementById("app"),
             props: {
                 defaultTabs: [
                     {
-                        name: "Home",
+                        name: "Trending",
                         group: "App",
                         active: true,
                         locked: true,
                         fallback: true,
-                        component: Home,
-                        
+                        component: Trending,
+                        icon: FlameIcon
+                    },
+                    {
+                        name: "Subscriptions",
+                        group: "App",
+                        locked: true,
+                        component: Subscriptions,
+                        icon: PlayIcon
                     },
                     {
                         name: "Search",
                         group: "App",
                         locked: true,
                         component: Search,
+                        icon: SearchIcon,
                     },
                     {
                         name: "Settings",
                         group: "App",
                         locked: true,
                         component: Settings,
+                        icon: CogIcon,
                     },
                 ]
             }
         });
     } else {
-        tubed = new Window({
+        window = new Window({
             target: document.getElementById("app"),
             props: {
                 defaultTabs: [
@@ -73,4 +86,4 @@ GetConfigured().then((isConfigured) => {
     }
 })
 
-export default tubed;
+export default window;

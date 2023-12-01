@@ -27,7 +27,7 @@
             tabSystem.tabsRootElement.appendChild(div)
         },
 
-        createTab: (groupName, tabName, component, props, locked=false, active=false, fallback=false) => {
+        createTab: (groupName, tabName, component, props, locked=false, active=false, fallback=false, icon=null) => {
             if (!(groupName in tabSystem.tabGroups)) {
                 tabSystem.createTabGroup(groupName)
             }
@@ -42,6 +42,17 @@
 
             const tabText = document.createElement("span")
             tabText.innerText = tabName
+
+            if (icon != null) {
+                new Icon({
+                    target: tabElement,
+                    props: {
+                        src: icon,
+                        size: "24",
+                        "stroke-width": "1.5",
+                    }
+                })
+            }
 
             tabElement.appendChild(tabText)
             tabElement.addEventListener("click", () => tabSystem.selectTab(groupName, tabName))
@@ -58,7 +69,7 @@
                 new Icon({
                     target: deleteButton,
                     props: {
-                        src: X,
+                        src: XIcon,
                         size: "24",
                         "stroke-width": "1.5",
                     }
@@ -151,48 +162,34 @@
 
         transitionDuration: 400,
 
-        setBackgroundFromImage: async (id, imgElement) => {
+        setBackgroundFromImage: (id, imgElement) => {
             if (id in adaptiveBackground.canvasesInTransition || adaptiveBackground.visibleCanvasId === id) {
                 return
             }
 
+            const canvas = document.createElement("canvas")
+            canvas.style.zIndex = "-9"
+            canvas.style.transitionDuration = `${adaptiveBackground.transitionDuration}ms`
+            canvas.style.opacity = "0"
+
+            adaptiveBackground.canvasesInTransition[id] = true
+            adaptiveBackground.visibleCanvasId = id
+            adaptiveBackground.rootElement.appendChild(canvas)
+
+            StackBlur.image(imgElement, canvas, 150, false);
+
+            canvas.style.opacity = "1"
+            canvas.style.zIndex = "-10"
+
             if (adaptiveBackground.lastCanvasElement === null) {
-                const canvas = document.createElement("canvas")
-                canvas.style.zIndex = "-9"
-                canvas.style.transitionDuration = `${adaptiveBackground.transitionDuration}ms`
-                canvas.style.opacity = "0"
-                adaptiveBackground.canvasesInTransition[id] = true
-                
-                adaptiveBackground.rootElement.appendChild(canvas)
-
-                StackBlur.image(imgElement, canvas, 150, false);
-
-                canvas.style.opacity = "1"
-                canvas.style.zIndex = "-10"
-
                 adaptiveBackground.lastCanvasElement = canvas
-                adaptiveBackground.visibleCanvasId = id
                 delete adaptiveBackground.canvasesInTransition[id]
             } else {
-                const canvas = document.createElement("canvas")
-                canvas.style.zIndex = "-9"
-                canvas.style.transitionDuration = `${adaptiveBackground.transitionDuration}ms`
-                canvas.style.opacity = "0"
-                adaptiveBackground.canvasesInTransition[id] = true
-
-                adaptiveBackground.rootElement.appendChild(canvas)
-
-                StackBlur.image(imgElement, canvas, 150, false);
-
-                canvas.style.opacity = "1"
-                canvas.style.zIndex = "-10"
-
                 setTimeout(() => {
                     adaptiveBackground.lastCanvasElement.remove()
                     adaptiveBackground.lastCanvasElement = canvas
-                    adaptiveBackground.visibleCanvasId = id
                     delete adaptiveBackground.canvasesInTransition[id]
-                }, adaptiveBackground.transitionDuration + 1)
+                }, adaptiveBackground.transitionDuration)
             }
         }
     }
@@ -205,7 +202,7 @@
     import { WindowMinimise, WindowToggleMaximise, Quit } from "../../wailsjs/runtime/runtime.js"
 
     import { Icon } from "@steeze-ui/svelte-icon"
-    import { X, Square, Minus } from "@steeze-ui/lucide-icons"
+    import { X as XIcon, Square as SquareIcon, Minus as MinusIcon } from "@steeze-ui/lucide-icons"
 
     
     export let defaultTabs = []
@@ -220,7 +217,8 @@
                 tab.props,
                 tab.locked,
                 tab.active,
-                tab.fallback
+                tab.fallback,
+                tab.icon
             )
         }
     })
@@ -244,13 +242,13 @@
     <div class="justify-end *:h-fit *:w-fit *:flex *:flex-row">
         <div class="gap-2 hover:*:bg-black/40 *:h-7 *:w-7 *:duration-75 *:rounded-md *:cursor-pointer *:text-white"> 
             <button title="Minimise Window" class="p-0.5" on:click={WindowMinimise}>
-                <Icon src={Minus} size="24" stroke-width="1.5"/>
+                <Icon src={MinusIcon} size="24" stroke-width="1.5"/>
             </button>
             <button title="Maximise Window" on:click={WindowToggleMaximise} class="p-1.5">
-                <Icon src={Square} size="16" stroke-width="2"/>
+                <Icon src={SquareIcon} size="16" stroke-width="2"/>
             </button>
             <button title="Close Window" on:click={Quit} class="p-0.5">
-                <Icon src={X} size="24" stroke-width="1.5"/>
+                <Icon src={XIcon} size="24" stroke-width="1.5"/>
             </button>
         </div>
     </div>
@@ -258,9 +256,9 @@
 
 
 <main class="flex flex-row gap-2 p-2 pt-0 w-full h-[calc(100%-44px)]">
-    <div class="sticky z-10 h-full min-w-[256px] w-64 flex flex-col *:flex *:flex-col gap-4 *:gap-1 *:*:flex *:*:flex-row *:*:truncate *:*:rounded-md hover:*:*:bg-white/5 *:*:h-8 *:*:px-2 *:*:py-1 *:*:text-left *:*:w-full data-[tab-active=true]:*:*:!bg-white/10 hover:*:*:duration-75 [&>span]:*:*:max-w-[240px] [&>span]:hover:*:*:max-w-[220px] [&>span]:*:*:truncate [&>button]:*:*:absolute [&>button]:*:*:mr-1 [&>button]:*:*:rounded-md [&>button]:*:*:right-0 [&>button]:*:*:hidden [&>button]:hover:*:*:block [&>span]:text-sm [&>span]:mx-2 [&>span]:-mb-3 [&>span]:opacity-70 [&>span]:duration-75" bind:this={tabSystem.tabsRootElement}></div>
+    <div class="sticky z-10 h-full min-w-[256px] w-64 flex flex-col *:flex *:flex-col gap-4 *:gap-1 *:*:flex *:*:flex-row *:*:truncate *:*:rounded-md hover:*:*:bg-white/5 *:*:h-8 *:*:px-2 *:*:py-1 *:*:text-left *:*:w-full data-[tab-active=true]:*:*:!bg-white/10 hover:*:*:duration-75 [&>span]:*:*:max-w-[240px] [&>span]:hover:*:*:max-w-[220px] [&>svg]:*:*:py-[3px] [&>svg]:*:*:pr-[3px] [&>svg+span]:*:*:ml-[5px] [&>span]:*:*:truncate [&>span+button]:*:*:absolute [&>span+button]:*:*:mr-1 [&>span+button]:*:*:rounded-md [&>span+button]:*:*:right-0 [&>span+button]:*:*:hidden [&>span+button]:hover:*:*:block [&>span]:text-sm [&>span]:mx-2 [&>span]:-mb-3 [&>span]:opacity-70 [&>span]:duration-75" bind:this={tabSystem.tabsRootElement}></div>
     
-    <div class="p-2 rounded-md bg-black/40 max-w-[calc(100%-256px-8px)] w-full h-full" bind:this={tabSystem.viewsRootElement}></div>
+    <div class="p-2 rounded-md bg-black/40 max-w-[calc(100%-256px-8px)] w-full h-full overflow-y-auto" bind:this={tabSystem.viewsRootElement}></div>
 </main>
 
 
