@@ -6,11 +6,29 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx,svelte}",
   ],
+  
   darkMode: "class",
-  theme: {},
+
+  theme: {
+    extend: {
+      borderRadius: {
+        "4px": "4px",
+      },
+
+      screens: {
+        "video-grid-1": "360px",
+        "video-grid-2": "720px",
+        "video-grid-3": "1080px",
+        "video-grid-4": "1440px",
+        "video-grid-5": "1800px",
+        "video-grid-6": "2160px",
+      }
+    }
+  },
+
   plugins: [
     require('@tailwindcss/forms'),
-    plugin(({ addVariant, addUtilities }) => {
+    plugin(({ addVariant, addUtilities, matchVariant }) => {
       addVariant("*", "& > *")
 
       addUtilities({
@@ -21,6 +39,14 @@ export default {
           "--wails-draggable": "nodrag"
         },
       })
+
+      matchVariant(
+        "decendant-data",
+        (value) => {
+          return `& *[data-${value}]`;
+        },
+        {}
+      );
     })
   ]
 };

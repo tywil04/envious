@@ -1,7 +1,7 @@
 import { WindowFullscreen, WindowUnfullscreen, WindowMaximise, WindowUnmaximise } from "../wailsjs/runtime/runtime.js"
-import { GetConfigured } from "../wailsjs/go/main/Tubed.js"
+import { DBGet } from "../wailsjs/go/main/Tubed.js"
 
-import { Home as HomeIcon, Search as SearchIcon, Cog as CogIcon, Play as PlayIcon, Flame as FlameIcon } from "@steeze-ui/lucide-icons"
+import { Search as SearchIcon, Cog as CogIcon, Play as PlayIcon, Flame as FlameIcon } from "@steeze-ui/lucide-icons"
 
 import Window from "./components/Window.svelte";
 
@@ -9,9 +9,9 @@ import Settings from "./tabs/Settings.svelte";
 import Search from "./tabs/Search.svelte";
 import Trending from "./tabs/Trending.svelte";
 import Config from "./tabs/Config.svelte";
+import Subscriptions from "./tabs/Subscriptions.svelte";
 
 import "./style.css";
-import Subscriptions from "./tabs/Subscriptions.svelte";
 
 
 const onFullscreen = (event) => {
@@ -28,8 +28,12 @@ document.addEventListener("fullscreenchange", onFullscreen)
 
 
 let window 
-GetConfigured().then((isConfigured) => {
-    if (isConfigured) {
+Promise.all([
+    DBGet("backend.configured", "bool"),
+]).then(([
+    configured,
+]) => {
+    if (configured) {
         window = new Window({
             target: document.getElementById("app"),
             props: {

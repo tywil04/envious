@@ -5,7 +5,7 @@ import (
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
-	"github.com/tywil04/tubed/internal/config"
+	"github.com/tywil04/tubed/internal/db"
 	"github.com/tywil04/tubed/internal/providers"
 	"github.com/tywil04/tubed/internal/providers/shared"
 )
@@ -23,67 +23,79 @@ func Init() *Tubed {
 }
 
 func (t *Tubed) Startup(ctx context.Context) {
-	if err := config.Load(); err != nil {
-		runtime.LogFatal(ctx, err.Error())
+	if err := db.Read(); err != nil {
+		runtime.LogFatal(ctx, "startup: "+err.Error())
 	}
 
 	t.ctx = ctx
 }
 
 func (t *Tubed) Shutdown(ctx context.Context) {
-	if err := config.Offload(); err != nil {
-		runtime.LogFatal(ctx, err.Error())
+	if err := db.Write(); err != nil {
+		runtime.LogFatal(ctx, "shutdown: "+err.Error())
 	}
 }
 
-func (t *Tubed) SetConfig(provider, instanceApi string) {
-	frontendUrl, err := providers.GetInstanceFrontend(provider, instanceApi)
-	if err != nil {
-		runtime.LogFatal(t.ctx, err.Error())
-	}
-
-	config.Stored.Provider = provider
-	config.Stored.InstanceFrontend = frontendUrl
-	config.Stored.InstanceApi = instanceApi
-	config.Stored.Configured = true
-
-	err = config.Offload()
-	if err != nil {
-		runtime.LogFatal(t.ctx, err.Error())
-	}
-
-	runtime.WindowReload(t.ctx)
+func (t *Tubed) DBSet(key string, value any) {
+	db.Set(key, value)
 }
 
-func (t *Tubed) SetProvider(provider string) {
-	config.Stored.Provider = provider
-	err := config.Offload()
-	if err != nil {
-		runtime.LogFatal(t.ctx, err.Error())
-	}
-}
-
-func (t *Tubed) SetInstance(instanceApi string) {
-	frontendUrl, err := providers.GetInstanceFrontend(config.Stored.Provider, instanceApi)
-	if err != nil {
-		runtime.LogFatal(t.ctx, err.Error())
-	}
-
-	config.Stored.InstanceFrontend = frontendUrl
-	config.Stored.InstanceApi = instanceApi
-
-	err = config.Offload()
-	if err != nil {
-		runtime.LogFatal(t.ctx, err.Error())
+func (t *Tubed) DBGet(key string, returnType string) any {
+	switch returnType {
+	case "bool":
+		return db.Get[bool](key)
+	case "string":
+		return db.Get[string](key)
+	case "int":
+		return db.Get[int](key)
+	case "uint":
+		return db.Get[uint](key)
+	case "byte":
+		return db.Get[byte](key)
+	case "float32":
+		return db.Get[float32](key)
+	case "[]bool":
+		return db.Get[[]bool](key)
+	case "[]string":
+		return db.Get[[]string](key)
+	case "[]int":
+		return db.Get[[]int](key)
+	case "[]uint":
+		return db.Get[[]uint](key)
+	case "[]byte":
+		return db.Get[[]byte](key)
+	case "[]float32":
+		return db.Get[[]float32](key)
+	default:
+		return db.Get[any](key)
 	}
 }
 
-func (t *Tubed) GetConfigured() bool {
-	return config.Stored.Configured
-}
-
-func (t *Tubed) GetProvider() string {
-	return config.Stored.Provider
+func (t *Tubed) DBGetWithDefault(key string, returnType string, defaultValue any) any {
+	switch returnType {
+	case "bool":
+		return db.GetWithDefault[bool](key, defaultValue)
+	case "string":
+		return db.GetWithDefault[string](key, defaultValue)
+	case "int":
+		return db.GetWithDefault[int](key, defaultValue)
+	case "uint":
+		return db.GetWithDefault[uint](key, defaultValue)
+	case "byte":
+		return db.GetWithDefault[byte](key, defaultValue)
+	case "[]bool":
+		return db.GetWithDefault[[]bool](key, defaultValue)
+	case "[]string":
+		return db.GetWithDefault[[]string](key, defaultValue)
+	case "[]int":
+		return db.GetWithDefault[[]int](key, defaultValue)
+	case "[]uint":
+		return db.GetWithDefault[[]uint](key, defaultValue)
+	case "[]byte":
+		return db.GetWithDefault[[]byte](key, defaultValue)
+	default:
+		return db.GetWithDefault[any](key, defaultValue)
+	}
 }
 
 func (t *Tubed) GetInstancesApi(provider string) []map[string]string {
@@ -113,20 +125,12 @@ func (t *Tubed) GetInstancesApi(provider string) []map[string]string {
 	return instances
 }
 
-func (t *Tubed) GetInstanceApi() string {
-	return config.Stored.InstanceApi
-}
-
-func (t *Tubed) GetInstanceFrontend() string {
-	return config.Stored.InstanceFrontend
-}
-
 func (t *Tubed) GetTrending() []shared.Video {
-	if !config.Stored.Configured {
+	if !db.Get[bool]("backend.configured") {
 		return []shared.Video{}
 	}
 
-	trending, err := providers.GetTrending(config.Stored.Provider, config.Stored.InstanceApi, config.Stored.Region)
+	trending, err := providers.GetTrending(db.Get[string]("backend.provider"), db.Get[string]("backend.instanceApi"), db.Get[string]("backend.region"))
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
 	}
@@ -135,11 +139,11 @@ func (t *Tubed) GetTrending() []shared.Video {
 }
 
 func (t *Tubed) GetVideo(videoId string) shared.Video {
-	if !config.Stored.Configured {
+	if !db.Get[bool]("backend.configured") {
 		return shared.Video{}
 	}
 
-	video, err := providers.GetVideo(config.Stored.Provider, config.Stored.InstanceApi, config.Stored.InstanceFrontend, videoId)
+	video, err := providers.GetVideo(db.Get[string]("backend.provider"), db.Get[string]("backend.instanceApi"), db.Get[string]("backend.instanceFrontend"), videoId)
 	if err != nil {
 		runtime.LogFatal(t.ctx, err.Error())
 	}

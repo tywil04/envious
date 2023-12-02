@@ -1,7 +1,4 @@
 <script context="module">
-    import ColorThief from "colorthief"
-    import * as StackBlur from 'stackblur-canvas';
-
     export const tabSystem = {
         tabsRootElement: null,
         viewsRootElement: null,
@@ -11,6 +8,7 @@
 
         createTabGroup: (groupName) => {
             const div = document.createElement("div")
+            div.dataset.tgc = "true"
             
             tabSystem.tabGroups[groupName] = {
                 element: div,
@@ -20,6 +18,7 @@
             const span = document.createElement("span")
             span.innerText = groupName
             span.style.display = "none"
+            span.dataset.tgt = "true"
                 
             tabSystem.tabGroups[groupName].labelElement = span
 
@@ -27,43 +26,50 @@
             tabSystem.tabsRootElement.appendChild(div)
         },
 
-        createTab: (groupName, tabName, component, props, locked=false, active=false, fallback=false, icon=null) => {
-            if (!(groupName in tabSystem.tabGroups)) {
-                tabSystem.createTabGroup(groupName)
+        // groupName, tabName, component, props, locked=false, active=false, fallback=false, icon=null, backgroundUrl=null
+        createTab: (tab) => {
+            if (!(tab.group in tabSystem.tabGroups)) {
+                tabSystem.createTabGroup(tab.group)
             }
             
-            if (tabName in tabSystem.tabGroups[groupName].tabs) {
-                tabSystem.selectTab(groupName, tabName)
+            if (tab.name in tabSystem.tabGroups[tab.group].tabs) {
+                tabSystem.selectTab(tab.group, tab.name)
                 return
             }
 
             const tabElement = document.createElement("button")
-            tabElement.title = tabName
+            tabElement.title = tab.name
+            tabElement.dataset.tsb = "true"
 
             const tabText = document.createElement("span")
-            tabText.innerText = tabName
+            tabText.innerText = tab.name
+            tabText.dataset.tbt = "true"
 
-            if (icon != null) {
+            if (tab.icon != null) {
                 new Icon({
                     target: tabElement,
                     props: {
-                        src: icon,
+                        src: tab.icon,
                         size: "24",
                         "stroke-width": "1.5",
+                        "data-ti": "true"
                     }
                 })
             }
 
             tabElement.appendChild(tabText)
-            tabElement.addEventListener("click", () => tabSystem.selectTab(groupName, tabName))
-            tabElement.dataset.tabActive = "false"
+            tabElement.addEventListener("click", () => {
+                tabSystem.selectTab(tab.group, tab.name)
+            })
+            tabElement.dataset.ta = "false"
 
-            if (!locked) {
+            if (!tab.locked) {
                 const deleteButton = document.createElement("button")
+                deleteButton.dataset.tdb = "true"
                 deleteButton.addEventListener("click", (event) => {
                     event.preventDefault()
                     event.stopPropagation()
-                    tabSystem.deleteTab(groupName, tabName)
+                    tabSystem.deleteTab(tab.group, tab.name)
                 })
 
                 new Icon({
@@ -78,7 +84,7 @@
                 tabElement.appendChild(deleteButton)
             }
 
-            tabSystem.tabGroups[groupName].element.appendChild(tabElement)
+            tabSystem.tabGroups[tab.group].element.appendChild(tabElement)
 
             tabElement.scrollIntoView({ 
                 inline: "end",
@@ -87,29 +93,38 @@
 
             const viewElement = document.createElement("div")
             viewElement.hidden = true
+            viewElement.dataset.v = "true"
 
-            new component({
+            new tab.component({
                 target: viewElement,
-                props: props
+                props: {
+                    tab: {
+                        groupName: tab.group,
+                        tabName: tab.name,
+                        backgroundUrl: tab.backgroundUrl
+                    },
+                    ...tab.props
+                }
             })
 
             tabSystem.viewsRootElement.appendChild(viewElement)
 
-            tabSystem.tabGroups[groupName].tabs[tabName] = {
+            tabSystem.tabGroups[tab.group].tabs[tab.name] = {
                 tabElement: tabElement,
                 viewElement: viewElement,
+                backgroundUrl: tab.backgroundUrl,
             }
 
-            if (tabSystem.tabGroups[groupName].labelElement) {
-                tabSystem.tabGroups[groupName].labelElement.style.display = "inline"
+            if (tabSystem.tabGroups[tab.group].labelElement) {
+                tabSystem.tabGroups[tab.group].labelElement.style.display = "inline"
             }
 
-            if (fallback) {
-                tabSystem.fallbackTab = [groupName, tabName]
+            if (tab.fallback) {
+                tabSystem.fallbackTab = [tab.group, tab.name]
             }
 
-            if (active) {
-                tabSystem.selectTab(groupName, tabName)
+            if (tab.active) {
+                tabSystem.selectTab(tab.group, tab.name)
             }
         },
 
@@ -121,10 +136,16 @@
             for (const group of Object.values(tabSystem.tabGroups)) {
                 for (const [tabName2, tab] of Object.entries(group.tabs)) {
                     if (tabName2 == tabName) {
-                        tab.tabElement.dataset.tabActive = "true"
+                        tab.tabElement.dataset.ta = "true"
                         tab.viewElement.hidden = false
+
+                        if (tab.backgroundUrl !== undefined) {
+                            adaptiveBackground.setBackground(tab.backgroundUrl)
+                        } else {
+                            adaptiveBackground.resetBackground()
+                        }
                     } else {
-                        tab.tabElement.dataset.tabActive = "false"
+                        tab.tabElement.dataset.ta = "false"
                         tab.viewElement.hidden = true
                     }
                 }
@@ -134,12 +155,14 @@
         deleteTab: (groupName, tabName) => {
             if (groupName in tabSystem.tabGroups && tabName in tabSystem.tabGroups[groupName].tabs) {
                 const tab = tabSystem.tabGroups[groupName].tabs[tabName]
-                // const wasActive = tab.tabElement.dataset.tabActive === "true"
+                const wasActive = tab.tabElement.dataset.ta === "true"
 
                 tab.tabElement.remove()
                 tab.viewElement.remove()
 
-                tabSystem.selectTab(...tabSystem.fallbackTab)
+                if (wasActive) {
+                    tabSystem.selectTab(...tabSystem.fallbackTab)
+                }
 
                 delete tabSystem.tabGroups[groupName].tabs[tabName]
 
@@ -147,48 +170,60 @@
                     tabSystem.tabGroups[groupName].labelElement.style.display = "none"
                 }
             }
-        }
+        },
     }
 
     export const adaptiveBackground = {
         rootElement: null,
 
-        lastCanvasElement: null,
-        canvasesInTransition: {},
-        visibleCanvasId: null,
-
-        // @ts-ignore
-        colorThief: new ColorThief(),
+        last: null,
 
         transitionDuration: 400,
 
-        setBackgroundFromImage: (id, imgElement) => {
-            if (id in adaptiveBackground.canvasesInTransition || adaptiveBackground.visibleCanvasId === id) {
-                return
+        resetBackground: () => {
+            if (adaptiveBackground.last !== null) {
+                adaptiveBackground.last.style.opacity = "0"
+                setTimeout(() => {
+                    adaptiveBackground.last.remove()
+                    adaptiveBackground.last = null
+                    
+                    for (const child of adaptiveBackground.rootElement.children) {
+                        child.remove()
+                    }
+                }, adaptiveBackground.transitionDuration)
             }
+        },
 
-            const canvas = document.createElement("canvas")
-            canvas.style.zIndex = "-9"
-            canvas.style.transitionDuration = `${adaptiveBackground.transitionDuration}ms`
-            canvas.style.opacity = "0"
+        setBackground: (url) => {
+            const container = document.createElement("div")
+            container.style.transitionDuration = `${adaptiveBackground.transitionDuration}ms`
+            container.style.opacity = "0"
+            container.style.zIndex = "-9"
 
-            adaptiveBackground.canvasesInTransition[id] = true
-            adaptiveBackground.visibleCanvasId = id
-            adaptiveBackground.rootElement.appendChild(canvas)
+            const containerDiv = document.createElement("div")
+            containerDiv.style.zIndex = "-11"
+            container.append(containerDiv)
 
-            StackBlur.image(imgElement, canvas, 150, false);
+            const containerImg = document.createElement("img")
+            containerImg.src = url
+            containerImg.alt = "blurry background image"
+            containerImg.crossOrigin = "anonymous"
+            containerImg.style.zIndex = "-12"
+            container.append(containerImg)
 
-            canvas.style.opacity = "1"
-            canvas.style.zIndex = "-10"
+            adaptiveBackground.rootElement.append(container)
 
-            if (adaptiveBackground.lastCanvasElement === null) {
-                adaptiveBackground.lastCanvasElement = canvas
-                delete adaptiveBackground.canvasesInTransition[id]
+            setTimeout(() => {
+                container.style.opacity = "1"
+                container.style.zIndex = "-10"
+            }, 1)
+
+            if (adaptiveBackground.last === null) {
+                adaptiveBackground.last = container
             } else {
                 setTimeout(() => {
-                    adaptiveBackground.lastCanvasElement.remove()
-                    adaptiveBackground.lastCanvasElement = canvas
-                    delete adaptiveBackground.canvasesInTransition[id]
+                    adaptiveBackground.last.remove()
+                    adaptiveBackground.last = container
                 }, adaptiveBackground.transitionDuration)
             }
         }
@@ -202,7 +237,7 @@
     import { WindowMinimise, WindowToggleMaximise, Quit } from "../../wailsjs/runtime/runtime.js"
 
     import { Icon } from "@steeze-ui/svelte-icon"
-    import { X as XIcon, Square as SquareIcon, Minus as MinusIcon } from "@steeze-ui/lucide-icons"
+    import { X as XIcon, Square as SquareIcon, Minus as MinusIcon, X } from "@steeze-ui/lucide-icons"
 
     
     export let defaultTabs = []
@@ -210,17 +245,9 @@
 
     onMount(() => {
         for (const tab of defaultTabs) {
-            tabSystem.createTab(
-                tab.group,
-                tab.name,
-                tab.component,
-                tab.props,
-                tab.locked,
-                tab.active,
-                tab.fallback,
-                tab.icon
-            )
+            tabSystem.createTab(tab)
         }
+
     })
 
 
@@ -232,15 +259,15 @@
 </script> 
 
 
-<nav class="wails-drag sticky top-0 w-full h-fit flex flex-row p-2 text-white z-20 *:wails-nodrag *:font-normal *:w-fit *:flex *:flex-row" on:dblclick={doubleClickMaximise}>
+<nav class="wails-drag sticky top-0 w-full h-fit flex flex-row p-2 z-20 *:wails-nodrag *:font-normal *:w-fit *:flex *:flex-row" on:dblclick={doubleClickMaximise}>
     <div class="justify-start">
-        <span class="my-auto ml-2 font-semibold text-white">Tubed</span>
+        <span class="my-auto ml-2 font-semibold">Tubed</span>
     </div>
 
     <div class="justify-center mx-auto"></div>
 
     <div class="justify-end *:h-fit *:w-fit *:flex *:flex-row">
-        <div class="gap-2 hover:*:bg-black/40 *:h-7 *:w-7 *:duration-75 *:rounded-md *:cursor-pointer *:text-white"> 
+        <div class="gap-2 hover:*:bg-white/5 *:h-7 *:w-7 *:duration-75 *:rounded-md *:cursor-pointer"> 
             <button title="Minimise Window" class="p-0.5" on:click={WindowMinimise}>
                 <Icon src={MinusIcon} size="24" stroke-width="1.5"/>
             </button>
@@ -256,10 +283,10 @@
 
 
 <main class="flex flex-row gap-2 p-2 pt-0 w-full h-[calc(100%-44px)]">
-    <div class="sticky z-10 h-full min-w-[256px] w-64 flex flex-col *:flex *:flex-col gap-4 *:gap-1 *:*:flex *:*:flex-row *:*:truncate *:*:rounded-md hover:*:*:bg-white/5 *:*:h-8 *:*:px-2 *:*:py-1 *:*:text-left *:*:w-full data-[tab-active=true]:*:*:!bg-white/10 hover:*:*:duration-75 [&>span]:*:*:max-w-[240px] [&>span]:hover:*:*:max-w-[220px] [&>svg]:*:*:py-[3px] [&>svg]:*:*:pr-[3px] [&>svg+span]:*:*:ml-[5px] [&>span]:*:*:truncate [&>span+button]:*:*:absolute [&>span+button]:*:*:mr-1 [&>span+button]:*:*:rounded-md [&>span+button]:*:*:right-0 [&>span+button]:*:*:hidden [&>span+button]:hover:*:*:block [&>span]:text-sm [&>span]:mx-2 [&>span]:-mb-3 [&>span]:opacity-70 [&>span]:duration-75" bind:this={tabSystem.tabsRootElement}></div>
-    
-    <div class="p-2 rounded-md bg-black/40 max-w-[calc(100%-256px-8px)] w-full h-full overflow-y-auto" bind:this={tabSystem.viewsRootElement}></div>
+    <div class="sticky z-10 h-full overflow-auto resize-x min-w-[256px] w-[256px] flex flex-col decendant-data-[tgc]:flex decendant-data-[tgc]:flex-col gap-4 decendant-data-[tgc]:gap-1 decendant-data-[tsb]:flex decendant-data-[tsb]:flex-row decendant-data-[tsb]:truncate decendant-data-[tsb]:rounded-md hover:decendant-data-[tsb]:bg-white/5 decendant-data-[tsb]:h-8 decendant-data-[tsb]:px-2 decendant-data-[tsb]:py-1 decendant-data-[tsb]:text-left decendant-data-[tsb]:w-full decendant-data-[ta=true]:!bg-white/10 hover:decendant-data-[tsb]:duration-100 decendant-data-[ti]:py-[3px] decendant-data-[ti]:pr-[3px] [&_svg[data-ti]+span[data-tbt]]:ml-[5px] decendant-data-[tbt]:truncate decendant-data-[tdb]:absolute decendant-data-[tdb]:mr-1 decendant-data-[tdb]:rounded-md decendant-data-[tdb]:right-0 decendant-data-[tdb]:hidden [&_*[data-tsb]:hover>span[data-tbt]]:mr-[20px] [&_*[data-tsb]:hover>button[data-tdb]]:block decendant-data-[tgt]:text-sm decendant-data-[tgt]:mx-2 decendant-data-[tgt]:-mb-3 decendant-data-[tgt]:opacity-70 decendant-data-[tgt]:duration-75" bind:this={tabSystem.tabsRootElement}></div>
+
+    <div class="decendant-data-[v]:overflow-y-auto decendant-data-[v]:p-4 decendant-data-[v]:min-w-full w-full h-full decendant-data-[v]:w-full decendant-data-[v]:h-full decendant-data-[v]:min-h-full decendant-data-[v]:rounded-xl decendant-data-[v]:rounded-br-4px decendant-data-[v]:bg-black/40" bind:this={tabSystem.viewsRootElement}></div>
 </main>
 
 
-<div class="opacity-[15%] absolute top-0 !w-full !h-full -z-10 *:absolute *:top-0 *:!w-full *:!h-full *:duration-500 *:-z-10 *:pointer-events-none" bind:this={adaptiveBackground.rootElement}></div>
+<div class="pointer-events-none absolute top-0 w-full h-full opacity-20 -z-10 duration-500 *:absolute *:w-full *:h-full *:*:absolute *:*:w-full *:*:h-full *:*:backdrop-blur-[100px]" bind:this={adaptiveBackground.rootElement}></div>

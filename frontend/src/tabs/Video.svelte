@@ -1,12 +1,9 @@
 <script>
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime.js"
     import { GetVideo } from "../../wailsjs/go/main/Tubed.js";
-    //import { spawnTab } from "../components/Window.svelte";
 
-    import VideoRow from "../components/VideoRow.svelte";
-
-    import Video from "./Video.svelte"
-
+    import VideoGrid from "../components/VideoGrid.svelte";
+    
 
     export let videoId
 
@@ -116,7 +113,7 @@
     </div>
 
     <p class="label">Other video's you might like:</p>
-    <VideoRow rawData={video.recommendedVideos}/>
+    <VideoGrid rawData={video.recommendedVideos}/>
 {:catch error}
     <span class="error">{error}</span>
 {/await}
@@ -147,11 +144,11 @@
 
 
     .video > .background {
-        @apply bg-black rounded-lg flex flex-row justify-center;
+        @apply bg-black rounded-md flex flex-row justify-center;
     }
 
     .video > .background > .embed {
-        @apply w-full aspect-video rounded-t-lg duration-100;
+        @apply w-full aspect-video rounded-t-md duration-100;
     }
 
     .video > .background > .embed.unloaded {
@@ -159,7 +156,7 @@
     }
 
     .video > .info {
-        @apply bg-zinc-800 p-4 rounded-b-lg;
+        @apply bg-white/5 p-4 rounded-b-md;
     }
 
     .video > .info > .title {

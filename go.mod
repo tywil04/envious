@@ -1,8 +1,11 @@
 module github.com/tywil04/tubed
 
-go 1.18
+go 1.20
 
-require github.com/wailsapp/wails/v2 v2.6.0
+require (
+	github.com/BurntSushi/toml v1.3.2
+	github.com/wailsapp/wails/v2 v2.6.0
+)
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect
@@ -20,6 +23,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/samber/lo v1.38.1 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect

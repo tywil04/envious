@@ -1,11 +1,11 @@
 <script>
-    import { GetTrending, GetInstanceApi } from "../../wailsjs/go/main/Tubed.js"
+    import { GetTrending, DBGet } from "../../wailsjs/go/main/Tubed.js"
 
-    import VideoRow from "../components/VideoRow.svelte";
+    import VideoGrid from "../components/VideoGrid.svelte";
 </script>
 
     
-{#await GetInstanceApi()}
+{#await DBGet("backend.instanceApi", "string")}
     <p>Loading...</p>
 {:then instance}
     <div class="root">
@@ -15,7 +15,7 @@
             <div class="divider"/>
         
             <p class="label">Trending:</p>
-            <VideoRow dataFunction={GetTrending}/>
+            <VideoGrid dataFunction={GetTrending}/>
         {:else}
             <p>You dont have a selected instance.</p>
         {/if}

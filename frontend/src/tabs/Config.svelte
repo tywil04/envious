@@ -1,6 +1,7 @@
 <script>
-    import { GetInstancesApi, SetConfig } from "../../wailsjs/go/main/Tubed.js"
-    import validations from "../lib/validations.js";
+    import { DBSet, GetInstancesApi } from "../../wailsjs/go/main/Tubed.js"
+    
+    import { urlValidation } from "../lib/validations.js";
 
     import SelectInput from '../components/SelectInput.svelte'
     import TextInput from "../components/TextInput.svelte"
@@ -14,7 +15,9 @@
     
     const configure = async () => {
         if (instance !== "") {
-            await SetConfig(provider, instance)
+            await DBSet("backend.provider", provider)
+            await DBSet("backend.instanceApi", instance)
+            await DBSet("backend.configured", true)
         }
     }
 </script>
@@ -37,7 +40,7 @@
                 <SelectInput bind:selected={instance} bind:selectedIndex={instanceIndex} label="Select Instance" options={[{ display: "Custom", value: "" }, ...instances]}/>
                 <div class="seperator"></div>
                 {#if instanceIndex === 0}
-                    <TextInput bind:value={instance} label="Custom Instance" type="url" errorMessage="Please enter a valid url" placeholder="https://example.org" validation={validations.url}/>
+                    <TextInput bind:value={instance} label="Custom Instance" type="url" errorMessage="Please enter a valid url" placeholder="https://example.org" validation={urlValidation}/>
                 {/if}
             </div>
 
