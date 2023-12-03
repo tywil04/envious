@@ -1,49 +1,14 @@
 <script>    
-    import { tabSystem } from "./Window.svelte"
-
-    import { Icon } from "@steeze-ui/svelte-icon"
-    import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "@steeze-ui/lucide-icons";
-
     import Video from "../tabs/Video.svelte";
+
+    import tabSystem from "../window/tabSystem.js"
+    import adaptiveBackground from "../window/adaptiveBackground";
 
 
     export let rawData = []                        
     export let dataFunction = async () => rawData // allow for data to be directly entered into the component or use custom dataFunction
 
-
-    let videosElement
-    let showScrollLeft = false 
-    let showScrollRight = true
- 
-
-    const calculateScrollIndicators = (_) => {
-        showScrollLeft = videosElement.scrollLeft > 0
-        showScrollRight = videosElement.scrollLeft < videosElement.scrollWidth - videosElement.clientWidth
-    }
-
-
-    const scrollLeft = (_) => {
-        let offset = (videosElement.scrollLeft) % 336
-
-        videosElement.scrollTo({
-            top: 0,
-            left: videosElement.scrollLeft - offset - (offset === 0 ? 336: 0),
-            behavior: "smooth",
-        })
-    }
-
-
-    const scrollRight = (_) => {
-        let offset = (320 - (videosElement.scrollLeft + videosElement.clientWidth) % 336)
-
-        videosElement.scrollTo({
-            top: 0,
-            left: videosElement.scrollLeft + offset + (offset === 0 ? 336: 0),
-            behavior: "smooth",
-        })
-    }
-
-
+    
     const openVideoTab = (video) => {
         tabSystem.createTab({
             group: "Videos",

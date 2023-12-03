@@ -1,11 +1,9 @@
 <script>
-    import { DBSet, GetInstancesApi } from "../../wailsjs/go/main/Tubed.js"
-    
-    import { urlValidation } from "../lib/validations.js";
-
     import SelectInput from '../components/SelectInput.svelte'
     import TextInput from "../components/TextInput.svelte"
     import Button from "../components/Button.svelte"
+
+    import { DBSet, GetInstancesApi } from "../../wailsjs/go/main/Tubed.js"
 
 
     let provider = ""
@@ -40,7 +38,7 @@
                 <SelectInput bind:selected={instance} bind:selectedIndex={instanceIndex} label="Select Instance" options={[{ display: "Custom", value: "" }, ...instances]}/>
                 <div class="seperator"></div>
                 {#if instanceIndex === 0}
-                    <TextInput bind:value={instance} label="Custom Instance" type="url" errorMessage="Please enter a valid url" placeholder="https://example.org" validation={urlValidation}/>
+                    <TextInput bind:value={instance} label="Custom Instance" type="url" errorMessage="Please enter a valid url" placeholder="https://example.org"/>
                 {/if}
             </div>
 
