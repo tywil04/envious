@@ -199,16 +199,19 @@
             container.style.transitionDuration = `${adaptiveBackground.transitionDuration}ms`
             container.style.opacity = "0"
             container.style.zIndex = "-9"
+            container.dataset.abc = "true"
 
             const containerDiv = document.createElement("div")
             containerDiv.style.zIndex = "-11"
+            containerDiv.dataset.abb = "true"
             container.append(containerDiv)
-
+        
             const containerImg = document.createElement("img")
             containerImg.src = url
             containerImg.alt = "blurry background image"
             containerImg.crossOrigin = "anonymous"
             containerImg.style.zIndex = "-12"
+            containerImg.dataset.abi = "true"
             container.append(containerImg)
 
             adaptiveBackground.rootElement.append(container)
@@ -249,32 +252,25 @@
         }
 
     })
-
-
-    const doubleClickMaximise = (event) => {
-        if (event.target.tagName === "NAV") {
-            WindowToggleMaximise()
-        }
-    }
 </script> 
 
 
-<nav class="wails-drag sticky top-0 w-full h-fit flex flex-row p-2 z-20 *:wails-nodrag *:font-normal *:w-fit *:flex *:flex-row" on:dblclick={doubleClickMaximise}>
+<nav class="flex sticky top-0 z-20 flex-row p-2 w-full h-[44px] wails-drag child:wails-nodrag child:font-normal child:w-fit child:flex child:flex-row" on:dblclick={WindowToggleMaximise}>
     <div class="justify-start">
         <span class="my-auto ml-2 font-semibold">Tubed</span>
     </div>
 
     <div class="justify-center mx-auto"></div>
 
-    <div class="justify-end *:h-fit *:w-fit *:flex *:flex-row">
-        <div class="gap-2 hover:*:bg-white/5 *:h-7 *:w-7 *:duration-75 *:rounded-md *:cursor-pointer"> 
-            <button title="Minimise Window" class="p-0.5" on:click={WindowMinimise}>
+    <div class="justify-end child:h-fit child:w-fit child:flex child:flex-row">
+        <div class="gap-2 hover:child:bg-white/5 child:h-7 child:w-7 child:duration-75 child:rounded-md child:cursor-pointer child:p-0.5"> 
+            <button title="Minimise Window" on:click={WindowMinimise}>
                 <Icon src={MinusIcon} size="24" stroke-width="1.5"/>
             </button>
-            <button title="Maximise Window" on:click={WindowToggleMaximise} class="p-1.5">
+            <button title="Maximise Window" on:click={WindowToggleMaximise} class="!p-1.5">
                 <Icon src={SquareIcon} size="16" stroke-width="2"/>
             </button>
-            <button title="Close Window" on:click={Quit} class="p-0.5">
+            <button title="Close Window" on:click={Quit}>
                 <Icon src={XIcon} size="24" stroke-width="1.5"/>
             </button>
         </div>
@@ -282,11 +278,11 @@
 </nav>
 
 
-<main class="flex flex-row gap-2 p-2 pt-0 w-full h-[calc(100%-44px)]">
-    <div class="sticky z-10 h-full overflow-auto resize-x min-w-[256px] w-[256px] flex flex-col decendant-data-[tgc]:flex decendant-data-[tgc]:flex-col gap-4 decendant-data-[tgc]:gap-1 decendant-data-[tsb]:flex decendant-data-[tsb]:flex-row decendant-data-[tsb]:truncate decendant-data-[tsb]:rounded-md hover:decendant-data-[tsb]:bg-white/5 decendant-data-[tsb]:h-8 decendant-data-[tsb]:px-2 decendant-data-[tsb]:py-1 decendant-data-[tsb]:text-left decendant-data-[tsb]:w-full decendant-data-[ta=true]:!bg-white/10 hover:decendant-data-[tsb]:duration-100 decendant-data-[ti]:py-[3px] decendant-data-[ti]:pr-[3px] [&_svg[data-ti]+span[data-tbt]]:ml-[5px] decendant-data-[tbt]:truncate decendant-data-[tdb]:absolute decendant-data-[tdb]:mr-1 decendant-data-[tdb]:rounded-md decendant-data-[tdb]:right-0 decendant-data-[tdb]:hidden [&_*[data-tsb]:hover>span[data-tbt]]:mr-[20px] [&_*[data-tsb]:hover>button[data-tdb]]:block decendant-data-[tgt]:text-sm decendant-data-[tgt]:mx-2 decendant-data-[tgt]:-mb-3 decendant-data-[tgt]:opacity-70 decendant-data-[tgt]:duration-75" bind:this={tabSystem.tabsRootElement}></div>
+<div class="flex flex-row gap-2 p-2 pt-0 w-full h-[calc(100%-44px)]">
+    <aside bind:this={tabSystem.tabsRootElement} class="z-10 sticky h-full overflow-auto resize-x min-w-[256px] w-[256px] flex flex-col decendant-data-[tgc]:flex decendant-data-[tgc]:flex-col gap-4 decendant-data-[tgc]:gap-1 decendant-data-[tsb]:flex decendant-data-[tsb]:flex-row decendant-data-[tsb]:truncate decendant-data-[tsb]:rounded-md hover:decendant-data-[tsb]:bg-white/5 decendant-data-[tsb]:h-8 decendant-data-[tsb]:px-2 decendant-data-[tsb]:py-1 decendant-data-[tsb]:text-left decendant-data-[tsb]:w-full decendant-data-[ta=true]:!bg-white/10 hover:decendant-data-[tsb]:duration-100 decendant-data-[ti]:py-[3px] decendant-data-[ti]:pr-[3px] [&_svg[data-ti]+span[data-tbt]]:ml-[5px] decendant-data-[tbt]:truncate decendant-data-[tdb]:absolute decendant-data-[tdb]:mr-1 decendant-data-[tdb]:rounded-md decendant-data-[tdb]:right-0 decendant-data-[tdb]:hidden [&_*[data-tsb]:hover>span[data-tbt]]:mr-[20px] [&_*[data-tsb]:hover>button[data-tdb]]:block decendant-data-[tgt]:text-sm decendant-data-[tgt]:mx-2 decendant-data-[tgt]:-mb-3 decendant-data-[tgt]:opacity-70 decendant-data-[tgt]:duration-75"></aside>
 
-    <div class="decendant-data-[v]:overflow-y-auto decendant-data-[v]:p-4 decendant-data-[v]:min-w-full w-full h-full decendant-data-[v]:w-full decendant-data-[v]:h-full decendant-data-[v]:min-h-full decendant-data-[v]:rounded-xl decendant-data-[v]:rounded-br-4px decendant-data-[v]:bg-black/40" bind:this={tabSystem.viewsRootElement}></div>
-</main>
+    <main bind:this={tabSystem.viewsRootElement} class="decendant-data-[v]:overflow-y-auto decendant-data-[v]:p-4 decendant-data-[v]:min-w-full w-full h-full decendant-data-[v]:w-full decendant-data-[v]:h-full decendant-data-[v]:min-h-full decendant-data-[v]:rounded-xl decendant-data-[v]:rounded-br-4px decendant-data-[v]:bg-black/40"></main>
+</div>
 
 
-<div class="pointer-events-none absolute top-0 w-full h-full opacity-20 -z-10 duration-500 *:absolute *:w-full *:h-full *:*:absolute *:*:w-full *:*:h-full *:*:backdrop-blur-[100px]" bind:this={adaptiveBackground.rootElement}></div>
+<div class="pointer-events-none absolute top-0 w-full h-full opacity-20 -z-10 duration-500 decendant-data-[abc]:absolute decendant-data-[abc]:w-full decendant-data-[abc]:h-full decendant-data-[abb]:absolute decendant-data-[abi]:absolute decendant-data-[abb]:w-full decendant-data-[abi]:w-full decendant-data-[abb]:h-full decendant-data-[abi]:h-full decendant-data-[abb]:backdrop-blur-[100px]" bind:this={adaptiveBackground.rootElement}></div>

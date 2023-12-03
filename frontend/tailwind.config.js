@@ -29,7 +29,11 @@ export default {
   plugins: [
     require('@tailwindcss/forms'),
     plugin(({ addVariant, addUtilities, matchVariant }) => {
-      addVariant("*", "& > *")
+      addVariant("child", "& > *")
+      matchVariant("child-data", (value) => `& > *[data-${value}]`)
+
+      addVariant("decendant", "& *")
+      matchVariant("decendant-data", (value) => `& *[data-${value}]`)
 
       addUtilities({
         ".wails-drag": {
@@ -39,14 +43,6 @@ export default {
           "--wails-draggable": "nodrag"
         },
       })
-
-      matchVariant(
-        "decendant-data",
-        (value) => {
-          return `& *[data-${value}]`;
-        },
-        {}
-      );
     })
   ]
 };
