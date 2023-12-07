@@ -1,3 +1,5 @@
+import xhook from "xhook";
+
 import Window from "./window/Window.svelte";
 
 import Settings from "./tabs/Settings.svelte";
@@ -6,9 +8,9 @@ import Trending from "./tabs/Trending.svelte";
 import Config from "./tabs/Config.svelte";
 import Subscriptions from "./tabs/Subscriptions.svelte";
 
-import { Search as SearchIcon, Cog as CogIcon, Play as PlayIcon, Flame as FlameIcon } from "@steeze-ui/lucide-icons"
+import { MagnifyingGlass as MagnifyingGlassIcon, Cog8Tooth as Cog8ToothIcon, Play as PlayIcon, Fire as FireIcon } from "@steeze-ui/heroicons"
 
-import { DBGet } from "../wailsjs/go/main/Tubed.js"
+import { GetBackendConfigured, GetSelectedInstance } from "../wailsjs/go/main/Tubed.js"
 
 import "./style.css";
 
@@ -21,7 +23,7 @@ const configuredDefaultTabs = [
         locked: true,
         fallback: true,
         component: Trending,
-        icon: FlameIcon
+        icon: FireIcon
     },
     {
         name: "Subscriptions",
@@ -35,14 +37,14 @@ const configuredDefaultTabs = [
         group: "App",
         locked: true,
         component: Search,
-        icon: SearchIcon,
+        icon: MagnifyingGlassIcon,
     },
     {
         name: "Settings",
         group: "App",
         locked: true,
         component: Settings,
-        icon: CogIcon,
+        icon: Cog8ToothIcon,
     },
 ]
 
@@ -56,6 +58,17 @@ const unconfiguredDefaultTabs = [
         component: Config,
     },
 ]
+
+
+// googlevideo doesn't allow cors, invidious can proxy this for us so replace all requests to googlevideo
+GetSelectedInstance().then((instance) => {
+    xhook.before((request) => {
+        if (request.url.includes("googlevideo")) {
+            const url = new URL(request.url)
+            request.url = instance.apiUrl + url.pathname + url.search.toString()
+        }
+    })
+})
 
 
 let window
@@ -74,7 +87,7 @@ function loadWindow([configured]) {
 }
 
 Promise.all([
-     DBGet("backend.configured", "bool")
+    GetBackendConfigured()
 ]).then(loadWindow)
 
 

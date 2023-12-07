@@ -27,7 +27,7 @@
 </script> 
 
 
-<nav class="flex sticky top-0 z-20 flex-row p-2 w-full h-[44px] wails-drag child:wails-nodrag child:font-normal child:w-fit child:flex child:flex-row" on:dblclick={WindowToggleMaximise}>
+<nav on:dblclick|self={WindowToggleMaximise} class="flex sticky top-0 z-20 flex-row p-2 w-full h-[44px] wails-drag child:wails-nodrag child:font-normal child:w-fit child:flex child:flex-row">
     <div class="justify-start">
         <span class="my-auto ml-2 font-semibold">Tubed</span>
     </div>

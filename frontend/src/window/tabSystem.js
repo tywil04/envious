@@ -55,8 +55,8 @@ const tabSystem = {
                 target: tabElement,
                 props: {
                     src: tab.icon,
+                    theme: "mini",
                     size: "24",
-                    "stroke-width": "1.5",
                     "data-ti": "true"
                 }
             })

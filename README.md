@@ -1,5 +1,5 @@
 # Tubed
 
-Has support for both invidious and piped
+invidious only
 
 WIP

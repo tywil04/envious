@@ -28,7 +28,7 @@ export default {
 
   plugins: [
     require('@tailwindcss/forms'),
-    plugin(({ addVariant, addUtilities, matchVariant }) => {
+    plugin(({ addVariant, addUtilities, matchVariant, matchUtilities }) => {
       addVariant("child", "& > *")
       matchVariant("child-data", (value) => `& > *[data-${value}]`)
 

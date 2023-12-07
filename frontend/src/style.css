@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 html, body, div#app {
     @apply overflow-hidden w-full h-full text-base scroll-smooth text-zinc-300;
     color-scheme: dark;

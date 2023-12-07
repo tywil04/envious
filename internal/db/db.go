@@ -2,10 +2,9 @@
 package db
 
 import (
+	"encoding/json"
 	"os"
 	"strings"
-
-	"github.com/BurntSushi/toml"
 )
 
 var (
@@ -19,7 +18,7 @@ func init() {
 	userConfigDir, _ := os.UserConfigDir()
 
 	configDir = userConfigDir + "/Tubed"
-	configFile = configDir + "/data.toml"
+	configFile = configDir + "/data.json"
 }
 
 func Read() error {
@@ -28,7 +27,7 @@ func Read() error {
 		return err
 	}
 
-	err = createFileIfNotExist(configFile)
+	err = createFileIfNotExist(configFile, "{}")
 	if err != nil {
 		return err
 	}
@@ -39,7 +38,7 @@ func Read() error {
 	}
 	defer file.Close()
 
-	if _, err := toml.NewDecoder(file).Decode(&config); err != nil {
+	if err := json.NewDecoder(file).Decode(&config); err != nil {
 		return err
 	}
 
@@ -53,7 +52,9 @@ func Write() error {
 	}
 	defer file.Close()
 
-	if err := toml.NewEncoder(file).Encode(&config); err != nil {
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "    ")
+	if err := encoder.Encode(&config); err != nil {
 		return err
 	}
 
@@ -69,8 +70,13 @@ func Set(key string, value any) {
 		if index == levelsLen-1 {
 			last[level] = value
 		} else {
-			last[level] = map[string]any{}
-			last = last[level].(map[string]any)
+			tempLast, isAlreadyMap := last[level].(map[string]any)
+			if isAlreadyMap {
+				last = tempLast
+			} else {
+				last[level] = map[string]any{}
+				last = last[level].(map[string]any)
+			}
 		}
 	}
 }
@@ -85,9 +91,10 @@ func Get[T any](key string) T {
 		if index == levelsLen-1 {
 			value, _ = last[level].(T)
 		} else {
-			var ok bool
-			last, ok = last[level].(map[string]any)
-			if !ok {
+			tempLast, isAlreadyMap := last[level].(map[string]any)
+			if isAlreadyMap {
+				last = tempLast
+			} else {
 				// not set, break so default is returned
 				break
 			}
@@ -108,9 +115,10 @@ func GetWithDefault[T any](key string, defaultValue any) T {
 		if index == levelsLen-1 {
 			value, valueOk = last[level].(T)
 		} else {
-			var ok bool
-			last, ok = last[level].(map[string]any)
-			if !ok {
+			tempLast, isAlreadyMap := last[level].(map[string]any)
+			if isAlreadyMap {
+				last = tempLast
+			} else {
 				// not set, break so default is returned
 				break
 			}

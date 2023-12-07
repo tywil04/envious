@@ -7,7 +7,7 @@
     export let required = true
     export let label = ""
     export let options = []
-    export let selected = ""
+    export let selected = null
     export let selectedIndex = 0
 
 
@@ -20,11 +20,10 @@
 
     
     const onInput = (event) => {
-        selected = event.target.value
-
         for (let i = 0; i < options.length; i++) {
-            if (options[i].value === selected || options[i] === selected) {
+            if (i == event.target.value) {
                 selectedIndex = i
+                selected = options[i].value
                 break
             }
         }
@@ -41,16 +40,9 @@
 
     <select class="input" on:input on:click on:input={onInput} {id} {name} {required}>
         {#each options as option, index}
-            {#if option.display !== undefined && option.value !== undefined}
-                <!-- if option is a map -->
-                <option value={option.value} selected={index == selectedIndex}>
-                    <!-- if options.display is undefined, use options.value -->
-                    {option.display !== undefined ? option.display: option.value}
-                </option>
-            {:else if option.display === undefined && option.value === undefined && option !== undefined}
-                <!-- if option is an array, use the value -->
-                <option value={option} selected={index == selectedIndex}>{option}</option>
-            {/if}
+            <option value={index} selected={index == selectedIndex}>
+                {option.display}
+            </option>
         {/each}
     </select>
 </div>

@@ -1,11 +1,17 @@
 <script>
+    import VideoGrid from "../components/VideoGrid.svelte";
+
+    import VideoPlayer from "../components/VideoPlayer.svelte"
+
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime.js"
     import { GetVideo } from "../../wailsjs/go/main/Tubed.js";
+    import dashjs from "dashjs"
 
-    import VideoGrid from "../components/VideoGrid.svelte";
-    
 
     export let videoId
+
+    
+    let video = null
 
 
     let frame
@@ -20,14 +26,7 @@
             event.target.innerText = "Read more..."
             descriptionElement.classList.add("clamped")
         }
-    }   
-
-
-    const loadEmbed = (_) => {
-        setTimeout(() => {
-            frame.classList.remove("unloaded")
-        }, 1000)
-    }
+    } 
 
 
     const processDescription = (element) => {
@@ -92,15 +91,21 @@
     <p>Loading...</p>
 {:then video} 
     <div class="video">
-        <div class="background">
-            <iframe bind:this={frame} on:load={loadEmbed} allow="fullscreen" class="embed unloaded" title={video.title} src={video.embedUrl}/>
+        <div class="w-full rounded-t-md bg-black/50 h-fit">
+            <VideoPlayer {video}/>
         </div>
 
         <div class="info">
             <p class="title">{video.title}</p>
         
             <div class="author">
-                <img class="avatar" alt={video.author} src={video.authorAvatarUrl}/>
+                <picture class="avatar">
+                    {#each video.authorThumbnails as avatar}
+                        <source media={`(min-width: ${avatar.width}px)`} srcset={avatar.url}/>
+                    {/each}
+                    <img class="rounded-full avatar" alt={video.author + " avatar"}/>
+                </picture>
+
                 <p class="name">{video.author}</p>
             </div>
     
@@ -113,7 +118,7 @@
     </div>
 
     <p class="label">Other video's you might like:</p>
-    <VideoGrid rawData={video.recommendedVideos}/>
+    <VideoGrid videos={video.recommendedVideos}/>
 {:catch error}
     <span class="error">{error}</span>
 {/await}
@@ -145,14 +150,6 @@
 
     .video > .background {
         @apply bg-black rounded-md flex flex-row justify-center;
-    }
-
-    .video > .background > .embed {
-        @apply w-full aspect-video rounded-t-md duration-100;
-    }
-
-    .video > .background > .embed.unloaded {
-        @apply opacity-0;
     }
 
     .video > .info {

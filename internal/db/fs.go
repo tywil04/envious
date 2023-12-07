@@ -17,7 +17,7 @@ func createDirIfNotExist(dirPath string, filePerm fs.FileMode) error {
 	return nil
 }
 
-func createFileIfNotExist(filePath string) error {
+func createFileIfNotExist(filePath, defaultContents string) error {
 	_, err := os.Stat(filePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -25,6 +25,7 @@ func createFileIfNotExist(filePath string) error {
 			if err != nil {
 				return err
 			}
+			configFile.Write([]byte(defaultContents))
 			configFile.Close()
 		} else {
 			return err
