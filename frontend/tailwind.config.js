@@ -31,9 +31,13 @@ export default {
     plugin(({ addVariant, addUtilities, matchVariant, matchUtilities }) => {
       addVariant("child", "& > *")
       matchVariant("child-data", (value) => `& > *[data-${value}]`)
+      matchVariant("child-type", (value) => `& > ${value}`)
+
+      matchVariant("parent-data", (value) => `&:has(*[data-${value}])`)
 
       addVariant("decendant", "& *")
       matchVariant("decendant-data", (value) => `& *[data-${value}]`)
+      matchVariant("decendant-type", (value) => `& ${value}`)
 
       addUtilities({
         ".wails-drag": {
@@ -41,6 +45,12 @@ export default {
         },
         ".wails-nodrag": {
           "--wails-draggable": "nodrag"
+        },
+      })
+
+      addUtilities({
+        ".word-break": {
+          "word-break": "break-word"
         },
       })
     })

@@ -3,7 +3,7 @@ package main
 import (
 	"embed"
 
-	"github.com/tywil04/tubed/internal/assetProxy"
+	"github.com/tywil04/tubed/internal/proxy"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -24,8 +24,8 @@ func main() {
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
-			Assets:  assets,
-			Handler: assetProxy.NewProxy(),
+			Assets:     assets,
+			Middleware: proxy.Middleware,
 		},
 		BackgroundColour: &options.RGBA{R: 24, G: 24, B: 27, A: 1},
 		OnStartup:        tubed.Startup,
@@ -33,10 +33,7 @@ func main() {
 		Frameless:        true,
 		Windows: &windows.Options{
 			WebviewGpuIsDisabled: false,
-			// BackdropType:         windows.Mica,
-			// WindowIsTranslucent:  true,
-			// WebviewIsTransparent: true,
-			Theme: windows.Dark,
+			Theme:                windows.Dark,
 		},
 		Linux: &linux.Options{
 			WindowIsTranslucent: true,

@@ -3,6 +3,7 @@
     import { Maximize as MaximiseIcon, Minimize as MinimizeIcon } from "@steeze-ui/lucide-icons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import dashjs from "dashjs";
+    import { WindowUnfullscreen, WindowFullscreen } from "../../wailsjs/runtime/runtime.js";
 
 
     export let video
@@ -18,6 +19,7 @@
     let playing = false 
     let muted = false 
     let fullscreen = false
+    let appFullscreen = false
 
     let volume = 100
     let currentTime = 0
@@ -26,6 +28,7 @@
 
     let quality = "dash"
 
+    
     $: watchedPercentage = (currentTime / duration) * 100
 
 
@@ -134,21 +137,24 @@
     }
 
     function enterFullscreen() {
-        playerContainer.requestFullscreen().then(() => {
-            if (quality === "dash") {
-                playerDash.updatePortalSize()
-            }
-        })
-        fullscreen = true
+        if (document.fullscreenElement === null) {
+            WindowFullscreen()
+            appFullscreen = true
+
+            playerContainer.requestFullscreen().then(() => {
+                if (quality === "dash") {
+                    playerDash.updatePortalSize()
+                }
+            })
+
+            fullscreen = true
+        }
     }
 
     function exitFullscreen() {
-        document.exitFullscreen().then(() => {
-            if (quality === "dash") {
-                playerDash.updatePortalSize()
-            }
-        })
-        fullscreen = false
+        if (document.fullscreenElement === playerContainer) {
+            document.exitFullscreen()
+        }
     }
 
     function playerToggleFullscreen() {
@@ -178,14 +184,29 @@
         showControls()
         temporarilyShowControlsTimeout = setTimeout(hideControls, 3000)
     }    
+
+    
+    document.addEventListener("fullscreenchange", (event) => {
+        if (event.target === playerContainer && document.fullscreenElement === null) {
+            if (quality === "dash") {
+                playerDash.updatePortalSize()
+            }
+            fullscreen = false
+
+            if (appFullscreen === true) {
+                WindowUnfullscreen()
+                appFullscreen = false
+            }
+        }
+    })
 </script>
 
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div bind:this={playerContainer} on:click={togglePlay} class="flex relative flex-col cursor-default aspect-video">
+<div bind:this={playerContainer} on:click={togglePlay} class="flex relative flex-col rounded-md cursor-default aspect-video">
     <!-- svelte-ignore a11y-media-has-caption -->
-    <video on:ended={pause} bind:this={playerHtml} bind:duration={duration} bind:currentTime={currentTime} use:loadPlayer={[quality, video]} class="my-auto w-full">
+    <video on:ended={pause} bind:this={playerHtml} bind:duration={duration} bind:currentTime={currentTime} use:loadPlayer={[quality, video]} class="my-auto w-full rounded-md">
         {#each video.captions as caption}
             <track kind="captions" label={caption.label} src={caption.url} srclang={caption.languageCode}>
         {/each}
@@ -209,7 +230,7 @@
                             <Icon src={muted || volume <= 0 ? SpeakerXMarkIcon : SpeakerWaveIcon} theme="mini" size="20"></Icon> 
                         </button>
                         <div style={`background: linear-gradient(to right, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.95) ${volume}%, rgb(255 255 255 / 0.6) ${volume}%, rgb(255 255 255 / 0.6) 100%);`} class="absolute left-[36px] top-[calc(50%-3px)] w-16 h-[6px] rounded-md"></div>
-                        <input class="w-16 opacity-0 cursor-pointer" type="range" height="10" min="0" max="100" value={volume} on:input|stopPropagation={(e)=>setVolume(e.target.value)} on:click|stopPropagation/>
+                        <input class="w-16 opacity-0 cursor-pointer" type="range" height="10" min="0" max="100" value={volume} on:input|stopPropagation={(e)=>setVolume(e.currentTarget.value)} on:click|stopPropagation/>
                     </div>
 
                     <select on:click|stopPropagation bind:value={quality} class="w-fit cursor-pointer text-sm font-bold leading-5 appearance-none !border-none !outline-none !ring-0">

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"slices"
+	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
@@ -12,6 +13,8 @@ import (
 
 type Tubed struct {
 	ctx context.Context
+
+	backendReady bool
 }
 
 func Init() *Tubed {
@@ -30,14 +33,26 @@ func (t *Tubed) Startup(ctx context.Context) {
 			runtime.LogFatal(ctx, "startup: "+err.Error())
 		}
 		db.Set("backend.knownInstances", knownInstances)
+		go db.Write()
 	}
 
 	t.ctx = ctx
+	t.backendReady = true
 }
 
 func (t *Tubed) Shutdown(ctx context.Context) {
 	if err := db.Write(); err != nil {
 		runtime.LogFatal(ctx, "shutdown: "+err.Error())
+	}
+}
+
+// this was required to ensure everything waits until wails starts
+func (t *Tubed) WaitForBackend() {
+	for {
+		time.Sleep(time.Millisecond * 500)
+		if t.backendReady {
+			return
+		}
 	}
 }
 
@@ -55,44 +70,24 @@ func (t *Tubed) GetInstances() []invidious.Instance {
 
 func (t *Tubed) SetSelectedInstance(instance invidious.Instance) {
 	knownInstances := db.Get[[]invidious.Instance]("backend.knownInstances")
-	selectedInstanceIndex := slices.Index[[]invidious.Instance, invidious.Instance](knownInstances, instance)
-	db.Set("backend.selectedInstance", selectedInstanceIndex)
+	index := slices.Index[[]invidious.Instance, invidious.Instance](knownInstances, instance)
+	db.Set("backend.selectedInstance", index)
 }
 
 func (t *Tubed) GetSelectedInstance() invidious.Instance {
+	selectedInstance := db.Get[int]("backend.selectedInstance")
 	knownInstances := db.Get[[]invidious.Instance]("backend.knownInstances")
-	selectedInstanceIndex := db.Get[int]("backend.selectedInstance")
-	return knownInstances[selectedInstanceIndex]
+	return knownInstances[selectedInstance]
 }
 
-func (t *Tubed) GetTrendingVideos() []invidious.Video {
-	videos, err := invidious.GetTrendingVideos(t.GetSelectedInstance())
-	if err != nil {
-		runtime.LogFatal(t.ctx, "get trending videos: "+err.Error())
-	}
-	return videos
+func (t *Tubed) GetTrendingVideos(trendingOptions invidious.TrendingOption) ([]invidious.Video, error) {
+	return invidious.GetTrendingVideos(t.GetSelectedInstance(), trendingOptions)
 }
 
-func (t *Tubed) GetPopularVideos() []invidious.Video {
-	videos, err := invidious.GetPopularVideos(t.GetSelectedInstance())
-	if err != nil {
-		runtime.LogFatal(t.ctx, "get popular videos: "+err.Error())
-	}
-	return videos
+func (t *Tubed) GetVideo(videoId string) (invidious.Video, error) {
+	return invidious.GetVideo(t.GetSelectedInstance(), videoId)
 }
 
-func (t *Tubed) GetVideo(videoId string) invidious.Video {
-	video, err := invidious.GetVideo(t.GetSelectedInstance(), videoId)
-	if err != nil {
-		runtime.LogFatalf(t.ctx, "get video [%s]: "+err.Error(), videoId)
-	}
-	return video
-}
-
-func (t *Tubed) Search(query string, searchOptions invidious.SearchOptions) []invidious.SearchItem {
-	searchItems, err := invidious.Search(t.GetSelectedInstance(), query, searchOptions)
-	if err != nil {
-		runtime.LogFatalf(t.ctx, "search [q: %s, searchOptions: %v]: "+err.Error(), query, searchOptions)
-	}
-	return searchItems
+func (t *Tubed) Search(query string, searchOptions invidious.SearchOption) ([]invidious.SearchItem, error) {
+	return invidious.Search(t.GetSelectedInstance(), query, searchOptions)
 }

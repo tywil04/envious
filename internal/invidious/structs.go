@@ -1,141 +1,145 @@
 package invidious
 
 type videoThumbnail struct {
-	Quality string `json:"quality" toml:"quality"`
-	Url     string `json:"url" toml:"url"`
-	Width   int32  `json:"width" toml:"width"`
-	Height  int32  `json:"height" toml:"height"`
+	Quality string `json:"quality"`
+	Url     string `json:"url"`
+	Width   int32  `json:"width"`
+	Height  int32  `json:"height"`
 }
 
 type authorThumbnail struct {
-	Url    string `json:"url" toml:"url"`
-	Width  int32  `json:"width" toml:"width"`
-	Height int32  `json:"height" toml:"height"`
+	Url    string `json:"url"`
+	Width  int32  `json:"width"`
+	Height int32  `json:"height"`
 }
 
 type adaptiveFormat struct {
-	Index           string `json:"index" toml:"index"`
-	Bitrate         string `json:"bitrate" toml:"bitrate"`
-	Init            string `json:"init" toml:"init"`
-	Url             string `json:"url" toml:"url"`
-	ITag            string `json:"iTag" toml:"iTag"`
-	Type            string `json:"type" toml:"type"`
-	Clen            string `json:"clen" toml:"clen"`
-	Lmt             string `json:"lmt" toml:"lmt"`
-	ProjectionType  string `json:"projectionType" toml:"projectionType"`
-	Fps             int32  `json:"fps" toml:"fps"`
-	Container       string `json:"container" toml:"container"`
-	Encoding        string `json:"encoding" toml:"encoding"`
-	QualityLabel    string `json:"qualityLabel" toml:"qualityLabel"`
-	Resolution      string `json:"resolution" toml:"resolution"`
-	AudioQuality    string `json:"audioQuality" toml:"audioQuality"`
-	AudioSampleRate int32  `json:"audioSampleRate" toml:"audioSampleRate"`
-	AudioChannels   int32  `json:"audioChannels" toml:"audioChannels"`
+	Index           string `json:"index"`
+	Bitrate         string `json:"bitrate"`
+	Init            string `json:"init"`
+	Url             string `json:"url"`
+	ITag            string `json:"iTag"`
+	Type            string `json:"type"`
+	Clen            string `json:"clen"`
+	Lmt             string `json:"lmt"`
+	ProjectionType  string `json:"projectionType"`
+	Fps             int32  `json:"fps"`
+	Container       string `json:"container"`
+	Encoding        string `json:"encoding"`
+	QualityLabel    string `json:"qualityLabel"`
+	Resolution      string `json:"resolution"`
+	AudioQuality    string `json:"audioQuality"`
+	AudioSampleRate int32  `json:"audioSampleRate"`
+	AudioChannels   int32  `json:"audioChannels"`
 }
 
 type formatStream struct {
-	Url          string `json:"url" toml:"url"`
-	ITag         string `json:"iTag" toml:"iTag"`
-	Type         string `json:"type" toml:"type"`
-	Quality      string `json:"quality" toml:"quality"`
-	Fps          int32  `json:"fps" toml:"fps"`
-	Container    string `json:"container" toml:"container"`
-	Encoding     string `json:"encoding" toml:"encoding"`
-	QualityLabel string `json:"qualityLabel" toml:"qualityLabel"`
-	Resultion    string `json:"resultion" toml:"resultion"`
-	Size         string `json:"size" toml:"size"`
+	Url          string `json:"url"`
+	ITag         string `json:"iTag"`
+	Type         string `json:"type"`
+	Quality      string `json:"quality"`
+	Fps          int32  `json:"fps"`
+	Container    string `json:"container"`
+	Encoding     string `json:"encoding"`
+	QualityLabel string `json:"qualityLabel"`
+	Resultion    string `json:"resultion"`
+	Size         string `json:"size"`
 }
 
 type caption struct {
-	Label        string `json:"label" toml:"label"`
-	LanguageCode string `json:"languageCode" toml:"languageCode"`
-	Url          string `json:"url" toml:"url"`
+	Label        string `json:"label"`
+	LanguageCode string `json:"languageCode"`
+	Url          string `json:"url"`
 }
 
 type Video struct {
-	Title             string            `json:"title" toml:"title"`
-	VideoId           string            `json:"videoId" toml:"videoId"`
-	VideoThumbnails   []videoThumbnail  `json:"videoThumbnails" toml:"videoThumbnails"`
-	Description       string            `json:"description" toml:"description"`
-	DescriptionHtml   string            `json:"descriptionHtml" toml:"descriptionHtml"`
-	Published         int64             `json:"published" toml:"published"`
-	PublishedText     string            `json:"publishedText" toml:"publishedText"`
-	Keywords          []string          `json:"keywords" toml:"keywords"`
-	ViewCount         int64             `json:"viewCount" toml:"viewCount"`
-	LikeCount         int32             `json:"likeCount" toml:"likeCount"`
-	DislikeCount      int32             `json:"dislikeCount" toml:"dislikeCount"`
-	Paid              bool              `json:"paid" toml:"paid"`
-	Premium           bool              `json:"premium" toml:"premium"`
-	IsFamilyFriendly  bool              `json:"isFamilyFriendly" toml:"isFamilyFriendly"`
-	AllowedRegions    []string          `json:"allowedRegions" toml:"allowedRegions"`
-	Genre             string            `json:"genre" toml:"genre"`
-	GenreUrl          string            `json:"genreUrl" toml:"genreUrl"`
-	Author            string            `json:"author" toml:"author"`
-	AuthorId          string            `json:"authorId" toml:"authorId"`
-	AuthorUrl         string            `json:"authorUrl" toml:"authorUrl"`
-	AuthorThumbnails  []authorThumbnail `json:"authorThumbnails" toml:"authorThumbnails"`
-	SubCountText      string            `json:"subCountText" toml:"subCountText"`
-	LengthSeconds     int32             `json:"lengthSeconds" toml:"lengthSeconds"`
-	AllowRatings      bool              `json:"allowRatings" toml:"allowRatings"`
-	Rating            float32           `json:"rating" toml:"rating"`
-	IsListed          bool              `json:"isListed" toml:"isListed"`
-	LiveNow           bool              `json:"liveNow" toml:"liveNow"`
-	IsUpcoming        bool              `json:"isUpcoming" toml:"isUpcoming"`
-	PremiereTimestamp int64             `json:"premiereTimestamp" toml:"premiereTimestamp"`
-	DashUrl           string            `json:"dashUrl" toml:"dashUrl"`
-	HlsUrl            string            `json:"hlsUrl" toml:"hlsUrl"`
-	AdaptiveFormats   []adaptiveFormat  `json:"adaptiveFormats" toml:"adaptiveFormats"`
-	FormatStreams     []formatStream    `json:"formatStreams" toml:"formatStreams"`
-	Captions          []caption         `json:"captions" toml:"captions"`
-	RecommendedVideos []Video           `json:"recommendedVideos" toml:"recommendedVideos"`
+	Title             string            `json:"title"`
+	VideoId           string            `json:"videoId"`
+	VideoThumbnails   []videoThumbnail  `json:"videoThumbnails"`
+	Description       string            `json:"description"`
+	DescriptionHtml   string            `json:"descriptionHtml"`
+	Published         int64             `json:"published"`
+	PublishedText     string            `json:"publishedText"`
+	Keywords          []string          `json:"keywords"`
+	ViewCount         int64             `json:"viewCount"`
+	LikeCount         int32             `json:"likeCount"`
+	DislikeCount      int32             `json:"dislikeCount"`
+	Paid              bool              `json:"paid"`
+	Premium           bool              `json:"premium"`
+	IsFamilyFriendly  bool              `json:"isFamilyFriendly"`
+	AllowedRegions    []string          `json:"allowedRegions"`
+	Genre             string            `json:"genre"`
+	GenreUrl          string            `json:"genreUrl"`
+	Author            string            `json:"author"`
+	AuthorId          string            `json:"authorId"`
+	AuthorUrl         string            `json:"authorUrl"`
+	AuthorThumbnails  []authorThumbnail `json:"authorThumbnails"`
+	SubCountText      string            `json:"subCountText"`
+	LengthSeconds     int32             `json:"lengthSeconds"`
+	AllowRatings      bool              `json:"allowRatings"`
+	Rating            float32           `json:"rating"`
+	IsListed          bool              `json:"isListed"`
+	LiveNow           bool              `json:"liveNow"`
+	IsUpcoming        bool              `json:"isUpcoming"`
+	PremiereTimestamp int64             `json:"premiereTimestamp"`
+	DashUrl           string            `json:"dashUrl"`
+	HlsUrl            string            `json:"hlsUrl"`
+	AdaptiveFormats   []adaptiveFormat  `json:"adaptiveFormats"`
+	FormatStreams     []formatStream    `json:"formatStreams"`
+	Captions          []caption         `json:"captions"`
+	RecommendedVideos []Video           `json:"recommendedVideos"`
 }
 
-type SearchOptions struct {
-	Page     int32    `json:"page" toml:"page"`
-	SortBy   string   `json:"sortBy" toml:"sortBy"`
-	Date     string   `json:"date" toml:"date"`
-	Duration string   `json:"duration" toml:"duration"`
-	Type     string   `json:"type" toml:"type"`
-	Features []string `json:"features" toml:"features"`
-	Region   string   `json:"region" toml:"region"`
+type SearchOption struct {
+	Page     int32    `json:"page"`
+	SortBy   string   `json:"sortBy"`
+	Date     string   `json:"date"`
+	Duration string   `json:"duration"`
+	Type     string   `json:"type"`
+	Features []string `json:"features"`
+	Region   string   `json:"region"`
 }
 
 type SearchItem struct {
 	// shared
-	Type      string `json:"type" toml:"type"`
-	Title     string `json:"title" toml:"title"`
-	VideoId   string `json:"videoId" toml:"videoId"`
-	Author    string `json:"author" toml:"author"`
-	AuthorId  string `json:"authorId" toml:"authorId"`
-	AuthorUrl string `json:"authorUrl" toml:"authorUrl"`
-	ViewCount int64  `json:"viewCount" toml:"viewCount"`
+	Type      string `json:"type"`
+	Title     string `json:"title"`
+	VideoId   string `json:"videoId"`
+	Author    string `json:"author"`
+	AuthorId  string `json:"authorId"`
+	AuthorUrl string `json:"authorUrl"`
+	ViewCount int64  `json:"viewCount"`
 
 	// video
-	VideoThumbnails []videoThumbnail `json:"videoThumbnails" toml:"videoThumbnails"`
-	Description     string           `json:"description" toml:"description"`
-	DescriptionHtml string           `json:"descriptionHtml" toml:"descriptionHtml"`
-	Published       int64            `json:"published" toml:"published"`
-	PublishedText   string           `json:"publishedText" toml:"publishedText"`
-	LengthSeconds   int32            `json:"lengthSeconds" toml:"lengthSeconds"`
-	LiveNow         bool             `json:"liveNow" toml:"liveNow"`
-	Paid            bool             `json:"paid" toml:"paid"`
-	Premium         bool             `json:"premium" toml:"premium"`
+	VideoThumbnails []videoThumbnail `json:"videoThumbnails"`
+	Description     string           `json:"description"`
+	DescriptionHtml string           `json:"descriptionHtml"`
+	Published       int64            `json:"published"`
+	PublishedText   string           `json:"publishedText"`
+	LengthSeconds   int32            `json:"lengthSeconds"`
+	LiveNow         bool             `json:"liveNow"`
+	Paid            bool             `json:"paid"`
+	Premium         bool             `json:"premium"`
 
 	// playlist
-	AuthorVerified    bool    `json:"authorVerified" toml:"authorVerified"`
-	PlaylistId        string  `json:"playlistId" toml:"playlistId"`
-	PlaylistThumbnail string  `json:"playlistThumbnail" toml:"playlistThumbnail"`
-	Videos            []Video `json:"videos" toml:"videos"`
+	AuthorVerified    bool    `json:"authorVerified"`
+	PlaylistId        string  `json:"playlistId"`
+	PlaylistThumbnail string  `json:"playlistThumbnail"`
+	Videos            []Video `json:"videos"`
 
-	// channel `json:"//" toml:"//"` only
-	AuthorThumbnails []authorThumbnail `json:"authorThumbnails" toml:"authorThumbnails"`
-	AutoGenerated    bool              `json:"autoGenerated" toml:"autoGenerated"`
-	SubCount         int32             `json:"subCount" toml:"subCount"`
-	VideoCount       int32             `json:"videoCount" toml:"videoCount"`
+	// channel
+	AuthorThumbnails []authorThumbnail `json:"authorThumbnails"`
+	AutoGenerated    bool              `json:"autoGenerated"`
+	SubCount         int32             `json:"subCount"`
+	VideoCount       int32             `json:"videoCount"`
 }
 
 type Instance struct {
-	ApiUrl string `json:"apiUrl" toml:"apiUrl"`
-	Cors   bool   `json:"cors" toml:"cors"`
-	Region string `json:"region" toml:"region"`
+	ApiUrl string `json:"apiUrl"`
+	Cors   bool   `json:"cors"`
+	Region string `json:"region"`
+}
+
+type TrendingOption struct {
+	Type string `json:"type"`
 }

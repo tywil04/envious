@@ -10,16 +10,12 @@ export function GetInstances() {
   return window['go']['main']['Tubed']['GetInstances']();
 }
 
-export function GetPopularVideos() {
-  return window['go']['main']['Tubed']['GetPopularVideos']();
-}
-
 export function GetSelectedInstance() {
   return window['go']['main']['Tubed']['GetSelectedInstance']();
 }
 
-export function GetTrendingVideos() {
-  return window['go']['main']['Tubed']['GetTrendingVideos']();
+export function GetTrendingVideos(arg1) {
+  return window['go']['main']['Tubed']['GetTrendingVideos'](arg1);
 }
 
 export function GetVideo(arg1) {
@@ -36,4 +32,8 @@ export function SetBackendConfigured() {
 
 export function SetSelectedInstance(arg1) {
   return window['go']['main']['Tubed']['SetSelectedInstance'](arg1);
+}
+
+export function WaitForBackend() {
+  return window['go']['main']['Tubed']['WaitForBackend']();
 }

@@ -314,7 +314,7 @@ export namespace invidious {
 		    return a;
 		}
 	}
-	export class SearchOptions {
+	export class SearchOption {
 	    page: number;
 	    sortBy: string;
 	    date: string;
@@ -324,7 +324,7 @@ export namespace invidious {
 	    region: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new SearchOptions(source);
+	        return new SearchOption(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -336,6 +336,18 @@ export namespace invidious {
 	        this.type = source["type"];
 	        this.features = source["features"];
 	        this.region = source["region"];
+	    }
+	}
+	export class TrendingOption {
+	    type: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new TrendingOption(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.type = source["type"];
 	    }
 	}
 	

@@ -1,4 +1,4 @@
-package assetProxy
+package proxy
 
 import (
 	"crypto/md5"

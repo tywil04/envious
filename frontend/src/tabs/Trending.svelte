@@ -2,18 +2,14 @@
     import { GetTrendingVideos } from "../../wailsjs/go/main/Tubed.js"
 
     import VideoGrid from "../components/VideoGrid.svelte";
+
+
+    export let selectedSubTab
 </script>
 
-    
-<p class="label">Trending:</p>
 
-{#await GetTrendingVideos() then trendingVideos}
-    <VideoGrid videos={trendingVideos}/>
+<h1 class="mb-2 text-lg font-semibold">Trending {selectedSubTab || ""}</h1>
+
+{#await GetTrendingVideos({ type: selectedSubTab }) then videos}
+    <VideoGrid {videos}/>
 {/await}
-
-
-<style lang="postcss">
-    .label {
-        @apply mt-4 mb-1 text-zinc-400;
-    }
-</style>

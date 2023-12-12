@@ -6,16 +6,16 @@ export function GetBackendConfigured():Promise<boolean>;
 
 export function GetInstances():Promise<Array<invidious.Instance>>;
 
-export function GetPopularVideos():Promise<Array<invidious.Video>>;
-
 export function GetSelectedInstance():Promise<invidious.Instance>;
 
-export function GetTrendingVideos():Promise<Array<invidious.Video>>;
+export function GetTrendingVideos(arg1:invidious.TrendingOption):Promise<Array<invidious.Video>>;
 
 export function GetVideo(arg1:string):Promise<invidious.Video>;
 
-export function Search(arg1:string,arg2:invidious.SearchOptions):Promise<Array<invidious.SearchItem>>;
+export function Search(arg1:string,arg2:invidious.SearchOption):Promise<Array<invidious.SearchItem>>;
 
 export function SetBackendConfigured():Promise<void>;
 
 export function SetSelectedInstance(arg1:invidious.Instance):Promise<void>;
+
+export function WaitForBackend():Promise<void>;

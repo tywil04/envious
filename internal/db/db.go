@@ -10,29 +10,29 @@ import (
 var (
 	config = map[string]any{}
 
-	configDir  string
-	configFile string
+	dataDir  string
+	dataFile string
 )
 
 func init() {
 	userConfigDir, _ := os.UserConfigDir()
 
-	configDir = userConfigDir + "/Tubed"
-	configFile = configDir + "/data.json"
+	dataDir = userConfigDir + "/Tubed"
+	dataFile = dataDir + "/data.json"
 }
 
 func Read() error {
-	err := createDirIfNotExist(configDir, 0777)
+	err := createDirIfNotExist(dataDir, 0777)
 	if err != nil {
 		return err
 	}
 
-	err = createFileIfNotExist(configFile, "{}")
+	err = createFileIfNotExist(dataFile, "{}")
 	if err != nil {
 		return err
 	}
 
-	file, err := os.OpenFile(configFile, os.O_RDWR, os.ModePerm)
+	file, err := os.OpenFile(dataFile, os.O_RDWR, os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func Read() error {
 }
 
 func Write() error {
-	file, err := os.OpenFile(configFile, os.O_RDWR, os.ModePerm)
+	file, err := os.OpenFile(dataFile, os.O_RDWR, os.ModePerm)
 	if err != nil {
 		return err
 	}

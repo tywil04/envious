@@ -1,194 +1,113 @@
 <script>
     import VideoGrid from "../components/VideoGrid.svelte";
-
     import VideoPlayer from "../components/VideoPlayer.svelte"
-
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime.js"
     import { GetVideo } from "../../wailsjs/go/main/Tubed.js";
-    import dashjs from "dashjs"
+    import tabSystem from "../window/tabSystem";
+    import Video from "../tabs/Video.svelte"
 
 
-    export let videoId
+    export let video
+    if (video.dashUrl === "") {
+        GetVideo(video.videoId).then((v) => video = v)
+    }
 
-    
-    let video = null
 
-
-    let frame
     let descriptionElement
 
 
     const toggleDescription = (event) => {
-        if (event.target.innerText === "Read more...") {
+        if (descriptionElement.dataset.c === "true") {
             event.target.innerText = "Read less..."
-            descriptionElement.classList.remove("clamped")
+            descriptionElement.dataset.c = "false"
         } else {
             event.target.innerText = "Read more..."
-            descriptionElement.classList.add("clamped")
+            descriptionElement.dataset.c = "true"
         }
     } 
 
 
     const processDescription = (element) => {
-        for (let child of element.children) {
-            if (child.tagName === "A") {
-                const href = child.href 
-                child.href = "javascript:void(0)"
+        const anchors = Array.from(element.children).filter((element) => element.tagName === "A")
+        for (let anchor of anchors) {
+            let url = new URL(anchor.href)
 
-                const withoutProtocol = href.replace("https://", "").replace("http://", "")
-                const isYouTubeVideo = withoutProtocol.startsWith("youtube.com/watch?v=") || withoutProtocol.startsWith("www.youtube.com/watch?v=")
+            if (url.pathname === "/watch" && url.search.startsWith("?v=")) {
+                let videoId = url.searchParams.get("v")
 
-                if (isYouTubeVideo) {
-                    const urlArguments = withoutProtocol.split("watch?")[1].split("&")
+                GetVideo(videoId).then((video) => {
+                    if (video.adaptiveFormats !== null) {
+                        let img = new Image()
+                        img.src = video.videoThumbnails.filter((v)=>v.quality==="medium")[0].url
 
-                    let hasTimestamp
-                    let id
-                    for (let argument of urlArguments) {
-                        let split = argument.split("=")
-                        if (split[0] === "v") {
-                            id = split[1]
-                        }
-
-                        if (split[0] === "t") {
-                            hasTimestamp = true
-                        }
-                    }
-
-                    if (id !== undefined && videoId != id) {
-                        GetVideo(id).then((video) => {
-                            child.addEventListener("click", (event) => {
-                                event.preventDefault()
-                                // spawnTab({ 
-                                //     name: video.title,
-                                //     component: Video, 
-                                //     props: {
-                                //         videoId: video.id
-                                //     } 
-                                // }, false)
+                        anchor.addEventListener("click", (event) => {
+                            console.log(url.searchParams.get("v") + " : : : ")
+                            event.preventDefault()
+                            tabSystem.createTab({
+                                group: "Videos",
+                                name: video.title,
+                                component: Video,
+                                props: { video: video },
+                                active: true,
+                                backgroundUrl: img.src,
                             })
-                            child.classList.add("link")
-                            child.innerText = "Watch " + video.title
                         })
-                    } else if (hasTimestamp && videoId == id) {
-                        child.addEventListener("click", (event) => event.preventDefault())
-                        child.classList.add("disabledLink")
+
+                        anchor.innerText = "Watch " + video.title
+                    } else {
+                        anchor.innerText = "Failed to load video " + videoId
                     }
-                } else {
-                    child.addEventListener("click", (event) => {
-                        event.preventDefault()
-                        BrowserOpenURL(href)
-                    })
-                    child.classList.add("link")
-                    child.innerText = href
+                })
+            } else {
+                if (url.hostname === "wails.localhost") {
+                    url.protocol = "https"
+                    url.host = "youtube.com"
+                    url.port = "443"
                 }
+
+                anchor.addEventListener("click", (event) => {
+                    event.preventDefault()
+                    BrowserOpenURL(url.toString())
+                })
+
+                anchor.innerText = url.toString()
             }
+            
+            anchor.href = "javascript:void(0)"
         }
     }
 </script>
 
 
-{#await GetVideo(videoId)}
-    <p>Loading...</p>
-{:then video} 
-    <div class="video">
-        <div class="w-full rounded-t-md bg-black/50 h-fit">
+<div>
+    <div class="w-full rounded-t-md rounded-b-none child:child:rounded-b-none bg-black/50 h-fit aspect-video">
+        {#if video.adaptiveFormats !== null}
             <VideoPlayer {video}/>
-        </div>
-
-        <div class="info">
-            <p class="title">{video.title}</p>
-        
-            <div class="author">
-                <picture class="avatar">
-                    {#each video.authorThumbnails as avatar}
-                        <source media={`(min-width: ${avatar.width}px)`} srcset={avatar.url}/>
-                    {/each}
-                    <img class="rounded-full avatar" alt={video.author + " avatar"}/>
-                </picture>
-
-                <p class="name">{video.author}</p>
-            </div>
-    
-            <p class="descriptionLabel">Description:</p>
-            <div bind:this={descriptionElement} class="description clamped" use:processDescription>
-                {@html video.description}
-            </div>
-            <button on:click={toggleDescription} class="descriptionToggle">Read more...</button>
-        </div>
+        {/if}
     </div>
 
-    <p class="label">Other video's you might like:</p>
+    <div class="p-4 rounded-b-md bg-white/5">
+        <p class="mb-4 text-2xl font-semibold">{video.title}</p>
+    
+        <button class="flex flex-row duration-100 hover:text-white/60">
+            {#if video.authorThumbnails !== null}
+                <img class="w-10 rounded-full" alt={video.author + " avatar"} src={video.authorThumbnails.filter((t)=>t.width===48)[0].url}/>
+            {/if}
+            <p class="ml-3 font-semibold leading-10">{video.author}</p>
+        </button>
+
+        {#if video.adaptiveFormats !== null}
+            <div class="overflow-hidden mt-4 word-break break-words w-fit decendant-type-[a]:duration-100 decendant-type-[a]:text-blue-400 hover:decendant-type-[a]:underline">
+                <div bind:this={descriptionElement} data-c="true" class="data-[c=true]:line-clamp-3 truncate whitespace-normal" use:processDescription>
+                    {@html video.descriptionHtml}
+                </div>
+                <button on:click={toggleDescription} class="mt-1 duration-100 text-white/60 hover:text-white/75">Read more...</button>
+            </div>
+        {/if}
+    </div>
+</div>
+
+{#if video.recommendedVideos !== null}
+    <p class="mt-4 mb-1 text-white/60">Other video's you might like:</p>
     <VideoGrid videos={video.recommendedVideos}/>
-{:catch error}
-    <span class="error">{error}</span>
-{/await}
-
-
-<style lang="postcss">
-    /* for processDescription */
-    :global(.link) {
-        @apply duration-100 text-blue-400;
-    }
-
-    :global(.disabledLink) {
-        @apply pointer-events-none;
-    }
-
-    :global(.link:hover) {
-        @apply underline;
-    }
-
-
-    .label {
-        @apply mt-4 mb-1 text-zinc-400;
-    }
-
-    .error {
-        @apply text-red-600;
-    }
-
-
-    .video > .background {
-        @apply bg-black rounded-md flex flex-row justify-center;
-    }
-
-    .video > .info {
-        @apply bg-white/5 p-4 rounded-b-md;
-    }
-
-    .video > .info > .title {
-        @apply font-semibold text-2xl mb-4;
-    }
-
-    .video > .info > .author {
-        @apply flex flex-row;
-    }
-
-    .video > .info > .author > .avatar {
-        @apply w-9 rounded-full;
-    }
-
-    .video > .info > .author > .name {
-        @apply leading-9 ml-3 font-semibold;
-    }
-
-    .video > .info > .descriptionLabel {
-        @apply text-zinc-400 mt-4;
-    }
-
-    .video > .info > .description {
-        @apply text-zinc-300/90;
-    }
-
-    .video > .info > .description.clamped {
-        @apply line-clamp-3;
-    }
-
-    .video > .info > .descriptionToggle {
-        @apply duration-100 mt-1;
-    }
-
-    .video > .info > .descriptionToggle:hover {
-        @apply text-zinc-200;
-    }
-</style>
+{/if}

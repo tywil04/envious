@@ -5,16 +5,6 @@ import (
 	"net/url"
 )
 
-func fixCaptions(instance Instance, videos ...Video) []Video {
-	// captions dont have absolute urls, so this fixes that
-	for videoIndex, video := range videos {
-		for captionIndex := range video.Captions {
-			videos[videoIndex].Captions[captionIndex].Url = instance.ApiUrl + videos[videoIndex].Captions[captionIndex].Url
-		}
-	}
-	return videos
-}
-
 func GetInstances() ([]Instance, error) {
 	uri := "https://api.invidious.io/instances.json?pretty=1&sort_by=health,type,users,api"
 	var rawInstances [][]any
@@ -48,26 +38,27 @@ func GetVideo(instance Instance, videoId string) (Video, error) {
 		return Video{}, err
 	}
 	video = fixCaptions(instance, video)[0]
+	video = fixHtmlDescription(instance, video)[0]
+	video = proxyThumbnails(instance, video)[0]
 	return video, nil
 }
 
-func GetTrendingVideos(instance Instance) ([]Video, error) {
-	uri := fmt.Sprintf("%s/api/v1/trending", instance.ApiUrl)
-	videos := []Video{}
-	if err := JSONHTTPRequest(uri, "GET", &videos); err != nil {
-		return []Video{}, err
+func GetTrendingVideos(instance Instance, options ...TrendingOption) ([]Video, error) {
+	uri := fmt.Sprintf("%s/api/v1/trending?region=%s", instance.ApiUrl, instance.Region)
+	if len(options) > 0 {
+		if options[0].Type != "" {
+			uri += "&type=" + options[0].Type
+		}
 	}
-	videos = fixCaptions(instance, videos...)
-	return videos, nil
-}
 
-func GetPopularVideos(instance Instance) ([]Video, error) {
-	uri := fmt.Sprintf("%s/api/v1/popular", instance.ApiUrl)
 	videos := []Video{}
 	if err := JSONHTTPRequest(uri, "GET", &videos); err != nil {
 		return []Video{}, err
 	}
 	videos = fixCaptions(instance, videos...)
+	videos = fixHtmlDescription(instance, videos...)
+	videos = proxyThumbnails(instance, videos...)
+
 	return videos, nil
 }
 
@@ -77,7 +68,7 @@ func GetPopularVideos(instance Instance) ([]Video, error) {
 // type: (default all) "video", "playlist", "channel", "movie", "show", "all"
 // features: (array containing one or more) "hd", "subtitles", "creative_commons", "3d", "live", "purchased", "4k", "360", "location", "hdr", "vr180"
 // region (default US) ISO 3166 country code
-func Search(instance Instance, query string, options ...SearchOptions) ([]SearchItem, error) {
+func Search(instance Instance, query string, options ...SearchOption) ([]SearchItem, error) {
 	values := url.Values{}
 	values.Set("q", query)
 	if len(options) >= 1 {
@@ -99,9 +90,15 @@ func Search(instance Instance, query string, options ...SearchOptions) ([]Search
 		return nil, err
 	}
 
-	for _, searchItem := range searchItems {
-		if searchItem.Type == "playlist" {
-			searchItem.Videos = fixCaptions(instance, searchItem.Videos...)
+	for index := range searchItems {
+		switch searchItems[index].Type {
+		case "playlist":
+			searchItems[index].Videos = fixCaptions(instance, searchItems[index].Videos...)
+		case "video":
+			searchItems[index].Videos = fixHtmlDescription(instance, searchItems[index].Videos...)
+			searchItems[index].Videos = proxyThumbnails(instance, searchItems[index].Videos...)
+		case "channel":
+			searchItems[index].Videos = proxyThumbnails(instance, searchItems[index].Videos...)
 		}
 	}
 
