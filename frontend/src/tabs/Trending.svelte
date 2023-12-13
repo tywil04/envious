@@ -4,12 +4,19 @@
     import VideoGrid from "../components/VideoGrid.svelte";
 
 
-    export let selectedSubTab
+    let selected
 </script>
 
 
-<h1 class="mb-2 text-lg font-semibold">Trending {selectedSubTab || ""}</h1>
+<h1 class="mb-2 text-lg font-semibold">Trending {selected || ""}</h1>
 
-{#await GetTrendingVideos({ type: selectedSubTab }) then videos}
+
+<input type="radio" name="selectedType" value="All" on:input={(e)=>selected=undefined}>
+<input type="radio" name="selectedType" value="Music" on:input={(e)=>selected=e.currentTarget.value}>
+<input type="radio" name="selectedType" value="Gaming" on:input={(e)=>selected=e.currentTarget.value}>
+<input type="radio" name="selectedType" value="Movies" on:input={(e)=>selected=e.currentTarget.value}>
+
+
+{#await GetTrendingVideos({ type: selected }) then videos}
     <VideoGrid {videos}/>
 {/await}

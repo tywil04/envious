@@ -19,11 +19,6 @@ const configuredDefaultTabs = [
         fallback: true,
         component: Trending,
         icon: FireIcon,
-        subTabs: [
-            "Music",
-            "Gaming",
-            "Movies",
-        ]
     },
     {
         name: "Subscriptions",

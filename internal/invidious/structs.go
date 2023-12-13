@@ -141,5 +141,6 @@ type Instance struct {
 }
 
 type TrendingOption struct {
-	Type string `json:"type"`
+	Type   string `json:"type"`
+	Region string `json:"region"`
 }

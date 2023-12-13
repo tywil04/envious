@@ -44,12 +44,21 @@ func GetVideo(instance Instance, videoId string) (Video, error) {
 }
 
 func GetTrendingVideos(instance Instance, options ...TrendingOption) ([]Video, error) {
-	uri := fmt.Sprintf("%s/api/v1/trending?region=%s", instance.ApiUrl, instance.Region)
+	values := url.Values{}
 	if len(options) > 0 {
-		if options[0].Type != "" {
-			uri += "&type=" + options[0].Type
+		option := options[0]
+
+		if option.Type != "" {
+			values.Set("type", option.Type)
+		}
+
+		if option.Region != "" {
+			values.Set("type", option.Region)
 		}
 	}
+
+	uri := fmt.Sprintf("%s/api/v1/trending?%s", instance.ApiUrl, values.Encode())
+	fmt.Println(uri)
 
 	videos := []Video{}
 	if err := JSONHTTPRequest(uri, "GET", &videos); err != nil {
@@ -73,12 +82,31 @@ func Search(instance Instance, query string, options ...SearchOption) ([]SearchI
 	values.Set("q", query)
 	if len(options) >= 1 {
 		option := options[0]
-		values.Set("page", fmt.Sprintf("%d", option.Page))
-		values.Set("sort_by", option.SortBy)
-		values.Set("date", option.Date)
-		values.Set("duration", option.Duration)
-		values.Set("type", option.Type)
-		values.Set("region", option.Region)
+
+		if option.Page > 0 {
+			values.Set("page", fmt.Sprintf("%d", option.Page))
+		}
+
+		if option.SortBy != "" {
+			values.Set("sort_by", option.SortBy)
+		}
+
+		if option.Date != "" {
+			values.Set("date", option.Date)
+		}
+
+		if option.Duration != "" {
+			values.Set("duration", option.Duration)
+		}
+
+		if option.Type != "" {
+			values.Set("type", option.Type)
+		}
+
+		if option.Region != "" {
+			values.Set("region", option.Region)
+		}
+
 		for _, feature := range option.Features {
 			values.Add("features", feature)
 		}

@@ -1,5 +1,6 @@
 import { Icon } from "@steeze-ui/svelte-icon"
 import { X as XIcon } from "@steeze-ui/lucide-icons"
+
 import adaptiveBackground from "./adaptiveBackground.js"
 
 
@@ -61,6 +62,9 @@ const tabSystem = {
         }
 
         tabElement.appendChild(tabText)
+        tabElement.addEventListener("click", () => {
+            tabSystem.selectTab(tab.group, tab.name)
+        })
         tabElement.dataset.ta = "false"
 
         if (!tab.locked) {
@@ -84,11 +88,18 @@ const tabSystem = {
             tabElement.appendChild(deleteButton)
         }
 
+        tabSystem.tabGroups[tab.group].element.appendChild(tabElement)
+
+        tabElement.scrollIntoView({ 
+            inline: "end",
+            behavior: "smooth", 
+        })
+
         const viewElement = document.createElement("div")
         viewElement.hidden = true
         viewElement.dataset.v = "true"
 
-        const view = new tab.component({
+        new tab.component({
             target: viewElement,
             props: {
                 tab: {
@@ -99,58 +110,6 @@ const tabSystem = {
                 ...tab.props
             }
         })
-
-        tabElement.addEventListener("click", () => {
-            view.$set({ selectedSubTab: undefined })
-            tabSystem.selectTab(tab.group, tab.name)
-        })
-
-        if (tab.subTabs != null) {
-            const container = document.createElement("div")
-            container.appendChild(tabElement)
-            container.dataset.str = "true"
-
-            const tabElementContainer = document.createElement("div")
-            container.appendChild(tabElementContainer)
-
-            tabElementContainer.dataset.stc = "true"
-
-            for (let subTab of tab.subTabs) {
-                const subTabElement =  document.createElement("button")
-                subTabElement.title = subTab
-                subTabElement.dataset.tsb = "true"
-                subTabElement.dataset.st = "true"
-                
-                const subTabLine = document.createElement("div")
-                subTabLine.dataset.stl = "true"
-
-                const subTabText = document.createElement("span")
-                subTabText.innerText = subTab 
-                subTabText.dataset.tbt = "true"
-                subTabText.dataset.stt = "true"
-
-                subTabElement.appendChild(subTabLine)
-                subTabElement.appendChild(subTabText)
-                tabElementContainer.appendChild(subTabElement)
-
-                subTabElement.addEventListener("click", () => {
-                    tabSystem.selectTab(tab.group, tab.name)
-                    view.$set({ selectedSubTab: subTab })
-                })
-            }
-            
-            tabSystem.tabGroups[tab.group].element.appendChild(container)
-            container.scrollIntoView({ 
-                inline: "end",
-                behavior: "smooth", 
-            })
-        } else {
-            tabSystem.tabGroups[tab.group].element.appendChild(tabElement)   
-            tabElement.scrollIntoView({ 
-                inline: "end",
-                behavior: "smooth", 
-            })
-        }
 
         tabSystem.viewsRootElement.appendChild(viewElement)
 

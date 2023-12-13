@@ -340,6 +340,7 @@ export namespace invidious {
 	}
 	export class TrendingOption {
 	    type: string;
+	    region: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new TrendingOption(source);
@@ -348,6 +349,7 @@ export namespace invidious {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.type = source["type"];
+	        this.region = source["region"];
 	    }
 	}
 	
