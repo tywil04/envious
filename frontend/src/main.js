@@ -1,12 +1,12 @@
 import xhook from "xhook";
-import Window from "./window/Window.svelte";
+import Window from "./Window.svelte";
 import Settings from "./tabs/Settings.svelte";
 import Search from "./tabs/Search.svelte";
 import Trending from "./tabs/Trending.svelte";
 import Config from "./tabs/Config.svelte";
 import Subscriptions from "./tabs/Subscriptions.svelte";
-import { MagnifyingGlass as MagnifyingGlassIcon, Cog8Tooth as Cog8ToothIcon, Play as PlayIcon, Fire as FireIcon } from "@steeze-ui/heroicons"
-import { WaitForBackend, GetBackendConfigured, GetSelectedInstance } from "../wailsjs/go/main/Tubed.js"
+import * as heroIcons from "@steeze-ui/heroicons"
+import * as go from "../wailsjs/go/main/Tubed.js"
 import "./style.css";
 
 
@@ -18,28 +18,28 @@ const configuredDefaultTabs = [
         locked: true,
         fallback: true,
         component: Trending,
-        icon: FireIcon,
+        icon: heroIcons.Fire,
     },
     {
         name: "Subscriptions",
         group: "App",
         locked: true,
         component: Subscriptions,
-        icon: PlayIcon
+        icon: heroIcons.Play
     },
     {
         name: "Search",
         group: "App",
         locked: true,
         component: Search,
-        icon: MagnifyingGlassIcon,
+        icon: heroIcons.MagnifyingGlass,
     },
     {
         name: "Settings",
         group: "App",
         locked: true,
         component: Settings,
-        icon: Cog8ToothIcon,
+        icon: heroIcons.Cog8Tooth,
     },
 ]
 
@@ -57,9 +57,9 @@ const unconfiguredDefaultTabs = [
 
 let window
 
-WaitForBackend().then(() => {
+go.WaitForBackend().then(() => {
     // googlevideo doesn't allow cors, invidious can proxy this for us so replace all requests to googlevideo
-    GetSelectedInstance().then((instance) => {
+    go.GetSelectedInstance().then((instance) => {
         xhook.before((request) => {
             if (request.url.includes("googlevideo")) {
                 const url = new URL(request.url)
@@ -69,7 +69,7 @@ WaitForBackend().then(() => {
     })
 
     const backendData = Promise.all([
-        GetBackendConfigured()
+        go.GetBackendConfigured()
     ])
 
     backendData.then(([configured]) => {

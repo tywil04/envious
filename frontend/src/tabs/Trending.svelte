@@ -1,5 +1,5 @@
 <script>
-    import { GetTrendingVideos } from "../../wailsjs/go/main/Tubed.js"
+    import * as go from "../../wailsjs/go/main/Tubed.js"
 
     import VideoGrid from "../components/VideoGrid.svelte";
 
@@ -17,6 +17,6 @@
 <input type="radio" name="selectedType" value="Movies" on:input={(e)=>selected=e.currentTarget.value}>
 
 
-{#await GetTrendingVideos({ type: selected }) then videos}
+{#await go.GetTrendingVideos({ type: selected }) then videos}
     <VideoGrid {videos}/>
 {/await}

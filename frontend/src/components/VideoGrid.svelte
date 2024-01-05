@@ -1,14 +1,14 @@
 <script>    
     import Video from "../tabs/Video.svelte";
 
-    import tabSystem from "../window/tabSystem.js"
+    import { tabs } from "../Window.svelte"
 
 
     export let videos = []                        
 
 
     const openVideoTab = (video) => {
-        tabSystem.createTab({
+        tabs.create({
             group: "Videos",
             name: video.title,
             component: Video,

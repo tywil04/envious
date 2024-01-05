@@ -1,8 +1,7 @@
 <script>
     import SelectInput from '../components/SelectInput.svelte'
     import Button from "../components/Button.svelte"
-
-    import { GetInstances, SetSelectedInstance, SetBackendConfigured } from "../../wailsjs/go/main/Tubed.js"
+    import * as go from "../../wailsjs/go/main/Tubed.js"
 
 
     let instance = null
@@ -10,14 +9,14 @@
     
     const configure = async () => {
         if (instance !== null) {
-            await SetSelectedInstance(instance)
-            await SetBackendConfigured()
+            await go.SetSelectedInstance(instance)
+            await go.SetBackendConfigured()
         }
     }
 </script>
 
 
-{#await GetInstances()}
+{#await go.GetInstances()}
     <p>Loading...</p>
 {:then instances} 
     <div class="mb-4">

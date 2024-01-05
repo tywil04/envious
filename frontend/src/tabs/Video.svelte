@@ -1,15 +1,15 @@
 <script>
     import VideoGrid from "../components/VideoGrid.svelte";
     import VideoPlayer from "../components/VideoPlayer.svelte"
-    import { BrowserOpenURL } from "../../wailsjs/runtime/runtime.js"
-    import { GetVideo } from "../../wailsjs/go/main/Tubed.js";
-    import tabSystem from "../window/tabSystem";
+    import * as wails from "../../wailsjs/runtime/runtime.js"
+    import * as go from "../../wailsjs/go/main/Tubed.js";
+    import { tabs } from "../Window.svelte"
     import Video from "../tabs/Video.svelte"
 
 
     export let video
     if (video.dashUrl === "") {
-        GetVideo(video.videoId).then((v) => video = v)
+        go.GetVideo(video.videoId).then((v) => video = v)
     }
 
 
@@ -35,7 +35,7 @@
             if (url.pathname === "/watch" && url.search.startsWith("?v=")) {
                 let videoId = url.searchParams.get("v")
 
-                GetVideo(videoId).then((video) => {
+                go.GetVideo(videoId).then((video) => {
                     if (video.adaptiveFormats !== null) {
                         let img = new Image()
                         img.src = video.videoThumbnails.filter((v)=>v.quality==="medium")[0].url
@@ -43,7 +43,7 @@
                         anchor.addEventListener("click", (event) => {
                             console.log(url.searchParams.get("v") + " : : : ")
                             event.preventDefault()
-                            tabSystem.createTab({
+                            tabs.create({
                                 group: "Videos",
                                 name: video.title,
                                 component: Video,
@@ -67,7 +67,7 @@
 
                 anchor.addEventListener("click", (event) => {
                     event.preventDefault()
-                    BrowserOpenURL(url.toString())
+                    wails.BrowserOpenURL(url.toString())
                 })
 
                 anchor.innerText = url.toString()
