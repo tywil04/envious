@@ -15,7 +15,7 @@
             }
         }
     
-        static setUrl(url) {
+        static set backgroundUrl(url) {
             const container = document.createElement("div")
             container.style.transitionDuration = `${this.#transitionDuration}ms`
             container.style.opacity = "0"
@@ -204,7 +204,7 @@
             this.#groups[groupName].tabs[tabName].view.hidden = false
 
             if (this.#groups[groupName].tabs[tabName].backgroundUrl !== undefined) {
-                background.setUrl(this.#groups[groupName].tabs[tabName].backgroundUrl)
+                background.backgroundUrl = this.#groups[groupName].tabs[tabName].backgroundUrl
             } else {
                 background.reset()
             }

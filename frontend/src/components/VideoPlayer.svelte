@@ -5,25 +5,29 @@
         static playbackDuration = 1
         static playbackPosition = 0
         static video = null
-        
-        static #htmlPlayer = null 
-        static #dashPlayer = null 
+        static htmlPlayer = null 
+        static dashPlayer = null 
+
         static #controlsTimeout = null 
         static #controlsVisible = false
         static #playing = false 
         static #muted = false
         static #fullscreen = false 
         static #volume = 100        
-        static #quality = null
+        static #quality = "dash"
         static #loaded = false
 
-        static init(containerElement, videoElement, controlsElement, video, quality="dash") {
-            this.#htmlPlayer = videoElement
-            this.container = containerElement
-            this.controls = controlsElement
+        static init(_, video) {
             this.video = video
-            this.quality = quality
             this.#loaded = true
+
+            // svelte 4 things
+            return {
+                destroy() {
+                    this.dashPlayer.destroy()
+                    this.dashPlayer = null
+                }
+            }
         }
 
         static get loaded() {
@@ -36,10 +40,10 @@
 
         static set quality(quality) {
             if (quality === "dash") {
-                if (this.#dashPlayer === null) {
-                    this.#dashPlayer = dashjs.MediaPlayer().create()
-                    this.#dashPlayer.initialize(this.#htmlPlayer, this.video.dashUrl, false, this.playbackPosition)
-                    this.#dashPlayer.updateSettings({
+                if (this.dashPlayer === null) {
+                    this.dashPlayer = dashjs.MediaPlayer().create()
+                    this.dashPlayer.initialize(this.htmlPlayer, this.video.dashUrl, false, this.playbackPosition)
+                    this.dashPlayer.updateSettings({
                         streaming: {
                             abr: {
                                 minBitrate: {
@@ -49,20 +53,20 @@
                             }
                         }
                     })
-                    this.#dashPlayer.setQualityFor("video", 5, true)
-                    this.#dashPlayer.setVolume(this.volume / 100)   
+                    this.dashPlayer.setQualityFor("video", 5, true)
+                    this.dashPlayer.setVolume(this.volume / 100)   
                 }
 
                 this.#quality = quality
             } else {
-                if (this.#dashPlayer !== null) {
-                    this.#dashPlayer.destroy()
-                    this.#dashPlayer = null
+                if (this.dashPlayer !== null) {
+                    this.dashPlayer.destroy()
+                    this.dashPlayer = null
                 }
 
                 let selectedStream = null
                 for (let stream of this.video.formatStreams) {
-                    if (this.#htmlPlayer.canPlayType(stream.type) === "probably") {
+                    if (this.htmlPlayer.canPlayType(stream.type) === "probably") {
                         if (stream.qualityLabel === quality) {
                             selectedStream = stream
                             break
@@ -70,8 +74,8 @@
                     }
                 }
 
-                this.#htmlPlayer.src = selectedStream.url 
-                this.#htmlPlayer.type = selectedStream.type
+                this.htmlPlayer.src = selectedStream.url 
+                this.htmlPlayer.type = selectedStream.type
                 this.#quality = selectedStream.qualityLabel
             }
         }
@@ -81,9 +85,9 @@
         }
 
         static set playing(playing) {
-            let player = this.#htmlPlayer
+            let player = this.htmlPlayer
             if (this.#quality === "dash") {
-                player = this.#dashPlayer
+                player = this.dashPlayer
             }
             
             if (playing) {
@@ -105,9 +109,9 @@
 
         static set volume(volume) {
             if (this.#quality === "dash") {
-                this.#dashPlayer.setVolume(volume / 100)
+                this.dashPlayer.setVolume(volume / 100)
             } else {
-                this.#htmlPlayer.volume = volume / 100
+                this.htmlPlayer.volume = volume / 100
             }
             this.#volume = volume
         }
@@ -118,9 +122,9 @@
 
         static set muted(muted) {
             if (this.#quality === "dash") {
-                this.#dashPlayer.setMute(muted)
+                this.dashPlayer.setMute(muted)
             } else {
-                this.#htmlPlayer.muted = muted
+                this.htmlPlayer.muted = muted
             }
             this.#muted = muted
         }
@@ -134,22 +138,22 @@
                 document.addEventListener("fullscreenchange", (event) => {
                     if (event.target === this.container && document.fullscreenElement === null) {
                         if (this.#quality === "dash") {
-                            this.#dashPlayer.updatePortalSize()
+                            this.dashPlayer.updatePortalSize()
                         }
                         
                         if (this.#fullscreen) {
-                            WindowUnfullscreen()
+                            wails.WindowUnfullscreen()
                             this.#fullscreen = false
                         }
                     }
                 })
 
                 if (document.fullscreenElement === null) {
-                    WindowFullscreen()
+                    wails.WindowFullscreen()
 
                     this.container.requestFullscreen().then(() => {
                         if (this.#quality === "dash") {
-                            this.#dashPlayer.updatePortalSize()
+                            this.dashPlayer.updatePortalSize()
                         }
                     })
 
@@ -193,37 +197,28 @@
 
 
 <script>
-    import { onMount } from "svelte"
     import { Play as PlayIcon, Pause as PauseIcon, SpeakerWave as SpeakerWaveIcon, SpeakerXMark as SpeakerXMarkIcon } from "@steeze-ui/heroicons";
     import { Maximize as MaximiseIcon, Minimize as MinimizeIcon, PlaySquare, Volume } from "@steeze-ui/lucide-icons";
     import { Icon } from "@steeze-ui/svelte-icon";
     import dashjs from "dashjs";
-    import { WindowUnfullscreen, WindowFullscreen, LogDebug } from "../../wailsjs/runtime/runtime.js";
+    import * as wails from "../../wailsjs/runtime/runtime.js";
 
 
     export let video
-    
-
-    let playerElement
-    let playerContainer
-    let playerControls
-
-
-    onMount(() => player.init(playerContainer, playerElement, playerControls, video))
 </script>
 
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div bind:this={playerContainer} class="flex relative flex-col rounded-md cursor-default aspect-video">
+<div bind:this={player.container} class="flex relative flex-col rounded-md cursor-default aspect-video">
     <!-- svelte-ignore a11y-media-has-caption -->
-    <video bind:this={playerElement} on:click={()=>player.playing=!player.playing} on:ended={()=>player.playing=false} bind:duration={player.playbackDuration} bind:currentTime={player.playbackPosition} class="my-auto w-full rounded-md">
+    <video use:player.init={video} bind:this={player.htmlPlayer} on:click={()=>player.playing=!player.playing} on:ended={()=>player.playing=false} bind:duration={player.playbackDuration} bind:currentTime={player.playbackPosition} class="my-auto w-full rounded-md">
         {#each video.captions as caption}
             <track kind="captions" label={caption.label} src={caption.url} srclang={caption.languageCode}>
         {/each}
     </video>
 
-    <div bind:this={playerControls} class="flex absolute top-0 flex-col w-full h-full duration-[400ms]" style={(player.playing || player.fullscreen) && "opacity: 0% important;"} on:mouseleave={()=>player.controlsVisible=false} on:mousemove={()=>player.controlsVisible=true}>        
+    <div bind:this={player.controls} class="flex absolute top-0 flex-col w-full h-full duration-[400ms]" style={(player.playing || player.fullscreen) && "opacity: 0% important;"} on:mouseleave={()=>player.controlsVisible=false} on:mousemove={()=>player.controlsVisible=true}>        
         <div class="p-1.5 mt-auto w-full h-22 child:w-full">
             <div class="flex flex-row gap-2 p-1 mt-9 h-11 child:bg-black/70 child:backdrop-blur-[100px] child:p-2 child:rounded-md hover:child:text-white/60 child:text-white/95">
                 <button on:click|stopPropagation={()=>player.playing=!player.playing}>
