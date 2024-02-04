@@ -21,12 +21,13 @@
 
         wasMinimisedBeforeFullscreen = false
 
-        controlsVisibleDuration = 3000 // ms
+        controlsVisibleDuration = 5000 // ms
         controlsVisibleTimeout = null
 
         constructor(video) {
             super({
                 minVideoBitrate: 200000,
+                maxVideoBitrate: 30000000,
                 initialVideoBitrate: 3000000,
             })
 
@@ -44,7 +45,7 @@
             this.addEventListener("playerStateChange", (state) => {
                 switch (state) {
                     case "PLAYING": {
-                        if (this.isFullscreen() && this.isPlaying()) {
+                        if (this.isFullscreen()) {
                             this.hideControlsAfterTimeout()
                         } else {
                             this.showControls()
@@ -279,10 +280,7 @@
         }
 
         hideControlsAfterTimeout() {
-            console.log(this.isFullscreen())
-            console.log(this.isPlaying())
-
-            if (this.isFullscreen() && this.isPlaying()) {
+            if (this.isFullscreen()) {
                 if (this.controlsVisibleDuration !== null) {
                     clearTimeout(this.controlsVisibleTimeout)
                 }
@@ -320,7 +318,7 @@
     </video>
 
     <div class="controlsOverlay">  
-        <button class="clickToPlay" on:click={()=>player.togglePlay()} tabindex="0"></button>
+        <button data-focus-invisible class="clickToPlay" on:click={()=>player.togglePlay()} ></button>
         
         <div bind:this={player.controlsElement} class="controls">
             <button class="segment interactive" on:click={()=>player.togglePlay()}>

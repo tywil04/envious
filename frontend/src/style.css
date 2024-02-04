@@ -18,11 +18,16 @@ html, body, div#app {
     box-sizing: border-box;
     user-select: none;
 
-    &:focus-visible {
+    &:focus-visible:not([data-focus-invisible]) {
         transition-duration: 0ms !important;
         outline: 2px solid rgba(255 255 255 / 0.5);
         border: none;
         border-radius: 6px;
+    }
+
+    &:focus-visible[data-focus-invisible] {
+        outline: none;
+        border: none;
     }
 }
 

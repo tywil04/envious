@@ -1,5 +1,7 @@
 <script context="module">
     class Background {
+        enabled = true
+
         backgroundElement = null
     
         transitionDuration = 400
@@ -7,49 +9,53 @@
         #last = null
     
         reset() {
-            if (this.#last !== null) {
-                this.#last.style.opacity = "0"
-                setTimeout(() => {
-                    this.#last.remove()
-                    this.#last = null
-                }, this.transitionDuration)
+            if (this.enabled) {
+                if (this.#last !== null) {
+                    this.#last.style.opacity = "0"
+                    setTimeout(() => {
+                        this.#last.remove()
+                        this.#last = null
+                    }, this.transitionDuration)
+                }
             }
         }
     
         setBackgroundUrl(url) {
-            const container = document.createElement("div")
-            container.style.transitionDuration = `${this.transitionDuration}ms`
-            container.style.opacity = "0"
-            container.style.zIndex = "-9"
-            container.classList.add("part")
-    
-            const filter = document.createElement("div")
-            filter.style.zIndex = "-11"
-            filter.classList.add("filter")
-            container.append(filter)
+            if (this.enabled) {
+                const container = document.createElement("div")
+                container.style.transitionDuration = `${this.transitionDuration}ms`
+                container.style.opacity = "0"
+                container.style.zIndex = "-9"
+                container.classList.add("part")
         
-            const img = document.createElement("img")
-            img.src = url
-            img.alt = "blurry background image"
-            img.crossOrigin = "anonymous"
-            img.style.zIndex = "-12"
-            img.classList.add("image")
-            container.append(img)
-    
-            this.backgroundElement.append(container)
-    
-            setTimeout(() => {
-                container.style.opacity = "1"
-                container.style.zIndex = "-10"
-            }, 1)
-    
-            if (this.#last === null) {
-                this.#last = container
-            } else {
+                const filter = document.createElement("div")
+                filter.style.zIndex = "-11"
+                filter.classList.add("filter")
+                container.append(filter)
+            
+                const img = document.createElement("img")
+                img.src = url
+                img.alt = "blurry background image"
+                img.crossOrigin = "anonymous"
+                img.style.zIndex = "-12"
+                img.classList.add("image")
+                container.append(img)
+        
+                this.backgroundElement.append(container)
+        
                 setTimeout(() => {
-                    this.#last.remove()
+                    container.style.opacity = "1"
+                    container.style.zIndex = "-10"
+                }, 1)
+        
+                if (this.#last === null) {
                     this.#last = container
-                }, this.transitionDuration)
+                } else {
+                    setTimeout(() => {
+                        this.#last.remove()
+                        this.#last = container
+                    }, this.transitionDuration)
+                }
             }
         }
     }
