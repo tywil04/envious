@@ -22,7 +22,7 @@ func Init() *Tubed {
 	return t
 }
 
-func (t *Tubed) Startup(ctx context.Context) {
+func (t *Tubed) startup(ctx context.Context) {
 	if err := db.Read(); err != nil {
 		runtime.LogFatal(ctx, "startup: "+err.Error())
 	}
@@ -40,7 +40,7 @@ func (t *Tubed) Startup(ctx context.Context) {
 	t.backendReady = true
 }
 
-func (t *Tubed) Shutdown(ctx context.Context) {
+func (t *Tubed) shutdown(ctx context.Context) {
 	if err := db.Write(); err != nil {
 		runtime.LogFatal(ctx, "shutdown: "+err.Error())
 	}

@@ -1,58 +1,114 @@
 <script context="module">
     import RxPlayer from "rx-player"
+    import * as utils from "../lib/utils.js"
+    import * as wails from "../../wailsjs/runtime/runtime.js"
+    import * as Window from "../Window.svelte";
 
     class Player extends RxPlayer {
-        #quality = "dash"
-        #video = null
+        video = null
+        quality = "dash"
 
+        rootElement = null
+        // videoElement (already part of RxPlayer)
         controlsElement = null
-        positionElement = null
-        volumeElement = null 
+        timelineSliderElement = null
+        timelineTextElement = null
+        volumeSliderElement = null 
 
-        muteIcon = null
+        volumeIcon = null
         playIcon = null
+        fullscreenIcon = null
 
-        constructor() {
+        wasMinimisedBeforeFullscreen = false
+
+        controlsVisibleDuration = 3000 // ms
+        controlsVisibleTimeout = null
+
+        constructor(video) {
             super({
                 minVideoBitrate: 200000,
-                initialVideoBitrate: 2000000,
+                initialVideoBitrate: 3000000,
             })
+
+            this.video = video
 
             this.addEventListener("positionUpdate", (data) => {
                 let watchedPercentage = (data.position / data.duration) * 100
-                this.positionElement.style.background = `linear-gradient(to right, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.95) ${watchedPercentage}%, rgb(255 255 255 / 0.6) ${watchedPercentage}%, rgb(255 255 255 / 0.6) 100%)`
-            })
+                this.timelineSliderElement.style.setProperty("--percentage", watchedPercentage + "%")
+                this.timelineSliderElement.setAttribute("aria-valuenow", watchedPercentage)
 
-            this.addEventListener("volumeChange", (volume) => {
-                if (this.isMute()) {
-                    this.muteIcon.$$set({ src: SpeakerXMarkIcon })
-                    this.volumeElement.style.background = `linear-gradient(to right, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.6) 0%, rgb(255 255 255 / 0.6) 100%)`
-                } else {
-                    this.muteIcon.$$set({ src: SpeakerWaveIcon })
-                    let volumePercentage = volume * 100
-                    this.volumeElement.style.background = `linear-gradient(to right, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.95) ${volumePercentage}%, rgb(255 255 255 / 0.6) ${volumePercentage}%, rgb(255 255 255 / 0.6) 100%)`
-                }
-            })
-
-            this.addEventListener("play", () => {
-                this.playIcon.$$set({ src: PauseIcon })
-            })
-
-            this.addEventListener("pause", () => {
-                this.playIcon.$$set({ src: PlayIcon })
+                let formattedWatched = utils.calculateWatchedDuration(data.position, data.duration)
+                this.timelineTextElement.innerText = formattedWatched
             })
 
             this.addEventListener("playerStateChange", (state) => {
-                if (state === "ENDED") {
-                    this.reload({ 
-                        reloadAt: { 
-                            position: 0 
-                        },
-                        autoPlay: false,
-                    })
-                    this.playIcon.$$set({ src: PlayIcon })
-                }
+                switch (state) {
+                    case "PLAYING": {
+                        if (this.isFullscreen() && this.isPlaying()) {
+                            this.hideControlsAfterTimeout()
+                        } else {
+                            this.showControls()
+                        }
+                        break
+                    }
+                    case "PAUSED": {
+                        this.showControls()
+                        break
+                    }
+                    case "ENDED": {
+                        this.reload({ 
+                            reloadAt: { 
+                                position: 0 
+                            },
+                            autoPlay: false,
+                        })
+                        this.playIcon.$$set({ src: PlayIcon })
+                        break
+                    }
+                } 
             })
+
+            document.addEventListener("fullscreenchange", this.#eventDocumentFullscreenChange.bind(this))
+            document.addEventListener("keydown", this.#eventDocumentKeyDown.bind(this))
+            wails.EventsOn("videoPlayer:pauseUnlessActive", this.#eventWailsVideoPlayerPauseUnlessActive.bind(this))
+
+            // I dont know why but waiting 1ms makes it work
+            // without this the dash video doesnt get loaded automatically
+            setTimeout(() => {
+                this.loadVideo(this.video)
+            }, 1)
+        }
+
+        dispose() {
+            document.removeEventListener("fullscreenchange", this.#eventDocumentFullscreenChange.bind(this))
+            document.removeEventListener("keydown", this.#eventDocumentKeyDown.bind(this))
+            wails.EventsOff("videoPlayer:pauseUnlessActive")
+
+            super.dispose()
+        }
+
+        #eventDocumentFullscreenChange() {
+            if (this.isFullscreen()) {
+                wails.WindowFullscreen()
+                this.fullscreenIcon.$$set({ src: MinimizeIcon })
+            } else {
+                wails.WindowUnfullscreen()
+                this.fullscreenIcon.$$set({ src: MaximiseIcon })
+                this.showControls()
+            }
+        }
+
+        #eventDocumentKeyDown(event) {
+            if (event.code === "Space" && Window.tabs.isElementFromActiveTab(this.rootElement) === true) {
+                event.preventDefault()
+                this.togglePlay()
+            }
+        }
+
+        #eventWailsVideoPlayerPauseUnlessActive() {
+            if (!Window.tabs.isElementFromActiveTab(this.rootElement)) {
+                this.pause()
+            }
         }
 
         loadVideo(video) {
@@ -62,7 +118,7 @@
                 currentPosition = this.getPosition()
             }
             
-            if (this.#quality === "dash") {
+            if (this.quality === "dash") {
                 super.loadVideo({
                     url: video.dashUrl,
                     transport: "dash",
@@ -70,7 +126,9 @@
                 })
             } else {
                 for (let stream of video.formatStreams) {
-                    if (this.#quality === stream.qualityLabel) {
+                    if (this.quality === stream.qualityLabel) {
+                        // we know that this stream can be played because only valid streams are listed to the user
+                        // thanks to Player.filterCompatibleFormatStreams
                         super.loadVideo({
                             url: stream.url,
                             transport: "directfile",
@@ -90,30 +148,61 @@
             this.addEventListener("playerStateChange", seekWhenLoaded)
         }
 
-        setVideo(video) {
-            this.#video = video
-            this.loadVideo(this.#video)
+        async play() {
+            if (this.isContentLoaded()) {
+                wails.EventsEmit("videoPlayer:pauseUnlessActive")
+                this.playIcon.$$set({ src: PauseIcon })
+                await super.play()
+            }
         }
 
-        getVideo() {
-            return this.#video
-        }
-
-        setQuality(quality) {
-            this.#quality = quality
-            this.loadVideo(this.#video)
-        }
-
-        getQuality() {
-            return this.#quality
+        pause() {
+            if (this.isContentLoaded()) {
+                this.playIcon.$$set({ src: PlayIcon })
+                super.pause()
+            }
         }
 
         togglePlay() {
-            if (this.isPaused()) {
-                this.play()
-            } else {
-                this.pause()
+            if (this.isContentLoaded()) {
+                if (this.isPlaying()) {
+                    this.pause()
+                } else {
+                    this.play()
+                }
             }
+        }
+
+        setVolume(volume) {
+            if (volume > 0) {
+                this.volumeIcon.$$set({ src: SpeakerWaveIcon })
+            } else {
+                this.volumeIcon.$$set({ src: SpeakerXMarkIcon })
+            }
+
+            let volumePercentage = Math.round(volume * 100)
+            this.volumeSliderElement.style.setProperty("--percentage", volumePercentage + "%")
+            this.volumeSliderElement.setAttribute("aria-valuenow", volumePercentage)
+
+            super.setVolume(volume)
+        }
+
+        setVideo(video) {
+            this.video = video 
+            this.loadVideo(this.video)
+        }
+
+        getVideo() {
+            return this.video
+        }
+
+        setQuality(quality) {
+            this.quality = quality
+            this.loadVideo(this.video)
+        }
+
+        getQuality() {
+            return this.quality
         }
 
         toggleMute() {
@@ -125,11 +214,84 @@
         }
 
         isFullscreen() {
-            return document.fullscreenElement === this.videoElement
+            return document.fullscreenElement === this.rootElement
+        }
+
+        enterFullscreen() {
+            if (document.fullscreenElement === null) {
+                this.rootElement.requestFullscreen()
+            }
+        }
+
+        exitFullscreen() {
+            if (this.isFullscreen()) {
+                document.exitFullscreen()
+            }
+        }
+
+        toggleFullscreen() {
+            if (this.isFullscreen()) {
+                this.exitFullscreen()
+            } else {
+                this.enterFullscreen()
+            }
         }
 
         setPosition(position) {
             this.seekTo({ position })
+        }
+
+        filterCompatibleFormatStreams() {
+            return this.video.formatStreams.filter((stream) => {
+                return this.videoElement.canPlayType(stream.type) === "probably"
+            })
+        }
+
+        isPlaying() {
+            return this.getPlayerState() === "PLAYING"
+        }
+
+        showControls() {
+            if (this.controlsVisibleDuration !== null) {
+                clearTimeout(this.controlsVisibleTimeout)
+            }
+
+            this.controlsElement.style.opacity = "1"
+        }
+
+        showControlsUntilTimeout() {
+            if (this.controlsVisibleDuration !== null) {
+                clearTimeout(this.controlsVisibleTimeout)
+            }
+
+            this.showControls()
+            
+            if (this.isFullscreen()) {
+                this.controlsVisibleTimeout = setTimeout(() => {
+                    this.hideControls()
+                    this.controlsVisibleTimeout = null
+                }, this.controlsVisibleDuration)
+            }
+        }
+
+        hideControls() {
+            this.controlsElement.style.opacity = "0"
+        }
+
+        hideControlsAfterTimeout() {
+            console.log(this.isFullscreen())
+            console.log(this.isPlaying())
+
+            if (this.isFullscreen() && this.isPlaying()) {
+                if (this.controlsVisibleDuration !== null) {
+                    clearTimeout(this.controlsVisibleTimeout)
+                }
+
+                this.controlsVisibleTimeout = setTimeout(() => {
+                    this.hideControls()
+                    this.controlsVisibleTimeout = null
+                }, this.controlsVisibleDuration)
+            }
         }
     }
 </script>
@@ -139,73 +301,177 @@
     import { Play as PlayIcon, Pause as PauseIcon, SpeakerWave as SpeakerWaveIcon, SpeakerXMark as SpeakerXMarkIcon } from "@steeze-ui/heroicons";
     import { Maximize as MaximiseIcon, Minimize as MinimizeIcon } from "@steeze-ui/lucide-icons";
     import { Icon } from "@steeze-ui/svelte-icon";
-    import { onMount, onDestroy } from "svelte";
-
+    import { onDestroy } from "svelte"
 
     export let video
-    
 
-    let player = new Player()
+    const player = new Player(video)
 
-
-    onMount(() => {
-        player.setVideo(video)
-    })
-
-    onDestroy(() => {
-        player.dispose()
-    })
+    onDestroy(() => player.dispose())
 </script>
 
 
-<div class="flex relative flex-col rounded-md cursor-default aspect-video">
-    <video bind:this={player.videoElement} on:click={()=>player.togglePlay()} class="my-auto w-full rounded-md">
+<div class="player" bind:this={player.rootElement} role="none" on:mousemove={()=>player.showControlsUntilTimeout()}>
+    <video bind:this={player.videoElement} class="video">
         <track kind="captions"/>
         {#each video.captions as caption}
             <track kind="captions" label={caption.label} src={caption.url} srclang={caption.languageCode}/>
         {/each}
     </video>
 
-    <div bind:this={player.controlsElement} class="flex absolute top-0 flex-col w-full h-full duration-[400ms]" style={(!player.isPaused() || player.isFullscreen()) && "opacity: 0% important;"}>        
-        <div class="p-1.5 mt-auto w-full h-22 child:w-full">
-            <div class="flex flex-row gap-2 p-1 mt-9 h-11 child:bg-black/70 child:backdrop-blur-[100px] child:p-2 child:rounded-md hover:child:text-white/60 child:text-white/95">
-                <button on:click|stopPropagation={()=>player.togglePlay()}>
-                    <Icon bind:this={player.playIcon} src={PlayIcon} theme="mini" size="20"></Icon>
-                </button>
+    <div class="controlsOverlay">  
+        <button class="clickToPlay" on:click={()=>player.togglePlay()} tabindex="0"></button>
+        
+        <div bind:this={player.controlsElement} class="controls">
+            <button class="segment interactive" on:click={()=>player.togglePlay()}>
+                <Icon bind:this={player.playIcon} src={PlayIcon} theme="mini" size="20"></Icon>
+            </button>
 
-                <div class="!px-2.5 w-full">
-                    <div 
-                        role="slider"
-                        aria-valuemax={player.getVideoDuration()}
-                        aria-valuemin={0}
-                        aria-valuenow={0}
-                        tabindex="-1"
-                        on:click={(e)=>player.setPosition((e.offsetX / e.currentTarget.clientWidth) * player.getVideoDuration())}
-                        on:keypress={(e)=>console.log(e)} 
-                        bind:this={player.positionElement}  
-                        style={`background: linear-gradient(to right, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.6) 0%, rgb(255 255 255 / 0.6) 100%);`} 
-                        class="z-50 mt-[7px] w-full cursor-pointer h-[6px] rounded-md"
-                    ></div>                    
-                </div>
-
-                <div class="flex flex-row gap-1 !pr-2.5 w-fit hover:!text-white/95">
-                    <button class="mr-1 duration-100 hover:text-white/60" on:click|stopPropagation={()=>player.toggleMute()}>
-                        <Icon bind:this={player.muteIcon} src={SpeakerWaveIcon} theme="mini" size="20"></Icon> 
-                    </button>
-                    <div on:click={(e)=>player.setVolume(e.offsetX / e.currentTarget.clientWidth)} bind:this={player.volumeElement} style={`background: linear-gradient(to right, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.95) ${player.getVolume() * 100}%, rgb(255 255 255 / 0.6) ${player.getVolume() * 100}%, rgb(255 255 255 / 0.6) 100%);`} class="w-16 mt-[7px] cursor-pointer h-[6px] rounded-md"></div>
-                </div>
-
-                <select on:click|stopPropagation on:change={(e)=>player.setQuality(e.currentTarget.value)} value={player.getQuality()} class="w-fit cursor-pointer text-sm font-bold leading-5 appearance-none !border-none !outline-none !ring-0">
-                    <option value="dash" selected>Quality: Dash</option>
-                    {#each video.formatStreams as stream}
-                        <option value={stream.qualityLabel}>Quality: {stream.qualityLabel}</option>
-                    {/each}
-                </select>
-
-                <button data-b on:click|stopPropagation>
-                    <Icon src={player.isFullscreen() ? MinimizeIcon : MaximiseIcon} stroke-width="3" size="20"></Icon>
-                </button>
+            <div class="segment timeline">
+                <button role="slider" aria-valuenow={0} bind:this={player.timelineSliderElement} class="slider interactive" on:click={(e)=>player.setPosition((e.offsetX / e.currentTarget.clientWidth) * player.getVideoDuration())}></button> 
+            
+                <p bind:this={player.timelineTextElement} class="watchedDuration">00:00 / 00:00</p>
             </div>
+
+            <div class="segment volume">
+                <button class="interactive mute" on:click={()=>player.toggleMute()}>
+                    <Icon bind:this={player.volumeIcon} src={SpeakerWaveIcon} theme="mini" size="20"></Icon> 
+                </button>
+
+                <button role="slider" aria-valuenow={100} style="--percentage: 100%;" on:click={(e)=>player.setVolume(e.offsetX / e.currentTarget.clientWidth)} bind:this={player.volumeSliderElement} class="slider interactive"></button>
+            </div>
+
+            <select on:change={(e)=>player.setQuality(e.currentTarget.value)} value={player.getQuality()} class="segment quality interactive">
+                <option value="dash" selected>Quality: Dash</option>
+
+                {#each player.filterCompatibleFormatStreams() as stream}
+                    <option value={stream.qualityLabel}>Quality: {stream.qualityLabel}</option>
+                {/each}
+            </select>
+
+            <button class="segment interactive" data-b on:click={()=>player.toggleFullscreen()}>
+                <Icon bind:this={player.fullscreenIcon} src={MaximiseIcon} stroke-width="3" size="20"></Icon>
+            </button>
         </div>
     </div> 
 </div>
+
+
+<style>
+    .player {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        cursor: default;
+        aspect-ratio: 16 / 9;
+        background: transparent;
+        border-radius: inherit;
+
+        & .video {
+            margin-top: auto;
+            margin-bottom: auto;
+            width: 100%;
+            border-radius: inherit;
+        }
+
+        & .controlsOverlay {
+            display: flex;
+            position: absolute;
+            top: 0;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            
+            & .clickToPlay {
+                height: 100%;
+                cursor: default;
+            }
+
+            & .controls {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                gap: 4px;
+                padding: 4px;
+                height: 40px;
+                transition-duration: 200ms;
+
+                & .segment {
+                    background: rgba(0 0 0 / 0.6);
+                    padding: 6px;
+                    border-radius: 6px;
+                    box-shadow: inset 0 0 0.313rem 0.125rem rgba(0, 0, 0, 0.15);
+                    backdrop-filter: blur(10px) contrast(65%) brightness(90%);
+                    transition-duration: 75ms;
+
+                    &.interactive, & .interactive {
+                        color: rgba(255 255 255 / 0.95);
+                    }
+
+                    &.interactive:hover, & .interactive:hover {
+                        color: rgba(255 255 255 / 0.7);
+                    }
+
+                    &.quality {
+                        width: fit-content;
+                        cursor: pointer;
+                        font-size: 0.875rem;
+                        line-height: 1.25rem;
+                        font-weight: 400;
+                        appearance: none;
+                        border: none !important;
+                        outline: none !important;
+                        padding-left: 8px;
+                        padding-right: 8px;
+                    }
+
+                    &.timeline {
+                        width: 100%;
+                        display: flex;
+                        flex-direction: row;
+
+                        & .watchedDuration {
+                            font-size: 0.875rem;
+                            line-height: 1.25rem;
+                            font-weight: 400;
+                            width: fit-content;
+                            text-wrap: nowrap;
+                            margin-left: 8px;
+                        }
+                    }
+
+                    &.volume {
+                        display: flex;
+                        flex-direction: row;
+                        width: fit-content;
+
+                        & .mute {
+                            margin-right: 8px;
+                        }
+
+                        & .slider {
+                            width: 64px !important;
+                        }
+                    }
+
+                    & > .slider {
+                        --percentage: 0%;
+                        background: linear-gradient(to right, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.95) var(--percentage), rgb(255 255 255 / 0.6) var(--percentage), rgb(255 255 255 / 0.6) 100%);
+                        margin-top: 7px;
+                        cursor: pointer;
+                        height: 6px;
+                        border-radius: 6px;
+                        width: 100%;
+                        margin-left: 2px;
+                        margin-right: 2px;
+                        transition-duration: 75ms;
+
+                        &.interactive:hover {
+                            background: linear-gradient(to right, rgb(255 255 255 / 0.9) 0%, rgb(255 255 255 / 0.9) var(--percentage), rgb(255 255 255 / 0.55) var(--percentage), rgb(255 255 255 / 0.55) 100%);
+                        }
+                    }
+                }
+            }
+        }
+    }
+</style>

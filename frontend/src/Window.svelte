@@ -1,23 +1,24 @@
 <script context="module">
-    export class background {
-        static background = null
+    class Background {
+        backgroundElement = null
     
-        static #last = null
-        static #transitionDuration = 400
+        transitionDuration = 400
+
+        #last = null
     
-        static reset() {
+        reset() {
             if (this.#last !== null) {
                 this.#last.style.opacity = "0"
                 setTimeout(() => {
                     this.#last.remove()
                     this.#last = null
-                }, this.#transitionDuration)
+                }, this.transitionDuration)
             }
         }
     
-        static set backgroundUrl(url) {
+        setBackgroundUrl(url) {
             const container = document.createElement("div")
-            container.style.transitionDuration = `${this.#transitionDuration}ms`
+            container.style.transitionDuration = `${this.transitionDuration}ms`
             container.style.opacity = "0"
             container.style.zIndex = "-9"
             container.classList.add("part")
@@ -35,7 +36,7 @@
             img.classList.add("image")
             container.append(img)
     
-            background.background.append(container)
+            this.backgroundElement.append(container)
     
             setTimeout(() => {
                 container.style.opacity = "1"
@@ -48,20 +49,20 @@
                 setTimeout(() => {
                     this.#last.remove()
                     this.#last = container
-                }, this.#transitionDuration)
+                }, this.transitionDuration)
             }
         }
     }
 
-    export class tabs {
-        static tabbar = null
-        static views = null
+    class Tabs {
+        tabbarElement = null
+        viewsElement = null
 
-        static #fallback = null
-        static #active = null
-        static #groups = {}
+        #fallback = null
+        #active = null
+        #groups = {}
 
-        static createGroup(groupName) {
+        createGroup(groupName) {
             if (groupName in this.#groups) {
                 return
             }
@@ -80,11 +81,11 @@
                 tabs: {},
             }
 
-            this.tabbar.appendChild(label)
-            this.tabbar.appendChild(container)
+            this.tabbarElement.appendChild(label)
+            this.tabbarElement.appendChild(container)
         }
 
-        static create(...newTabs) {
+        create(...newTabs) {
             for (let tab of newTabs) {
                 if (!(tab.group in this.#groups)) {
                     tabs.createGroup(tab.group)
@@ -153,19 +154,20 @@
                 view.hidden = true
                 view.classList.add("view")
 
-                new tab.component({
+                let svelteComponent = new tab.component({
                     target: view,
                     props: tab.props,
                 })
 
-                this.views.appendChild(view)
+                this.viewsElement.appendChild(view)
 
                 const tabCopy = Object.assign({}, tab)
                 delete tabCopy.name 
 
                 this.#groups[tab.group].tabs[tab.name] = {
-                    button: button,
-                    view: view,
+                    button,
+                    view,
+                    svelteComponent,
                     ...tabCopy
                 }
 
@@ -186,7 +188,7 @@
             }
         }
 
-        static select(groupName, tabName) {
+        select(groupName, tabName) {
             if (!(groupName in this.#groups)) {
                 return
             }
@@ -198,13 +200,15 @@
             if (this.#active !== null) {
                 this.#groups[this.#active.groupName].tabs[this.#active.tabName].button.classList.remove("active")
                 this.#groups[this.#active.groupName].tabs[this.#active.tabName].view.hidden = true
+                this.#groups[this.#active.groupName].tabs[this.#active.tabName].active = false
             }
             
             this.#groups[groupName].tabs[tabName].button.classList.add("active")
             this.#groups[groupName].tabs[tabName].view.hidden = false
+            this.#groups[groupName].tabs[tabName].active = true
 
             if (this.#groups[groupName].tabs[tabName].backgroundUrl !== undefined) {
-                background.backgroundUrl = this.#groups[groupName].tabs[tabName].backgroundUrl
+                background.setBackgroundUrl(this.#groups[groupName].tabs[tabName].backgroundUrl)
             } else {
                 background.reset()
             }
@@ -215,7 +219,7 @@
             }
         }
 
-        static delete(groupName, tabName) {
+        delete(groupName, tabName) {
             if (!(groupName in this.#groups)) {
                 return
             }
@@ -230,6 +234,7 @@
                 }
             }
 
+            this.#groups[groupName].tabs[tabName].svelteComponent.$destroy()
             this.#groups[groupName].tabs[tabName].button.remove()
             this.#groups[groupName].tabs[tabName].view.remove()
 
@@ -239,7 +244,22 @@
                 this.#groups[groupName].label.style.display = "none"
             }
         }
+
+        isElementFromActiveTab(element) {
+            let parent = element
+            while (parent != null && parent.tagName !== "HTML") {
+                if (parent.classList.contains("view") && parent.parentElement.classList.contains("views")) {
+                    return !parent.hidden
+                } else {
+                    parent = parent.parentElement
+                }
+            }
+            return false
+        }
     }
+
+    export const background = new Background()
+    export const tabs = new Tabs()
 </script>
 
 
@@ -276,11 +296,11 @@
 </nav>
 
 <div class="content">
-    <aside bind:this={tabs.tabbar} class="tabbar"></aside>
-    <main bind:this={tabs.views} class="views"></main>
+    <aside bind:this={tabs.tabbarElement} class="tabbar"></aside>
+    <main bind:this={tabs.viewsElement} class="views"></main>
 </div>
 
-<div bind:this={background.background} class="background">
+<div bind:this={background.backgroundElement} class="background">
     <div class="noise"></div>
 </div>
 
@@ -466,7 +486,6 @@
         height: 100%;
         opacity: 0.2;
         z-index: -10;
-        transition-duration: 500;
 
         & > .noise {
             background-repeat: repeat;

@@ -83,11 +83,15 @@ type Video struct {
 	IsUpcoming        bool              `json:"isUpcoming"`
 	PremiereTimestamp int64             `json:"premiereTimestamp"`
 	DashUrl           string            `json:"dashUrl"`
-	HlsUrl            string            `json:"hlsUrl"`
 	AdaptiveFormats   []adaptiveFormat  `json:"adaptiveFormats"`
 	FormatStreams     []formatStream    `json:"formatStreams"`
 	Captions          []caption         `json:"captions"`
 	RecommendedVideos []Video           `json:"recommendedVideos"`
+
+	// these fields are added by tubed so the frontend can do less work
+	// fields are added while running fixes
+	TubedVideoThumbnailUrl  string `json:"tubedVideoThumbnailUrl"`
+	TubedAuthorThumbnailUrl string `json:"tubedAuthorThumbnailUrl"`
 }
 
 type SearchOption struct {

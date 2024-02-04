@@ -39,11 +39,25 @@ func proxyThumbnails(instance Instance, videos ...Video) []Video {
 	// set urls for images so they proxy through go
 	for i := range videos {
 		for j := range videos[i].VideoThumbnails {
-			videos[i].VideoThumbnails[j].Url = proxy.PathPrefix + videos[i].VideoThumbnails[j].Url
+			path := proxy.PathPrefix + videos[i].VideoThumbnails[j].Url
+
+			videos[i].VideoThumbnails[j].Url = path
+
+			if videos[i].VideoThumbnails[j].Quality == "medium" {
+				go proxy.Preload(path)
+				videos[i].TubedVideoThumbnailUrl = path
+			}
 		}
 
 		for j := range videos[i].AuthorThumbnails {
-			videos[i].AuthorThumbnails[j].Url = proxy.PathPrefix + videos[i].AuthorThumbnails[j].Url
+			path := proxy.PathPrefix + videos[i].AuthorThumbnails[j].Url
+
+			videos[i].AuthorThumbnails[j].Url = path
+
+			if videos[i].AuthorThumbnails[j].Width == 48 {
+				go proxy.Preload(path)
+				videos[i].TubedAuthorThumbnailUrl = path
+			}
 		}
 
 		if len(videos[i].RecommendedVideos) > 0 {

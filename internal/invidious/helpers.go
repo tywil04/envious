@@ -11,14 +11,7 @@ type Options struct {
 	Headers map[string]string
 }
 
-func JSONHTTPRequest(uri, method string, value any, options ...Options) error {
-	var body io.Reader
-	var headers = map[string]string{}
-	if len(options) >= 1 {
-		body = options[0].Body
-		headers = options[0].Headers
-	}
-
+func JSONHTTPRequest(uri, method string, headers map[string]string, body io.Reader, value any) error {
 	request, err := http.NewRequest(method, uri, body)
 	if err != nil {
 		return err

@@ -29,16 +29,15 @@ func main() {
 			Middleware: proxy.Middleware,
 		},
 		BackgroundColour: &options.RGBA{R: 24, G: 24, B: 27, A: 1},
-		OnStartup:        tubed.Startup,
-		OnShutdown:       tubed.Shutdown,
+		OnDomReady:       tubed.startup,
+		OnShutdown:       tubed.shutdown,
 		Frameless:        true,
 		Windows: &windows.Options{
 			WebviewGpuIsDisabled: false,
 			Theme:                windows.Dark,
 		},
 		Linux: &linux.Options{
-			WindowIsTranslucent: true,
-			WebviewGpuPolicy:    linux.WebviewGpuPolicyAlways,
+			WebviewGpuPolicy: linux.WebviewGpuPolicyOnDemand,
 		},
 		Bind: []interface{}{
 			tubed,

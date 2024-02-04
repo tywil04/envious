@@ -4,7 +4,10 @@ go 1.21
 
 toolchain go1.21.4
 
-require github.com/wailsapp/wails/v2 v2.6.0
+require (
+	github.com/djherbis/atime v1.1.0
+	github.com/wailsapp/wails/v2 v2.7.1
+)
 
 require (
 	github.com/bep/debounce v1.2.1 // indirect
@@ -35,5 +38,3 @@ require (
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
-
-replace github.com/wailsapp/wails/v2 => C:\Users\Nobody\Development\wails\wails\v2

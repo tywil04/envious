@@ -153,11 +153,12 @@ export namespace invidious {
 	    isUpcoming: boolean;
 	    premiereTimestamp: number;
 	    dashUrl: string;
-	    hlsUrl: string;
 	    adaptiveFormats: adaptiveFormat[];
 	    formatStreams: formatStream[];
 	    captions: caption[];
 	    recommendedVideos: Video[];
+	    tubedVideoThumbnailUrl: string;
+	    tubedAuthorThumbnailUrl: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Video(source);
@@ -195,11 +196,12 @@ export namespace invidious {
 	        this.isUpcoming = source["isUpcoming"];
 	        this.premiereTimestamp = source["premiereTimestamp"];
 	        this.dashUrl = source["dashUrl"];
-	        this.hlsUrl = source["hlsUrl"];
 	        this.adaptiveFormats = this.convertValues(source["adaptiveFormats"], adaptiveFormat);
 	        this.formatStreams = this.convertValues(source["formatStreams"], formatStream);
 	        this.captions = this.convertValues(source["captions"], caption);
 	        this.recommendedVideos = this.convertValues(source["recommendedVideos"], Video);
+	        this.tubedVideoThumbnailUrl = source["tubedVideoThumbnailUrl"];
+	        this.tubedAuthorThumbnailUrl = source["tubedAuthorThumbnailUrl"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

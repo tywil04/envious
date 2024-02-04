@@ -8,7 +8,7 @@ import (
 func GetInstances() ([]Instance, error) {
 	uri := "https://api.invidious.io/instances.json?pretty=1&sort_by=health,type,users,api"
 	var rawInstances [][]any
-	if err := JSONHTTPRequest(uri, "GET", &rawInstances); err != nil {
+	if err := JSONHTTPRequest(uri, "GET", nil, nil, &rawInstances); err != nil {
 		return nil, err
 	}
 
@@ -33,13 +33,15 @@ func GetInstances() ([]Instance, error) {
 
 func GetVideo(instance Instance, videoId string) (Video, error) {
 	uri := fmt.Sprintf("%s/api/v1/videos/%s", instance.ApiUrl, videoId)
+
 	video := Video{}
-	if err := JSONHTTPRequest(uri, "GET", &video); err != nil {
+	if err := JSONHTTPRequest(uri, "GET", nil, nil, &video); err != nil {
 		return Video{}, err
 	}
 	video = fixCaptions(instance, video)[0]
 	video = fixHtmlDescription(instance, video)[0]
 	video = proxyThumbnails(instance, video)[0]
+
 	return video, nil
 }
 
@@ -61,7 +63,7 @@ func GetTrendingVideos(instance Instance, options ...TrendingOption) ([]Video, e
 	fmt.Println(uri)
 
 	videos := []Video{}
-	if err := JSONHTTPRequest(uri, "GET", &videos); err != nil {
+	if err := JSONHTTPRequest(uri, "GET", nil, nil, &videos); err != nil {
 		return []Video{}, err
 	}
 	videos = fixCaptions(instance, videos...)
@@ -79,7 +81,6 @@ func GetTrendingVideos(instance Instance, options ...TrendingOption) ([]Video, e
 // region (default US) ISO 3166 country code
 func Search(instance Instance, query string, options ...SearchOption) ([]SearchItem, error) {
 	values := url.Values{}
-	values.Set("q", query)
 	if len(options) >= 1 {
 		option := options[0]
 
@@ -112,9 +113,11 @@ func Search(instance Instance, query string, options ...SearchOption) ([]SearchI
 		}
 	}
 
-	uri := fmt.Sprintf("%s/api/v1/search/%s?%s", instance.ApiUrl, query, values.Encode())
+	values.Set("q", query)
+
+	uri := fmt.Sprintf("%s/api/v1/search?%s", instance.ApiUrl, values.Encode())
 	searchItems := []SearchItem{}
-	if err := JSONHTTPRequest(uri, "GET", &searchItems); err != nil {
+	if err := JSONHTTPRequest(uri, "GET", nil, nil, &searchItems); err != nil {
 		return nil, err
 	}
 

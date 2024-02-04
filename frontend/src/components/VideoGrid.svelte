@@ -12,7 +12,7 @@
             group: "Videos",
             name: video.title,
             component: Video,
-            props: { video: video },
+            props: { videoId: video.videoId },
             active: true,
             backgroundUrl: video.thumbnailImg.src,
         })

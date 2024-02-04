@@ -6,7 +6,24 @@ import (
 	"strings"
 )
 
-const PathPrefix = "/assetproxy/"
+const PathPrefix = "/assetProxy/"
+
+func Preload(url string) error {
+	response, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	data, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	WriteToCache(url, data)
+
+	return nil
+}
 
 func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
