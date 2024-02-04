@@ -3,16 +3,15 @@ package proxy
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"io"
 	"os"
 )
 
 var cachePath = os.TempDir() + "/" + "TubedCache"
 
 func hashKey(key string) string {
-	h := md5.New()
-	io.WriteString(h, key)
-	return hex.EncodeToString(h.Sum(nil))
+	hash := md5.New()
+	hash.Write([]byte(key))
+	return hex.EncodeToString(hash.Sum(nil))
 }
 
 func GetFromCache(key string) ([]byte, bool) {
