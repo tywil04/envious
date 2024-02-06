@@ -21,6 +21,7 @@
     }
 
     function loadCurrentTrendingVideos() {
+        // @ts-ignore
         videos[trendingType] = go.GetTrendingVideos({ type: trendingType })
     }
 
@@ -58,10 +59,9 @@
         z-index: 100;
         margin-bottom: 20px;
         width: 100%;
-        gap: 10px;
 
         & > .left {
-            width: 100%;
+            margin-right: auto;
 
             & > .trendingTypeSelector {
                 display: flex;
@@ -72,6 +72,7 @@
                 gap: 4px;
                 justify-content: space-between;
                 box-shadow: 0 0 0.5rem 0.250rem rgba(0, 0, 0, 0.05);
+                width: fit-content;
 
                 & > .item {
                     width: 100%;
@@ -85,7 +86,6 @@
                     transition-duration: 150ms;
                     cursor: pointer;
                     color: rgba(255 255 255 / 0.65);
-
 
                     &:hover {
                         background: rgba(255 255 255 / 0.05);
@@ -103,7 +103,7 @@
         }
 
         & > .right {
-            width: fit-content;
+            margin-left: auto;
 
             & > .reload {
                 border-radius: 999px;
