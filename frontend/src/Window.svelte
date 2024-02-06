@@ -21,6 +21,7 @@
         }
     
         setBackgroundUrl(url) {
+            console.log(this.enabled)
             if (this.enabled) {
                 const container = document.createElement("div")
                 container.style.transitionDuration = `${this.transitionDuration}ms`

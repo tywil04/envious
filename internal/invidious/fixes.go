@@ -32,6 +32,7 @@ func fixHtmlDescription(instance Instance, videos ...Video) []Video {
 			videos[i].RecommendedVideos = fixHtmlDescription(instance, videos[i].RecommendedVideos...)
 		}
 	}
+
 	return videos
 }
 
@@ -43,7 +44,8 @@ func proxyThumbnails(instance Instance, videos ...Video) []Video {
 
 			videos[i].VideoThumbnails[j].Url = path
 
-			if videos[i].VideoThumbnails[j].Quality == "medium" {
+			switch videos[i].VideoThumbnails[j].Quality {
+			case "medium":
 				go proxy.Preload(path)
 				videos[i].TubedVideoThumbnailUrl = path
 			}
@@ -54,7 +56,8 @@ func proxyThumbnails(instance Instance, videos ...Video) []Video {
 
 			videos[i].AuthorThumbnails[j].Url = path
 
-			if videos[i].AuthorThumbnails[j].Width == 48 {
+			switch videos[i].AuthorThumbnails[j].Width {
+			case 48:
 				go proxy.Preload(path)
 				videos[i].TubedAuthorThumbnailUrl = path
 			}
@@ -64,5 +67,6 @@ func proxyThumbnails(instance Instance, videos ...Video) []Video {
 			videos[i].RecommendedVideos = proxyThumbnails(instance, videos[i].RecommendedVideos...)
 		}
 	}
+
 	return videos
 }

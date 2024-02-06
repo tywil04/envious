@@ -306,6 +306,8 @@
     const player = new Player(video)
 
     onDestroy(() => player.dispose())
+
+    console.log(video)
 </script>
 
 
