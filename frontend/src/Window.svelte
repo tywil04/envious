@@ -44,27 +44,6 @@
         
                 this.backgroundElement.append(container)
         
-<<<<<<< HEAD
-            const img = document.createElement("img")
-            img.src = url
-            img.alt = "blurry background image"
-            img.crossOrigin = "anonymous"
-            img.style.zIndex = "-12"
-            img.classList.add("image")
-            container.append(img)
-    
-            this.backgroundElement.append(container)
-            
-            setTimeout(() => {
-                container.style.opacity = "1"
-                container.style.zIndex = "-10"
-            }, 1)
-    
-            if (this.#last === null) {
-                this.#last = container
-            } else {
-=======
->>>>>>> 3ae5ba054a208f2f04563472396228d0747a393a
                 setTimeout(() => {
                     container.style.opacity = "1"
                     container.style.zIndex = "-10"
