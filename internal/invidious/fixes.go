@@ -8,34 +8,34 @@ import (
 
 var htmlDescriptionRegex = regexp.MustCompile(`(?m)(?:\r\n|\r|\n)`)
 
-func fixCaptions(instance Instance, videos ...Video) []Video {
+func fixCaptions(instanceUrl string, videos ...Video) []Video {
 	// captions dont have absolute urls, so this fixes that
 	for i := range videos {
 		for j := range videos[i].Captions {
-			videos[i].Captions[j].Url = instance.ApiUrl + videos[i].Captions[j].Url
+			videos[i].Captions[j].Url = instanceUrl + videos[i].Captions[j].Url
 		}
 
 		if len(videos[i].RecommendedVideos) > 0 {
-			videos[i].RecommendedVideos = fixCaptions(instance, videos[i].RecommendedVideos...)
+			videos[i].RecommendedVideos = fixCaptions(instanceUrl, videos[i].RecommendedVideos...)
 		}
 	}
 
 	return videos
 }
 
-func fixHtmlDescription(instance Instance, videos ...Video) []Video {
+func fixHtmlDescription(instanceUrl string, videos ...Video) []Video {
 	// html descriptions dont use breaks for newlines
 	for i := range videos {
 		videos[i].DescriptionHtml = htmlDescriptionRegex.ReplaceAllString(videos[i].DescriptionHtml, "<br/>")
 
 		if len(videos[i].RecommendedVideos) > 0 {
-			videos[i].RecommendedVideos = fixHtmlDescription(instance, videos[i].RecommendedVideos...)
+			videos[i].RecommendedVideos = fixHtmlDescription(instanceUrl, videos[i].RecommendedVideos...)
 		}
 	}
 	return videos
 }
 
-func proxyThumbnails(instance Instance, videos ...Video) []Video {
+func proxyThumbnails(videos ...Video) []Video {
 	// set urls for images so they proxy through go
 	for i := range videos {
 		for j := range videos[i].VideoThumbnails {
@@ -61,7 +61,7 @@ func proxyThumbnails(instance Instance, videos ...Video) []Video {
 		}
 
 		if len(videos[i].RecommendedVideos) > 0 {
-			videos[i].RecommendedVideos = proxyThumbnails(instance, videos[i].RecommendedVideos...)
+			videos[i].RecommendedVideos = proxyThumbnails(videos[i].RecommendedVideos...)
 		}
 	}
 	return videos

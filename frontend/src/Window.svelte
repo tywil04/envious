@@ -3,7 +3,7 @@
         backgroundElement = null
     
         transitionDuration = 400
-
+        
         #last = null
     
         reset() {
@@ -37,7 +37,7 @@
             container.append(img)
     
             this.backgroundElement.append(container)
-    
+            
             setTimeout(() => {
                 container.style.opacity = "1"
                 container.style.zIndex = "-10"
@@ -486,6 +486,7 @@
         height: 100%;
         opacity: 0.2;
         z-index: -10;
+        will-change: contents;
 
         & > .noise {
             background-repeat: repeat;
@@ -500,6 +501,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
+            will-change: opacity;
 
             & > .filter, 
             & > .image {

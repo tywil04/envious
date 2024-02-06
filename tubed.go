@@ -15,6 +15,8 @@ type Tubed struct {
 	ctx context.Context
 
 	backendReady bool
+
+	invidiousSession *invidious.Session
 }
 
 func Init() *Tubed {
@@ -36,6 +38,8 @@ func (t *Tubed) startup(ctx context.Context) {
 		go db.Write()
 	}
 
+	invidiousInstance := t.GetSelectedInstance()
+	t.invidiousSession = invidious.NewSession(invidiousInstance)
 	t.ctx = ctx
 	t.backendReady = true
 }
@@ -49,7 +53,7 @@ func (t *Tubed) shutdown(ctx context.Context) {
 // this was required to ensure everything waits until wails starts
 func (t *Tubed) WaitForBackend() {
 	for {
-		time.Sleep(time.Millisecond * 500)
+		time.Sleep(time.Second)
 		if t.backendReady {
 			return
 		}
@@ -81,13 +85,13 @@ func (t *Tubed) GetSelectedInstance() invidious.Instance {
 }
 
 func (t *Tubed) GetTrendingVideos(trendingOptions invidious.TrendingOption) ([]invidious.Video, error) {
-	return invidious.GetTrendingVideos(t.GetSelectedInstance(), trendingOptions)
+	return t.invidiousSession.GetTrendingVideos(trendingOptions)
 }
 
 func (t *Tubed) GetVideo(videoId string) (invidious.Video, error) {
-	return invidious.GetVideo(t.GetSelectedInstance(), videoId)
+	return t.invidiousSession.GetVideo(videoId)
 }
 
 func (t *Tubed) Search(query string, searchOptions invidious.SearchOption) ([]invidious.SearchItem, error) {
-	return invidious.Search(t.GetSelectedInstance(), query, searchOptions)
+	return t.invidiousSession.Search(query, searchOptions)
 }

@@ -1,0 +1,52 @@
+package invidious
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+)
+
+type Session struct {
+	instance Instance
+}
+
+func NewSession(instance Instance) *Session {
+	return &Session{
+		instance: instance,
+	}
+}
+
+// body should be a stucture that can be marshalled by encoding/json
+// responseBody should be a structure that can be marshalled by encoding/json
+func (s *Session) makeRequest(endpoint, method string, headers map[string]string, body any, responseBody any) error {
+	bodyBuffer := bytes.NewBuffer(nil)
+	err := json.NewEncoder(bodyBuffer).Encode(&body)
+	if err != nil {
+		return err
+	}
+
+	request, err := http.NewRequest(method, s.instance.ApiUrl+endpoint, bodyBuffer)
+	if err != nil {
+		return err
+	}
+
+	request.Header.Add("Accept", "application/json")
+	request.Header.Add("Access-Control-Allow-Origin", "*")
+	for key, value := range headers {
+		request.Header.Add(key, value)
+	}
+
+	client := http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	err = json.NewDecoder(response.Body).Decode(&responseBody)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

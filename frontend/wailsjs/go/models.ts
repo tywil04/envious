@@ -16,13 +16,29 @@ export namespace invidious {
 	        this.region = source["region"];
 	    }
 	}
-	export class caption {
+	export class searchAuthorThumbnail {
+	    url: string;
+	    width: number;
+	    height: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new searchAuthorThumbnail(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.url = source["url"];
+	        this.width = source["width"];
+	        this.height = source["height"];
+	    }
+	}
+	export class videoCaption {
 	    label: string;
 	    languageCode: string;
 	    url: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new caption(source);
+	        return new videoCaption(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -32,7 +48,7 @@ export namespace invidious {
 	        this.url = source["url"];
 	    }
 	}
-	export class formatStream {
+	export class videoFormatStream {
 	    url: string;
 	    iTag: string;
 	    type: string;
@@ -45,7 +61,7 @@ export namespace invidious {
 	    size: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new formatStream(source);
+	        return new videoFormatStream(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -62,7 +78,7 @@ export namespace invidious {
 	        this.size = source["size"];
 	    }
 	}
-	export class adaptiveFormat {
+	export class videoAdaptiveFormat {
 	    index: string;
 	    bitrate: string;
 	    init: string;
@@ -82,7 +98,7 @@ export namespace invidious {
 	    audioChannels: number;
 	
 	    static createFrom(source: any = {}) {
-	        return new adaptiveFormat(source);
+	        return new videoAdaptiveFormat(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -106,13 +122,13 @@ export namespace invidious {
 	        this.audioChannels = source["audioChannels"];
 	    }
 	}
-	export class authorThumbnail {
+	export class videoAuthorThumbnail {
 	    url: string;
 	    width: number;
 	    height: number;
 	
 	    static createFrom(source: any = {}) {
-	        return new authorThumbnail(source);
+	        return new videoAuthorThumbnail(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -122,10 +138,28 @@ export namespace invidious {
 	        this.height = source["height"];
 	    }
 	}
+	export class videoVideoThumbnail {
+	    quality: string;
+	    url: string;
+	    width: number;
+	    height: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new videoVideoThumbnail(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.quality = source["quality"];
+	        this.url = source["url"];
+	        this.width = source["width"];
+	        this.height = source["height"];
+	    }
+	}
 	export class Video {
 	    title: string;
 	    videoId: string;
-	    videoThumbnails: videoThumbnail[];
+	    videoThumbnails: videoVideoThumbnail[];
 	    description: string;
 	    descriptionHtml: string;
 	    published: number;
@@ -143,7 +177,7 @@ export namespace invidious {
 	    author: string;
 	    authorId: string;
 	    authorUrl: string;
-	    authorThumbnails: authorThumbnail[];
+	    authorThumbnails: videoAuthorThumbnail[];
 	    subCountText: string;
 	    lengthSeconds: number;
 	    allowRatings: boolean;
@@ -153,9 +187,9 @@ export namespace invidious {
 	    isUpcoming: boolean;
 	    premiereTimestamp: number;
 	    dashUrl: string;
-	    adaptiveFormats: adaptiveFormat[];
-	    formatStreams: formatStream[];
-	    captions: caption[];
+	    adaptiveFormats: videoAdaptiveFormat[];
+	    formatStreams: videoFormatStream[];
+	    captions: videoCaption[];
 	    recommendedVideos: Video[];
 	    tubedVideoThumbnailUrl: string;
 	    tubedAuthorThumbnailUrl: string;
@@ -168,7 +202,7 @@ export namespace invidious {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.title = source["title"];
 	        this.videoId = source["videoId"];
-	        this.videoThumbnails = this.convertValues(source["videoThumbnails"], videoThumbnail);
+	        this.videoThumbnails = this.convertValues(source["videoThumbnails"], videoVideoThumbnail);
 	        this.description = source["description"];
 	        this.descriptionHtml = source["descriptionHtml"];
 	        this.published = source["published"];
@@ -186,7 +220,7 @@ export namespace invidious {
 	        this.author = source["author"];
 	        this.authorId = source["authorId"];
 	        this.authorUrl = source["authorUrl"];
-	        this.authorThumbnails = this.convertValues(source["authorThumbnails"], authorThumbnail);
+	        this.authorThumbnails = this.convertValues(source["authorThumbnails"], videoAuthorThumbnail);
 	        this.subCountText = source["subCountText"];
 	        this.lengthSeconds = source["lengthSeconds"];
 	        this.allowRatings = source["allowRatings"];
@@ -196,9 +230,9 @@ export namespace invidious {
 	        this.isUpcoming = source["isUpcoming"];
 	        this.premiereTimestamp = source["premiereTimestamp"];
 	        this.dashUrl = source["dashUrl"];
-	        this.adaptiveFormats = this.convertValues(source["adaptiveFormats"], adaptiveFormat);
-	        this.formatStreams = this.convertValues(source["formatStreams"], formatStream);
-	        this.captions = this.convertValues(source["captions"], caption);
+	        this.adaptiveFormats = this.convertValues(source["adaptiveFormats"], videoAdaptiveFormat);
+	        this.formatStreams = this.convertValues(source["formatStreams"], videoFormatStream);
+	        this.captions = this.convertValues(source["captions"], videoCaption);
 	        this.recommendedVideos = this.convertValues(source["recommendedVideos"], Video);
 	        this.tubedVideoThumbnailUrl = source["tubedVideoThumbnailUrl"];
 	        this.tubedAuthorThumbnailUrl = source["tubedAuthorThumbnailUrl"];
@@ -222,14 +256,14 @@ export namespace invidious {
 		    return a;
 		}
 	}
-	export class videoThumbnail {
+	export class searchVideoThumbnail {
 	    quality: string;
 	    url: string;
 	    width: number;
 	    height: number;
 	
 	    static createFrom(source: any = {}) {
-	        return new videoThumbnail(source);
+	        return new searchVideoThumbnail(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -248,7 +282,7 @@ export namespace invidious {
 	    authorId: string;
 	    authorUrl: string;
 	    viewCount: number;
-	    videoThumbnails: videoThumbnail[];
+	    videoThumbnails: searchVideoThumbnail[];
 	    description: string;
 	    descriptionHtml: string;
 	    published: number;
@@ -261,7 +295,7 @@ export namespace invidious {
 	    playlistId: string;
 	    playlistThumbnail: string;
 	    videos: Video[];
-	    authorThumbnails: authorThumbnail[];
+	    authorThumbnails: searchAuthorThumbnail[];
 	    autoGenerated: boolean;
 	    subCount: number;
 	    videoCount: number;
@@ -279,7 +313,7 @@ export namespace invidious {
 	        this.authorId = source["authorId"];
 	        this.authorUrl = source["authorUrl"];
 	        this.viewCount = source["viewCount"];
-	        this.videoThumbnails = this.convertValues(source["videoThumbnails"], videoThumbnail);
+	        this.videoThumbnails = this.convertValues(source["videoThumbnails"], searchVideoThumbnail);
 	        this.description = source["description"];
 	        this.descriptionHtml = source["descriptionHtml"];
 	        this.published = source["published"];
@@ -292,7 +326,7 @@ export namespace invidious {
 	        this.playlistId = source["playlistId"];
 	        this.playlistThumbnail = source["playlistThumbnail"];
 	        this.videos = this.convertValues(source["videos"], Video);
-	        this.authorThumbnails = this.convertValues(source["authorThumbnails"], authorThumbnail);
+	        this.authorThumbnails = this.convertValues(source["authorThumbnails"], searchAuthorThumbnail);
 	        this.autoGenerated = source["autoGenerated"];
 	        this.subCount = source["subCount"];
 	        this.videoCount = source["videoCount"];
@@ -354,6 +388,8 @@ export namespace invidious {
 	        this.region = source["region"];
 	    }
 	}
+	
+	
 	
 	
 	
