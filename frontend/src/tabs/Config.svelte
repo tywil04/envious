@@ -1,7 +1,7 @@
 <script>
     import SelectInput from '../components/SelectInput.svelte'
     import Button from "../components/Button.svelte"
-    import * as go from "../../wailsjs/go/main/Tubed.js"
+    import * as go from "../../wailsjs/go/main/Envious.js"
 
 
     let instance = null

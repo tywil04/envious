@@ -284,7 +284,7 @@
 
 <nav on:dblclick|self={wails.WindowToggleMaximise} class="titlebar">
     <div class="start">
-        <span class="title">Tubed</span>
+        <span class="title">Envious</span>
     </div>
 
     <div class="end">

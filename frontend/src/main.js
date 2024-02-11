@@ -6,7 +6,7 @@ import Trending from "./tabs/Trending.svelte";
 import Config from "./tabs/Config.svelte";
 import Subscriptions from "./tabs/Subscriptions.svelte";
 import * as heroIcons from "@steeze-ui/heroicons"
-import * as go from "../wailsjs/go/main/Tubed.js"
+import * as go from "../wailsjs/go/main/Envious.js"
 import "./style.css";
 
 

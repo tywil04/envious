@@ -11,7 +11,7 @@ import (
 	"github.com/tywil04/tubed/internal/invidious"
 )
 
-type Tubed struct {
+type Envious struct {
 	ctx context.Context
 
 	backendReady bool
@@ -19,12 +19,11 @@ type Tubed struct {
 	invidiousSession *invidious.Session
 }
 
-func Init() *Tubed {
-	t := &Tubed{}
-	return t
+func Init() *Envious {
+	return &Envious{}
 }
 
-func (t *Tubed) startup(ctx context.Context) {
+func (e *Envious) startup(ctx context.Context) {
 	if err := db.Read(); err != nil {
 		runtime.LogFatal(ctx, "startup: "+err.Error())
 	}
@@ -38,60 +37,60 @@ func (t *Tubed) startup(ctx context.Context) {
 		go db.Write()
 	}
 
-	invidiousInstance := t.GetSelectedInstance()
-	t.invidiousSession = invidious.NewSession(invidiousInstance)
-	t.ctx = ctx
-	t.backendReady = true
+	invidiousInstance := e.GetSelectedInstance()
+	e.invidiousSession = invidious.NewSession(invidiousInstance)
+	e.ctx = ctx
+	e.backendReady = true
 }
 
-func (t *Tubed) shutdown(ctx context.Context) {
+func (e *Envious) shutdown(ctx context.Context) {
 	if err := db.Write(); err != nil {
 		runtime.LogFatal(ctx, "shutdown: "+err.Error())
 	}
 }
 
 // this was required to ensure everything waits until wails starts
-func (t *Tubed) WaitForBackend() {
+func (e *Envious) WaitForBackend() {
 	for {
 		time.Sleep(time.Second)
-		if t.backendReady {
+		if e.backendReady {
 			return
 		}
 	}
 }
 
-func (t *Tubed) GetBackendConfigured() bool {
+func (e *Envious) GetBackendConfigured() bool {
 	return db.Get[bool]("backend.configured")
 }
 
-func (t *Tubed) SetBackendConfigured() {
+func (e *Envious) SetBackendConfigured() {
 	db.Set("backend.configured", true)
 }
 
-func (t *Tubed) GetInstances() []invidious.Instance {
+func (e *Envious) GetInstances() []invidious.Instance {
 	return db.Get[[]invidious.Instance]("backend.knownInstances")
 }
 
-func (t *Tubed) SetSelectedInstance(instance invidious.Instance) {
+func (e *Envious) SetSelectedInstance(instance invidious.Instance) {
 	knownInstances := db.Get[[]invidious.Instance]("backend.knownInstances")
 	index := slices.Index[[]invidious.Instance, invidious.Instance](knownInstances, instance)
 	db.Set("backend.selectedInstance", index)
 }
 
-func (t *Tubed) GetSelectedInstance() invidious.Instance {
+func (e *Envious) GetSelectedInstance() invidious.Instance {
 	selectedInstance := db.Get[int]("backend.selectedInstance")
 	knownInstances := db.Get[[]invidious.Instance]("backend.knownInstances")
 	return knownInstances[selectedInstance]
 }
 
-func (t *Tubed) GetTrendingVideos(trendingOptions invidious.TrendingOption) ([]invidious.Video, error) {
-	return t.invidiousSession.GetTrendingVideos(trendingOptions)
+func (e *Envious) GetTrendingVideos(trendingOptions invidious.TrendingOption) ([]invidious.Video, error) {
+	return e.invidiousSession.GetTrendingVideos(trendingOptions)
 }
 
-func (t *Tubed) GetVideo(videoId string) (invidious.Video, error) {
-	return t.invidiousSession.GetVideo(videoId)
+func (e *Envious) GetVideo(videoId string) (invidious.Video, error) {
+	return e.invidiousSession.GetVideo(videoId)
 }
 
-func (t *Tubed) Search(query string, searchOptions invidious.SearchOption) ([]invidious.SearchItem, error) {
-	return t.invidiousSession.Search(query, searchOptions)
+func (e *Envious) Search(query string, searchOptions invidious.SearchOption) ([]invidious.SearchItem, error) {
+	return e.invidiousSession.Search(query, searchOptions)
 }

@@ -1,6 +1,6 @@
 <script>
     import VideoGrid from "../components/VideoGrid.svelte";
-    import * as go from "../../wailsjs/go/main/Tubed";
+    import * as go from "../../wailsjs/go/main/Envious.js";
 
 
     let results = null

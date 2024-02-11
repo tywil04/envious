@@ -1,5 +1,5 @@
 <script>
-    import * as go from "../../wailsjs/go/main/Tubed.js"
+    import * as go from "../../wailsjs/go/main/Envious.js"
     import VideoGrid from "../components/VideoGrid.svelte";
     import { RotateCw as RotateCwIcon } from "@steeze-ui/lucide-icons"
     import { Icon } from "@steeze-ui/svelte-icon"

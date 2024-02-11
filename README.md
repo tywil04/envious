@@ -1,5 +1,3 @@
-# Tubed
+# Envious
 
-invidious only
-
-WIP
+Desktop YouTube application using Invidious.

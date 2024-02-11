@@ -2,7 +2,7 @@
     import VideoGrid from "../components/VideoGrid.svelte";
     import VideoPlayer from "../components/VideoPlayer.svelte"
     import * as wails from "../../wailsjs/runtime/runtime.js"
-    import * as go from "../../wailsjs/go/main/Tubed.js";
+    import * as go from "../../wailsjs/go/main/Envious.js";
     import { tabs } from "../Window.svelte"
     import Video from "../tabs/Video.svelte"
 
