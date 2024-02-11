@@ -16,10 +16,8 @@ import (
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
 	tubed := Init()
 
-	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "Tubed",
 		Width:  1024,
@@ -45,6 +43,6 @@ func main() {
 	})
 
 	if err != nil {
-		println("Error:", err.Error())
+		panic(err)
 	}
 }
