@@ -18,7 +18,7 @@ func (s *Session) GetTrendingVideos(option ...TrendingOption) ([]Video, error) {
 		}
 
 		if option[0].Region != "" {
-			values.Set("type", option[0].Region)
+			values.Set("region", option[0].Region)
 		}
 	}
 

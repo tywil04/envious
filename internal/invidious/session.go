@@ -31,6 +31,7 @@ func (s *Session) makeRequest(endpoint, method string, headers map[string]string
 	}
 
 	request.Header.Add("Accept", "application/json")
+	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Access-Control-Allow-Origin", "*")
 	for key, value := range headers {
 		request.Header.Add(key, value)

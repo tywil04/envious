@@ -4,7 +4,7 @@
     import { RotateCw as RotateCwIcon } from "@steeze-ui/lucide-icons"
     import { Icon } from "@steeze-ui/svelte-icon"
 
-    let trendingType = "all"
+    let trendingType = ""
 
     let videos = {
         all: [],
@@ -32,7 +32,7 @@
 <menu class="menu"> 
     <div class="left">
         <div class="trendingTypeSelector"> 
-            <button data-t="all" data-a={trendingType==="all"} on:click={selectTrendingType} class="item">All</button>
+            <button data-t="" data-a={trendingType===""} on:click={selectTrendingType} class="item">All</button>
             <button data-t="music" data-a={trendingType==="music"} on:click={selectTrendingType} class="item">Music</button>
             <button data-t="gaming" data-a={trendingType==="gaming"} on:click={selectTrendingType} class="item">Gaming</button>
             <button data-t="movies" data-a={trendingType==="movies"} on:click={selectTrendingType} class="item">Movies</button>
