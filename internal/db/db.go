@@ -17,7 +17,7 @@ var (
 func init() {
 	userConfigDir, _ := os.UserConfigDir()
 
-	dataDir = userConfigDir + "/Tubed"
+	dataDir = userConfigDir + "/Envious"
 	dataFile = dataDir + "/data.json"
 }
 
