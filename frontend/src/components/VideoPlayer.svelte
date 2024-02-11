@@ -397,7 +397,7 @@
                 transition-duration: 200ms;
 
                 & .segment {
-                    background: rgba(0 0 0 / 0.6);
+                    background: rgba(0, 0, 0, 0.6);
                     padding: 6px;
                     border-radius: 6px;
                     box-shadow: inset 0 0 0.313rem 0.125rem rgba(0, 0, 0, 0.15);
@@ -405,11 +405,11 @@
                     transition-duration: 75ms;
 
                     &.interactive, & .interactive {
-                        color: rgba(255 255 255 / 0.95);
+                        color: rgba(255, 255, 255, 0.95);
                     }
 
                     &.interactive:hover, & .interactive:hover {
-                        color: rgba(255 255 255 / 0.7);
+                        color: rgba(255, 255, 255, 0.7);
                     }
 
                     &.quality {

@@ -17,6 +17,8 @@ html, body, div#app {
 * {
     box-sizing: border-box;
     user-select: none;
+    scrollbar-color: rgba(255 255 255 / 0.5) rgba(0, 0, 0, 0.3);
+    scrollbar-width: auto;
 
     &:focus-visible:not([data-focus-invisible]) {
         transition-duration: 0ms !important;
@@ -29,8 +31,4 @@ html, body, div#app {
         outline: none;
         border: none;
     }
-}
-
-::-webkit-scrollbar {
-    display: none;
 }

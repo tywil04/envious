@@ -470,6 +470,7 @@
     .views {
         height: 100%;
         width: 100%;
+        clip-path: inset(0 0 0 0 round 0.75rem 0.75rem 0.25rem 0.75rem);
 
         & > .view {
             border-radius: 0.75rem;
@@ -494,6 +495,7 @@
         opacity: 0.2;
         z-index: -10;
         will-change: contents;
+        transform: translate3d(0, 0, 0);
 
         & > .noise {
             background-repeat: repeat;
@@ -509,6 +511,7 @@
             width: 100%;
             height: 100%;
             will-change: opacity;
+            transform: translate3d(0, 0, 0);
 
             & > .filter, 
             & > .image {
