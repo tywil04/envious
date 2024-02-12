@@ -2,7 +2,6 @@ export namespace invidious {
 	
 	export class Instance {
 	    apiUrl: string;
-	    cors: boolean;
 	    region: string;
 	
 	    static createFrom(source: any = {}) {
@@ -12,7 +11,6 @@ export namespace invidious {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.apiUrl = source["apiUrl"];
-	        this.cors = source["cors"];
 	        this.region = source["region"];
 	    }
 	}

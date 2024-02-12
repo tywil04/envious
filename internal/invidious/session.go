@@ -6,11 +6,13 @@ import (
 	"net/http"
 )
 
+const userAgent = "Mozilla/5.0 (Windows NT 10.0; rv:122.0) Gecko/20100101 Firefox/122.0"
+
 type Session struct {
-	instance Instance
+	instance *Instance
 }
 
-func NewSession(instance Instance) *Session {
+func NewSession(instance *Instance) *Session {
 	return &Session{
 		instance: instance,
 	}
@@ -33,6 +35,7 @@ func (s *Session) makeRequest(endpoint, method string, headers map[string]string
 	request.Header.Add("Accept", "application/json")
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Access-Control-Allow-Origin", "*")
+	request.Header.Add("User-Agent", userAgent)
 	for key, value := range headers {
 		request.Header.Add(key, value)
 	}

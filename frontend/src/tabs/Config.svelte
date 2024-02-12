@@ -2,25 +2,29 @@
     import SelectInput from '../components/SelectInput.svelte'
     import Button from "../components/Button.svelte"
     import * as go from "../../wailsjs/go/main/Envious.js"
+    import * as wails from "../../wailsjs/runtime/runtime.js"
 
 
     let instance = null
 
     
-    const configure = async () => {
+    const configure = () => {
         if (instance !== null) {
-            await go.SetSelectedInstance(instance)
-            await go.SetBackendConfigured()
+            go.SetInvidiousInstance(instance).then(() => {
+                go.RestartApp()
+            })
         }
     }
+
+    console.log("hi")
 </script>
 
 
-{#await go.GetInstances()}
+{#await go.GetInvidiousInstances()}
     <p>Loading...</p>
-{:then instances} 
+{:then instances}
     <div class="mb-4">
-        <SelectInput bind:selected={instance} label="Select Instance" options={instances.map((i) => ({display: i.apiUrl + " [cors: " + i.cors + "] [region: " + i.region + "]", value: i }))}/>
+        <SelectInput bind:selected={instance} label="Select Instance" options={instances.map((i) => ({display: i.apiUrl + " [region: " + i.region + "]", value: i }))}/>
     </div>
 
     <!-- <TextInput bind:value={sessionId} label="Session Id" type="text"/>

@@ -2,95 +2,150 @@ package main
 
 import (
 	"context"
-	"slices"
-	"time"
-
-	"github.com/wailsapp/wails/v2/pkg/runtime"
-
-	"github.com/tywil04/tubed/internal/db"
+	"embed"
 	"github.com/tywil04/tubed/internal/invidious"
+	"github.com/tywil04/tubed/internal/kv"
+	"github.com/tywil04/tubed/internal/proxy"
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
+	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"os"
 )
 
 type Envious struct {
 	ctx context.Context
 
-	backendReady bool
+	backendReady chan bool
 
-	invidiousSession *invidious.Session
+	kv        *kv.DB
+	invidious *invidious.Session
 }
 
-func Init() *Envious {
-	return &Envious{}
+//go:embed all:frontend/dist
+var assets embed.FS
+
+func main() {
+	envious := &Envious{}
+
+	err := wails.Run(&options.App{
+		Title:  "Envious",
+		Width:  1024,
+		Height: 768,
+		AssetServer: &assetserver.Options{
+			Assets:     assets,
+			Middleware: proxy.Middleware,
+		},
+		BackgroundColour: &options.RGBA{R: 24, G: 24, B: 27, A: 1},
+		OnStartup:        envious.onStartup,
+		OnShutdown:       envious.onShutdown,
+		Frameless:        true,
+		Windows: &windows.Options{
+			WebviewGpuIsDisabled: false,
+			Theme:                windows.Dark,
+		},
+		Linux: &linux.Options{
+			WebviewGpuPolicy: linux.WebviewGpuPolicyOnDemand,
+		},
+		Bind: []interface{}{
+			envious,
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
 }
 
-func (e *Envious) startup(ctx context.Context) {
-	if err := db.Read(); err != nil {
-		runtime.LogFatal(ctx, "startup: "+err.Error())
-	}
-
-	if len(db.Get[[]invidious.Instance]("backend.knownInstances")) == 0 {
-		knownInstances, err := invidious.GetInstances()
-		if err != nil {
-			runtime.LogFatal(ctx, "startup: "+err.Error())
-		}
-		db.Set("backend.knownInstances", knownInstances)
-		go db.Write()
-	}
-
-	invidiousInstance := e.GetSelectedInstance()
-	e.invidiousSession = invidious.NewSession(invidiousInstance)
+func (e *Envious) onStartup(ctx context.Context) {
 	e.ctx = ctx
-	e.backendReady = true
+
+	db, err := kv.NewDB("Envious" + string(os.PathSeparator) + "envious.json")
+	if err != nil {
+		runtime.LogFatal(ctx, err.Error())
+	}
+	e.kv = db
+
+	instance, err := e.GetInvidiousInstance()
+	if err != nil {
+		runtime.LogFatal(ctx, err.Error())
+	}
+	e.invidious = invidious.NewSession(instance)
 }
 
-func (e *Envious) shutdown(ctx context.Context) {
-	if err := db.Write(); err != nil {
-		runtime.LogFatal(ctx, "shutdown: "+err.Error())
+func (e *Envious) onShutdown(ctx context.Context) {
+	err := e.kv.Close()
+	if err != nil {
+		runtime.LogFatal(ctx, err.Error())
 	}
 }
 
-// this was required to ensure everything waits until wails starts
-func (e *Envious) WaitForBackend() {
-	for {
-		time.Sleep(time.Second)
-		if e.backendReady {
-			return
-		}
+func (e *Envious) RestartApp() {
+	// as close as we can get to a full backend restart
+	e.onShutdown(e.ctx)
+	e.onStartup(e.ctx)
+	runtime.WindowReloadApp(e.ctx)
+}
+
+func (e *Envious) KVGet(key string) (string, error) {
+	return e.kv.Get("frontend." + key)
+}
+
+func (e *Envious) KVSet(key string, value string) error {
+	return e.kv.Set(kv.KV{Key: "frontend." + key, Value: value})
+}
+
+func (e *Envious) GetInvidiousInstances() ([]*invidious.Instance, error) {
+	instances, err := invidious.GetInstances()
+	if err != nil {
+		return nil, err
 	}
+	return instances, nil
 }
 
-func (e *Envious) GetBackendConfigured() bool {
-	return db.Get[bool]("backend.configured")
+func (e *Envious) SetInvidiousInstance(instance *invidious.Instance) error {
+	err := e.kv.SetMultiple([]kv.KV{
+		{
+			"invidiousInstance.ApiUrl",
+			instance.ApiUrl,
+		},
+		{
+			"invidiousInstance.Region",
+			instance.Region,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (e *Envious) SetBackendConfigured() {
-	db.Set("backend.configured", true)
-}
+func (e *Envious) GetInvidiousInstance() (*invidious.Instance, error) {
+	values, err := e.kv.GetMultiple([]string{
+		"invidiousInstance.ApiUrl",
+		"invidiousInstance.Region",
+	})
+	if err != nil {
+		return nil, err
+	}
 
-func (e *Envious) GetInstances() []invidious.Instance {
-	return db.Get[[]invidious.Instance]("backend.knownInstances")
-}
+	instance := &invidious.Instance{
+		ApiUrl: values[0],
+		Region: values[1],
+	}
 
-func (e *Envious) SetSelectedInstance(instance invidious.Instance) {
-	knownInstances := db.Get[[]invidious.Instance]("backend.knownInstances")
-	index := slices.Index[[]invidious.Instance, invidious.Instance](knownInstances, instance)
-	db.Set("backend.selectedInstance", index)
-}
-
-func (e *Envious) GetSelectedInstance() invidious.Instance {
-	selectedInstance := db.Get[int]("backend.selectedInstance")
-	knownInstances := db.Get[[]invidious.Instance]("backend.knownInstances")
-	return knownInstances[selectedInstance]
+	return instance, nil
 }
 
 func (e *Envious) GetTrendingVideos(trendingOptions invidious.TrendingOption) ([]invidious.Video, error) {
-	return e.invidiousSession.GetTrendingVideos(trendingOptions)
+	return e.invidious.GetTrendingVideos(trendingOptions)
 }
 
 func (e *Envious) GetVideo(videoId string) (invidious.Video, error) {
-	return e.invidiousSession.GetVideo(videoId)
+	return e.invidious.GetVideo(videoId)
 }
 
 func (e *Envious) Search(query string, searchOptions invidious.SearchOption) ([]invidious.SearchItem, error) {
-	return e.invidiousSession.Search(query, searchOptions)
+	return e.invidious.Search(query, searchOptions)
 }

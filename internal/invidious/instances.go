@@ -10,11 +10,10 @@ const instancesApiUrl = "https://api.invidious.io/instances.json?pretty=1&sort_b
 
 type Instance struct {
 	ApiUrl string `json:"apiUrl"`
-	Cors   bool   `json:"cors"`
 	Region string `json:"region"`
 }
 
-func GetInstances() ([]Instance, error) {
+func GetInstances() ([]*Instance, error) {
 	response, err := http.Get(instancesApiUrl)
 	if err != nil {
 		return nil, err
@@ -26,7 +25,7 @@ func GetInstances() ([]Instance, error) {
 		return nil, err
 	}
 
-	instances := []Instance{}
+	var instances []*Instance
 	for _, unprocessedInstance := range rawInstances {
 		data, ok := unprocessedInstance[1].(map[string]any)
 		if !ok {
@@ -34,9 +33,8 @@ func GetInstances() ([]Instance, error) {
 		}
 
 		if data["api"] != nil && data["type"] == "https" {
-			instances = append(instances, Instance{
+			instances = append(instances, &Instance{
 				ApiUrl: data["uri"].(string),
-				Cors:   data["cors"].(bool),
 				Region: data["region"].(string),
 			})
 		}

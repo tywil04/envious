@@ -15,7 +15,7 @@ const (
 	fileBecomesOldAfter = 14 // days
 )
 
-var cachePath = os.TempDir() + pathSeperator + "TubedCache"
+var cachePath = os.TempDir() + pathSeperator + "Envious"
 
 func init() {
 	_, err := os.Stat(cachePath)
