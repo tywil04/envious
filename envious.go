@@ -27,7 +27,7 @@ type Envious struct {
 }
 
 //go:embed all:frontend/dist
-var assets embed.FS
+var frontend embed.FS
 
 func main() {
 	envious := &Envious{}
@@ -37,7 +37,7 @@ func main() {
 		Width:  1024,
 		Height: 768,
 		AssetServer: &assetserver.Options{
-			Assets:     assets,
+			Assets:     frontend,
 			Middleware: proxy.Middleware,
 		},
 		BackgroundColour: &options.RGBA{R: 24, G: 24, B: 27, A: 1},
