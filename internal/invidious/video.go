@@ -52,6 +52,7 @@ type videoCaption struct {
 	Label        string `json:"label"`
 	LanguageCode string `json:"languageCode"`
 	Url          string `json:"url"`
+	Type         string `json:"type"`
 }
 
 type Video struct {

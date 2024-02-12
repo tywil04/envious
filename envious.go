@@ -106,23 +106,6 @@ func (e *Envious) GetInvidiousInstances() ([]*invidious.Instance, error) {
 	return instances, nil
 }
 
-func (e *Envious) SetInvidiousInstance(instance *invidious.Instance) error {
-	err := e.kv.SetMultiple([]kv.KV{
-		{
-			"invidiousInstance.ApiUrl",
-			instance.ApiUrl,
-		},
-		{
-			"invidiousInstance.Region",
-			instance.Region,
-		},
-	})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (e *Envious) GetInvidiousInstance() (*invidious.Instance, error) {
 	values, err := e.kv.GetMultiple([]string{
 		"invidiousInstance.ApiUrl",
@@ -138,6 +121,23 @@ func (e *Envious) GetInvidiousInstance() (*invidious.Instance, error) {
 	}
 
 	return instance, nil
+}
+
+func (e *Envious) SetInvidiousInstance(instance *invidious.Instance) error {
+	err := e.kv.SetMultiple([]kv.KV{
+		{
+			"invidiousInstance.ApiUrl",
+			instance.ApiUrl,
+		},
+		{
+			"invidiousInstance.Region",
+			instance.Region,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (e *Envious) GetTrendingVideos(trendingOptions invidious.TrendingOption) ([]invidious.Video, error) {

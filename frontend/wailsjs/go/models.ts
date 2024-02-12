@@ -34,6 +34,7 @@ export namespace invidious {
 	    label: string;
 	    languageCode: string;
 	    url: string;
+	    type: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new videoCaption(source);
@@ -44,6 +45,7 @@ export namespace invidious {
 	        this.label = source["label"];
 	        this.languageCode = source["languageCode"];
 	        this.url = source["url"];
+	        this.type = source["type"];
 	    }
 	}
 	export class videoFormatStream {

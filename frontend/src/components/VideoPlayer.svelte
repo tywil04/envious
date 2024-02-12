@@ -1,5 +1,6 @@
 <script context="module">
     import RxPlayer from "rx-player"
+    import TextTrackRenderer, { VTT_PARSER } from "rx-player/tools/TextTrackRenderer";
     import * as utils from "../lib/utils.js"
     import * as wails from "../../wailsjs/runtime/runtime.js"
     import * as Window from "../Window.svelte";
@@ -13,7 +14,7 @@
         controlsElement = null
         timelineSliderElement = null
         timelineTextElement = null
-        volumeSliderElement = null 
+        volumeSliderElement = null
 
         volumeIcon = null
         playIcon = null
@@ -37,9 +38,7 @@
                 let watchedPercentage = (data.position / data.duration) * 100
                 this.timelineSliderElement.style.setProperty("--percentage", watchedPercentage + "%")
                 this.timelineSliderElement.setAttribute("aria-valuenow", watchedPercentage)
-
-                let formattedWatched = utils.calculateWatchedDuration(data.position, data.duration)
-                this.timelineTextElement.innerText = formattedWatched
+                this.timelineTextElement.innerText = utils.calculateWatchedDuration(data.position, data.duration)
             })
 
             this.addEventListener("playerStateChange", (state) => {
@@ -78,6 +77,12 @@
             setTimeout(() => {
                 this.loadVideo(this.video)
             }, 1)
+
+            TextTrackRenderer.addParsers([ VTT_PARSER ])
+            this.textTrackRenderer = new TextTrackRenderer({
+                videoElement: this.videoElement,
+                textTrackElement: this.textTrackElement,
+            })
         }
 
         dispose() {
@@ -186,15 +191,6 @@
             this.volumeSliderElement.setAttribute("aria-valuenow", volumePercentage)
 
             super.setVolume(volume)
-        }
-
-        setVideo(video) {
-            this.video = video 
-            this.loadVideo(this.video)
-        }
-
-        getVideo() {
-            return this.video
         }
 
         setQuality(quality) {
@@ -308,14 +304,15 @@
     onDestroy(() => player.dispose())
 
     console.log(video)
+
+    window.player = player
 </script>
 
 
 <div class="player" bind:this={player.rootElement} role="none" on:mousemove={()=>player.showControlsUntilTimeout()}>
     <video bind:this={player.videoElement} class="video">
-        <track kind="captions"/>
-        {#each video.captions as caption}
-            <track kind="captions" label={caption.label} src={caption.url} srclang={caption.languageCode}/>
+        {#each player.video.captions as caption}
+            <track kind="captions" src={caption.url} lang={caption.languageCode} type={caption.type} label={caption.label}/>
         {/each}
     </video>
 
@@ -435,7 +432,7 @@
                             line-height: 1.25rem;
                             font-weight: 400;
                             width: fit-content;
-                            text-wrap: nowrap;
+                            white-space: nowrap;
                             margin-left: 8px;
                         }
                     }
