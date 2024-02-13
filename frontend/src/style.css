@@ -17,8 +17,8 @@ html, body, div#app {
 * {
     box-sizing: border-box;
     user-select: none;
-    scrollbar-color: rgba(255 255 255 / 0.5) rgba(0, 0, 0, 0.4);
-    scrollbar-width: auto;
+    scrollbar-color: rgba(255 255 255 / 0.5) rgba(0, 0, 0, 0.2);
+    scrollbar-width: thin;
 
     &:focus-visible:not([data-focus-invisible]) {
         transition-duration: 0ms !important;

@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
+
+const pathSeperator = string(os.PathSeparator)
 
 var userConfigDir string
 
@@ -30,11 +33,18 @@ type DB struct {
 
 func NewDB(name string) (*DB, error) {
 	db := &DB{
-		path:     userConfigDir + string(os.PathSeparator) + name,
+		path:     userConfigDir + pathSeperator + name,
 		internal: map[string]string{},
 	}
 
-	err := db.readFromFile()
+	pathParts := strings.Split(db.path, pathSeperator)
+	parentDir := strings.Join(pathParts[0:len(pathParts)-1], pathSeperator)
+	err := os.MkdirAll(parentDir, os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.readFromFile()
 	if err != nil {
 		return nil, err
 	}

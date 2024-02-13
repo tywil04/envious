@@ -339,7 +339,9 @@
             & > .title {
                 margin-top: auto;
                 margin-bottom: auto;
-                margin-left: 0.5rem;
+                padding: 0.15rem 0.5rem 0.15rem 0.5rem;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 4px;
                 font-weight: 600;
             }
         }
