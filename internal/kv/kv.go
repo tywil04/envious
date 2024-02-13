@@ -22,8 +22,8 @@ func init() {
 }
 
 type KV struct {
-	Key   string
-	Value string
+	K string
+	V string
 }
 
 type DB struct {
@@ -132,7 +132,7 @@ func (d *DB) Set(kv KV) error {
 		return errors.New("db not initialised")
 	}
 
-	d.internal[kv.Key] = kv.Value
+	d.internal[kv.K] = kv.V
 
 	return nil
 }

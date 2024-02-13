@@ -20,8 +20,6 @@ import (
 type Envious struct {
 	ctx context.Context
 
-	backendReady chan bool
-
 	kv        *kv.DB
 	invidious *invidious.Session
 }
@@ -95,7 +93,7 @@ func (e *Envious) KVGet(key string) (string, error) {
 }
 
 func (e *Envious) KVSet(key string, value string) error {
-	return e.kv.Set(kv.KV{Key: "frontend." + key, Value: value})
+	return e.kv.Set(kv.KV{K: "frontend." + key, V: value})
 }
 
 func (e *Envious) GetInvidiousInstances() ([]*invidious.Instance, error) {
@@ -126,12 +124,12 @@ func (e *Envious) GetInvidiousInstance() (*invidious.Instance, error) {
 func (e *Envious) SetInvidiousInstance(instance *invidious.Instance) error {
 	err := e.kv.SetMultiple([]kv.KV{
 		{
-			"invidiousInstance.ApiUrl",
-			instance.ApiUrl,
+			K: "invidiousInstance.ApiUrl",
+			V: instance.ApiUrl,
 		},
 		{
-			"invidiousInstance.Region",
-			instance.Region,
+			K: "invidiousInstance.Region",
+			V: instance.Region,
 		},
 	})
 	if err != nil {
