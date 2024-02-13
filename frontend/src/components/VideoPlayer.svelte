@@ -1,6 +1,5 @@
 <script context="module">
     import RxPlayer from "rx-player"
-    import TextTrackRenderer, { VTT_PARSER } from "rx-player/tools/TextTrackRenderer";
     import * as utils from "../lib/utils.js"
     import * as wails from "../../wailsjs/runtime/runtime.js"
     import * as Window from "../Window.svelte";
@@ -77,12 +76,6 @@
             setTimeout(() => {
                 this.loadVideo(this.video)
             }, 1)
-
-            TextTrackRenderer.addParsers([ VTT_PARSER ])
-            this.textTrackRenderer = new TextTrackRenderer({
-                videoElement: this.videoElement,
-                textTrackElement: this.textTrackElement,
-            })
         }
 
         dispose() {
@@ -304,8 +297,6 @@
     onDestroy(() => player.dispose())
 
     console.log(video)
-
-    window.player = player
 </script>
 
 
@@ -399,7 +390,7 @@
                     border-radius: 6px;
                     box-shadow: inset 0 0 0.313rem 0.125rem rgba(0, 0, 0, 0.15);
                     backdrop-filter: blur(10px) contrast(65%) brightness(90%);
-                    transition-duration: 75ms;
+                    transition-duration: 100ms;
 
                     &.interactive, & .interactive {
                         color: rgba(255, 255, 255, 0.95);
@@ -461,7 +452,7 @@
                         width: 100%;
                         margin-left: 2px;
                         margin-right: 2px;
-                        transition-duration: 75ms;
+                        transition-duration: 100ms;
 
                         &.interactive:hover {
                             background: linear-gradient(to right, rgb(255 255 255 / 0.9) 0%, rgb(255 255 255 / 0.9) var(--percentage), rgb(255 255 255 / 0.55) var(--percentage), rgb(255 255 255 / 0.55) 100%);
