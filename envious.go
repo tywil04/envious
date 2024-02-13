@@ -96,6 +96,32 @@ func (e *Envious) KVSet(key string, value string) error {
 	return e.kv.Set(kv.KV{K: "frontend." + key, V: value})
 }
 
+func (e *Envious) KVGetMultiple(keys []string) ([]string, error) {
+	values := make([]string, len(keys))
+	for i, key := range keys {
+		value, err := e.KVGet(key)
+		if err != nil {
+			return nil, err
+		}
+		values[i] = value
+	}
+	return values, nil
+}
+
+func (e *Envious) KVSetMultiple(kvs []kv.KV) error {
+	for _, kv := range kvs {
+		err := e.KVSet(kv.K, kv.V)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (e *Envious) KVIsSet(key string) bool {
+	return e.kv.IsSet("frontend." + key)
+}
+
 func (e *Envious) GetInvidiousInstances() ([]*invidious.Instance, error) {
 	instances, err := invidious.GetInstances()
 	if err != nil {

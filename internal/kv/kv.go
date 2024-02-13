@@ -145,6 +145,11 @@ func (d *DB) SetMultiple(kvs []KV) error {
 	return nil
 }
 
+func (d *DB) IsSet(key string) bool {
+	_, ok := d.internal[key]
+	return ok
+}
+
 func (d *DB) Close() error {
 	return d.writeToFile()
 }

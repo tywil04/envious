@@ -22,8 +22,20 @@ export function KVGet(arg1) {
   return window['go']['main']['Envious']['KVGet'](arg1);
 }
 
+export function KVGetMultiple(arg1) {
+  return window['go']['main']['Envious']['KVGetMultiple'](arg1);
+}
+
+export function KVIsSet(arg1) {
+  return window['go']['main']['Envious']['KVIsSet'](arg1);
+}
+
 export function KVSet(arg1, arg2) {
   return window['go']['main']['Envious']['KVSet'](arg1, arg2);
+}
+
+export function KVSetMultiple(arg1) {
+  return window['go']['main']['Envious']['KVSetMultiple'](arg1);
 }
 
 export function RestartApp() {

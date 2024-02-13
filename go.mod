@@ -7,7 +7,7 @@ toolchain go1.21.4
 require (
 	github.com/djherbis/atime v1.1.0
 	github.com/emvi/iso-639-1 v1.1.0
-	github.com/wailsapp/wails/v2 v2.7.1
+	github.com/wailsapp/wails/v2 v2.8.0
 )
 
 require (
