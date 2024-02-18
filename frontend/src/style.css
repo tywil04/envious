@@ -26,9 +26,4 @@ html, body, div#app {
         border: none;
         border-radius: 6px;
     }
-
-    &:focus-visible[data-focus-invisible] {
-        outline: none;
-        border: none;
-    }
 }

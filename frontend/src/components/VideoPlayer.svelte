@@ -21,7 +21,7 @@
 
         wasMinimisedBeforeFullscreen = false
 
-        controlsVisibleDuration = 5000 // ms
+        controlsVisibleDuration = 1500 // ms
         controlsVisibleTimeout = null
 
         constructor(video) {
@@ -100,7 +100,9 @@
         #eventDocumentKeyDown(event) {
             if (event.code === "Space" && Window.tabs.isElementFromActiveTab(this.rootElement) === true) {
                 event.preventDefault()
-                this.togglePlay()
+                this.togglePlay().then(() => {
+                    this.hideControlsAfterTimeout()
+                })
             }
         }
 
@@ -162,12 +164,12 @@
             }
         }
 
-        togglePlay() {
+        async togglePlay() {
             if (this.isContentLoaded()) {
                 if (this.isPlaying()) {
                     this.pause()
                 } else {
-                    this.play()
+                    await this.play()
                 }
             }
         }
@@ -256,7 +258,7 @@
 
             this.showControls()
             
-            if (this.isFullscreen()) {
+            if (this.isFullscreen() || this.isPlaying()) {
                 this.controlsVisibleTimeout = setTimeout(() => {
                     this.hideControls()
                     this.controlsVisibleTimeout = null
@@ -265,11 +267,13 @@
         }
 
         hideControls() {
-            this.controlsElement.style.opacity = "0"
+            if (this.isPlaying() || this.isFullscreen()) {
+                this.controlsElement.style.opacity = "0"
+            }
         }
 
         hideControlsAfterTimeout() {
-            if (this.isFullscreen()) {
+            if (this.isPlaying() || this.isFullscreen()) {
                 if (this.controlsVisibleDuration !== null) {
                     clearTimeout(this.controlsVisibleTimeout)
                 }
@@ -300,7 +304,7 @@
 </script>
 
 
-<div class="player" bind:this={player.rootElement} role="none" on:mousemove={()=>player.showControlsUntilTimeout()}>
+<div class="player" bind:this={player.rootElement} role="none" on:mousemove={()=>player.showControlsUntilTimeout()} on:mouseleave={()=>player.hideControls()}>
     <video bind:this={player.videoElement} class="video">
         {#each player.video.captions as caption}
             <track kind="captions" src={caption.url} lang={caption.languageCode} type={caption.type} label={caption.label}/>
@@ -308,7 +312,7 @@
     </video>
 
     <div class="controlsOverlay">  
-        <button data-focus-invisible class="clickToPlay" on:click={()=>player.togglePlay()} ></button>
+        <button class="clickToPlay" on:click={()=>player.togglePlay()} ></button>
         
         <div bind:this={player.controlsElement} class="controls">
             <button class="segment interactive" on:click={()=>player.togglePlay()}>
@@ -373,6 +377,11 @@
             & .clickToPlay {
                 height: 100%;
                 cursor: default;
+
+                &:focus-visible {
+                    outline: none;
+                    border: none;
+                }
             }
 
             & .controls {
