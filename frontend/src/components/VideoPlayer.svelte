@@ -19,8 +19,6 @@
         playIcon = null
         fullscreenIcon = null
 
-        wasMinimisedBeforeFullscreen = false
-
         controlsVisibleDuration = 1500 // ms
         controlsVisibleTimeout = null
 
@@ -33,43 +31,13 @@
 
             this.video = video
 
-            this.addEventListener("positionUpdate", (data) => {
-                let watchedPercentage = (data.position / data.duration) * 100
-                this.timelineSliderElement.style.setProperty("--percentage", watchedPercentage + "%")
-                this.timelineSliderElement.setAttribute("aria-valuenow", watchedPercentage)
-                this.timelineTextElement.innerText = utils.calculateWatchedDuration(data.position, data.duration)
-            })
+            this.addEventListener("positionUpdate", this.#handlePlayerPositionUpdated.bind(this))
+            this.addEventListener("playerStateChange", this.#handlePlayerStateChanged.bind(this))
 
-            this.addEventListener("playerStateChange", (state) => {
-                switch (state) {
-                    case "PLAYING": {
-                        if (this.isFullscreen()) {
-                            this.hideControlsAfterTimeout()
-                        } else {
-                            this.showControls()
-                        }
-                        break
-                    }
-                    case "PAUSED": {
-                        this.showControls()
-                        break
-                    }
-                    case "ENDED": {
-                        this.reload({ 
-                            reloadAt: { 
-                                position: 0 
-                            },
-                            autoPlay: false,
-                        })
-                        this.playIcon.$$set({ src: PlayIcon })
-                        break
-                    }
-                } 
-            })
+            document.addEventListener("fullscreenchange", this.#handleDocumentFullscreenChange.bind(this))
+            document.addEventListener("keydown", this.#handleDocumentKeyDown.bind(this))
 
-            document.addEventListener("fullscreenchange", this.#eventDocumentFullscreenChange.bind(this))
-            document.addEventListener("keydown", this.#eventDocumentKeyDown.bind(this))
-            wails.EventsOn("videoPlayer:pauseUnlessActive", this.#eventWailsVideoPlayerPauseUnlessActive.bind(this))
+            wails.EventsOn("videoPlayer:pauseUnlessActive", this.#handleWailsVideoPlayerPauseUnlessActive.bind(this))
 
             // I dont know why but waiting 1ms makes it work
             // without this the dash video doesnt get loaded automatically
@@ -79,14 +47,17 @@
         }
 
         dispose() {
-            document.removeEventListener("fullscreenchange", this.#eventDocumentFullscreenChange.bind(this))
-            document.removeEventListener("keydown", this.#eventDocumentKeyDown.bind(this))
-            wails.EventsOff("videoPlayer:pauseUnlessActive")
+            this.removeEventListener("positionUpdate", this.#handlePlayerPositionUpdated.bind(this))
+            this.removeEventListener("playerStateChange", this.#handlePlayerStateChanged.bind(this))
+            
+            document.removeEventListener("fullscreenchange", this.#handleDocumentFullscreenChange.bind(this))
+            document.removeEventListener("keydown", this.#handleDocumentKeyDown.bind(this))
 
+            wails.EventsOff("videoPlayer:pauseUnlessActive")
             super.dispose()
         }
 
-        #eventDocumentFullscreenChange() {
+        #handleDocumentFullscreenChange() {
             if (this.isFullscreen()) {
                 wails.WindowFullscreen()
                 this.fullscreenIcon.$$set({ src: MinimizeIcon })
@@ -97,7 +68,7 @@
             }
         }
 
-        #eventDocumentKeyDown(event) {
+        #handleDocumentKeyDown(event) {
             if (event.code === "Space" && Window.tabs.isElementFromActiveTab(this.rootElement) === true) {
                 event.preventDefault()
                 this.togglePlay().then(() => {
@@ -106,10 +77,44 @@
             }
         }
 
-        #eventWailsVideoPlayerPauseUnlessActive() {
+        #handleWailsVideoPlayerPauseUnlessActive() {
             if (!Window.tabs.isElementFromActiveTab(this.rootElement)) {
                 this.pause()
             }
+        }
+
+        #handlePlayerPositionUpdated(data) {
+            let watchedPercentage = (data.position / data.duration) * 100
+            this.timelineSliderElement.style.setProperty("--percentage", watchedPercentage + "%")
+            this.timelineSliderElement.setAttribute("aria-valuenow", watchedPercentage)
+            this.timelineTextElement.innerText = utils.calculateWatchedDuration(data.position, data.duration)
+        }
+
+        #handlePlayerStateChanged(state) {
+            switch (state) {
+                case "PLAYING": {
+                    if (this.isFullscreen()) {
+                        this.hideControlsAfterTimeout()
+                    } else {
+                        this.showControls()
+                    }
+                    break
+                }
+                case "PAUSED": {
+                    this.showControls()
+                    break
+                }
+                case "ENDED": {
+                    this.reload({ 
+                        reloadAt: { 
+                            position: 0 
+                        },
+                        autoPlay: false,
+                    })
+                    this.playIcon.$$set({ src: PlayIcon })
+                    break
+                }
+            } 
         }
 
         loadVideo(video) {
