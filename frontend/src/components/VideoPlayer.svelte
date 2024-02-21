@@ -1,6 +1,5 @@
 <script context="module">
     import RxPlayer from "rx-player"
-    import * as utils from "../lib/utils.js"
     import * as wails from "../../wailsjs/runtime/runtime.js"
     import * as Window from "../Window.svelte";
 
@@ -87,7 +86,7 @@
             let watchedPercentage = (data.position / data.duration) * 100
             this.timelineSliderElement.style.setProperty("--percentage", watchedPercentage + "%")
             this.timelineSliderElement.setAttribute("aria-valuenow", watchedPercentage)
-            this.timelineTextElement.innerText = utils.calculateWatchedDuration(data.position, data.duration)
+            this.timelineTextElement.innerText = this.#calculateWatchedDuration(data.position, data.duration)
         }
 
         #handlePlayerStateChanged(state) {
@@ -115,6 +114,39 @@
                     break
                 }
             } 
+        }
+
+        #secondsToHHMMSS(totalSeconds, forceHours=false) {
+            let hours   = Math.floor(totalSeconds / 3600);
+            let minutes = Math.floor((totalSeconds - (hours * 3600)) / 60);
+            let seconds = totalSeconds - (hours * 3600) - (minutes * 60);
+
+            if (Number.isNaN(hours) || Number.isNaN(minutes) || Number.isNaN(seconds)) {
+                return "00:00"
+            }
+
+            let hoursString = hours < 10 ? "0" + hours.toString() : hours.toString()
+            let minutesString = minutes < 10 ? "0" + minutes.toString() : minutes.toString()
+            let secondsString = seconds < 10 ? "0" + seconds.toString() : seconds.toString()
+
+            let result = minutesString + ":" + secondsString
+
+            if (hoursString !== "00" || forceHours === true) {
+                result = hoursString + ":" + result
+            }
+
+            return result
+        }
+
+        #calculateWatchedDuration(watchedSeconds, totalSeconds) {
+            watchedSeconds = Math.round(watchedSeconds)
+            totalSeconds = Math.round(totalSeconds)
+
+            let totalSecondsHHMMSS = this.#secondsToHHMMSS(totalSeconds)
+            let forceHours = totalSecondsHHMMSS.split(":").length === 3 // hours is included
+            let watchedSecondsHHMMSS = this.#secondsToHHMMSS(watchedSeconds, forceHours)
+
+            return watchedSecondsHHMMSS + " / " + totalSecondsHHMMSS
         }
 
         loadVideo(video) {
@@ -304,8 +336,6 @@
     const player = new Player(video)
 
     onDestroy(() => player.dispose())
-
-    console.log(video)
 </script>
 
 
